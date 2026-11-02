@@ -10,7 +10,7 @@
 
 ---
 
-## 📌 Project Overview
+## Project Overview
 
 Urban drivers often waste substantial time, fuel, and effort circling congested city blocks searching for available parking. Simultaneously, commercial lots, private driveways, and parking facilities frequently operate with idle, unmonetized capacity due to a lack of real-time digital visibility.
 
@@ -24,9 +24,9 @@ The platform is engineered using Django's Model-View-Template (MVT) architecture
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-### 🚗 1. Motorist & Driver Experience
+### 1. Motorist & Driver Experience
 * **Smart Facility Search & Geo-Discovery:** Locate available parking spots by city, neighborhood, airport, or landmark with real-time distance calculations and interactive maps.
 * **Guaranteed Bay Reservation:** Reserve parking ahead of arrival with customized vehicle category rates (Two-Wheeler, Hatchback/Sedan, SUV, EV).
 * **Dual QR Scan Gate Policy:** Generates cryptographically verifiable, scannable digital QR passes that are verified at both entrance and exit boom barriers.
@@ -35,14 +35,14 @@ The platform is engineered using Django's Model-View-Template (MVT) architecture
 * **Digital Pass & Directions:** Instant access to digital parking tickets with 1-click turn-by-turn Google Maps navigation and print/PDF download capabilities.
 * **My Bookings Dashboard:** Filter between active upcoming reservations and past booking history with cancellation and refund triggers.
 
-### 🏢 2. Space Owner Management Suite
+### 2. Space Owner Management Suite
 * **Facility Onboarding & Multi-Tariff Setup:** Multi-step wizard to register parking lots, set base hourly tariffs, define vehicle-specific pricing, and highlight amenities (CCTV, Covered, 24/7 Security, EV charging).
 * **Visual Bay & Slot Grid:** Real-time visual matrix displaying the live status of every parking bay (Available, Reserved, Occupied, Maintenance).
 * **Duration Extension Handling:** Motorists can request time extensions; owners can review requests, detect subsequent schedule conflicts, and approve or reassign bays.
 * **Financial Insights & Settlement Hub:** Live dashboards tracking gross turnover, platform commission deductions, and net payouts.
 * **Customer Reviews & Ratings:** Monitor driver feedback and average star ratings for each facility.
 
-### 🛡️ 3. Platform Administration Studio
+### 3. Platform Administration Studio
 * **Executive KPI Dashboard:** Real-time metrics for total revenue, active bookings, overall slot occupancy, open disputes, and driver registrations.
 * **Revenue & Performance Charts:** Interactive multi-metric analytical charts (Revenue, Bookings Count, Hours Parked) toggleable by time period (7 Days, 30 Days, Last Quarter, 1 Year).
 * **Global Pricing & Overstay Policy:** Configure platform maximum hourly rate caps, grace period windows (minutes), and overstay fine multipliers.
@@ -50,7 +50,7 @@ The platform is engineered using Django's Model-View-Template (MVT) architecture
 * **Payment & Refund Reconciliation:** Full financial audit trail with transaction logs and instant refund mechanisms.
 * **Automated Email Notification System:** Built-in HTML email dispatcher for booking confirmations, password resets, and admin alerts, complete with a delivery audit log.
 
-### 💳 4. Official Razorpay Payment Gateway Integration
+### 4. Official Razorpay Payment Gateway Integration
 * **Official Razorpay Checkout SDK:** Integrated directly with Razorpay's client-side library (`checkout.js`) without simulated or third-party wrappers.
 * **Multi-Method Support:** Accepts Credit Cards, Debit Cards (Visa, MasterCard, RuPay, Maestro), Netbanking across 30+ Indian banks, and digital wallets.
 * **Demo / Test Sandbox Ready:** Fully testable using test card credentials (`4111 1111 1111 1111`) and test bank simulation with zero SMS wait times.
@@ -58,47 +58,42 @@ The platform is engineered using Django's Model-View-Template (MVT) architecture
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Backend & Core Architecture
-* **Python (3.10+ / 3.11 / 3.12):** Core server-side programming language.
-* **Django (5.0+):** High-level Python web framework handling ORM database modeling, session management, URL routing, authentication, and form validation.
-* **Django Templates (DTL):** Server-rendered, reusable modular UI templates with context processors and custom filters.
-* **Python Multi-Threading (`threading.Thread`):** Asynchronous background execution for SMTP emails and notification dispatches without blocking HTTP responses.
+* **Python (3.10+ / 3.11 / 3.12):** 
+* **Django (5.0+):**
+* **Django Templates (DTL):**
+* **Python Multi-Threading (`threading.Thread`):**
 
 ### Frontend, Styling & UI
-* **HTML5 & CSS3:** Semantic markup and custom styling with CSS custom properties (variables) for consistent themes.
-* **Bootstrap 5.3:** Responsive grid system, modal overlays, flexbox utilities, and responsive breakpoints for mobile and desktop.
-* **Bootstrap Icons:** Comprehensive SVG icon system for UI navigation, status indicators, and actions.
-* **Plus Jakarta Sans:** Modern, high-trust geometric typography imported via Google Fonts.
-* **Vanilla JavaScript (ES6+):** Client-side dynamic interactions, dynamic vehicle/slot selection, asynchronous fetch requests, and print handlers.
+* **HTML5 & CSS3:** 
+* **Bootstrap 5.3:** 
+* **Vanilla JavaScript (ES6+):** 
 
 ### Mapping, GIS & Routing
-* **Leaflet.js (v1.9.4):** Lightweight, open-source interactive mapping library for mobile and desktop browsers.
-* **MapLibre GL:** WebGL-accelerated vector tile rendering for interactive parking bay discovery.
-* **OpenFreeMap Liberty:** Vector map tile server providing high-resolution street and satellite map layers without expensive third-party API keys.
-* **OSRM (Open Source Routing Machine):** Road routing engine calculating live driving distances (km) and travel duration between user coordinates and parking facilities.
+* **Leaflet.js (v1.9.4):**
+* **MapLibre GL:**
+* **OpenFreeMap Liberty:**
+* **OSRM (Open Source Routing Machine):**
 
 ### Payment Gateway
-* **Razorpay Official Checkout SDK (`https://checkout.razorpay.com/v1/checkout.js`):** Client-side modal library for secure PCI-DSS compliant payment processing.
-* **Razorpay Python SDK (`razorpay`):** Server-side verification and order authentication.
+* **Razorpay Official Checkout SDK (`https://checkout.razorpay.com/v1/checkout.js`):**
+* **Razorpay Python SDK (`razorpay`):**
 
 ### Media, QR Code & File Processing
-* **Python `qrcode` Library:** Generates dynamic, high-resolution QR codes encoded with secure booking tokens and ANPR payloads.
-* **Pillow (PIL):** Python imaging library for dynamic QR code image generation and Base64 stream rendering directly into templates.
+* **Python `qrcode` Library:**
+* **Pillow (PIL):**
 
 ### Database & Environment Management
-* **SQLite3:** Embedded relational database utilized for local development, rapid testing, and demo seeding.
-* **Django ORM:** Database abstraction layer ensuring out-of-the-box compatibility with PostgreSQL, MySQL, and SQLite.
-* **`python-dotenv`:** 12-factor application configuration to securely manage environment variables (`.env`).
+* **SQLite3:**
+* **Django ORM:**
+* **`python-dotenv`:**
 
-### Development & Version Control Tools
-* **Git & GitHub:** Distributed version control, branch management, and repository hosting.
-* **Chrome DevTools:** Responsive viewport debugging, layout inspection, and network payload verification.
 
 ---
 
-## 📸 Project Screenshots
+## Project Screenshots
 
 ### 1. Homepage & Smart Facility Discovery
 *Clean, gentle search interface allowing motorists to search parking spaces by city, street, or landmark.*
