@@ -1,34 +1,157 @@
-# ParkEase - Smart Urban Parking & Bay Reservation Platform
+# ParkEase — Smart Urban Parking & Bay Reservation Platform
 
 [![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/Django-5.0%2B-darkgreen.svg)](https://www.djangoproject.com/)
 [![Razorpay](https://img.shields.io/badge/Payments-Razorpay%20Official-blueviolet.svg)](https://razorpay.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Bootstrap](https://img.shields.io/badge/UI-Bootstrap%205-purple.svg)](https://getbootstrap.com/)
+[![Bootstrap](https://img.shields.io/badge/UI-Bootstrap%205.3-purple.svg)](https://getbootstrap.com/)
 
-**ParkEase** is a full-stack, enterprise-grade smart parking reservation platform designed to streamline urban mobility. Inspired by modern European parking ecosystems like JustPark, ParkEase connects **Motorists (Drivers)**, **Space Owners**, and **Platform Administrators** into a seamless, high-trust experience featuring interactive map discovery, guaranteed bay allocation, dual QR entry/exit passes, overstay clearance, and official Razorpay payments.
+> A full-stack, enterprise-grade smart parking management ecosystem that seamlessly connects motorists, parking lot owners, and platform administrators. Built with Python and Django, it features interactive map discovery, guaranteed bay reservations, contactless dual QR entry/exit passes, automated overstay clearance, and official Razorpay payments.
 
 ---
 
-## 📸 Visual Previews
+## 📌 Project Overview
 
-### 1. Motorist Home & Smart Facility Discovery
-![Motorist Home Search](docs/screenshots/01_home_search.png)
+Urban drivers often waste substantial time, fuel, and effort circling congested city blocks searching for available parking. Simultaneously, commercial lots, private driveways, and parking facilities frequently operate with idle, unmonetized capacity due to a lack of real-time digital visibility.
 
-### 2. Digital Entry/Exit Pass with Live Scannable QR Code
-![Digital Ticket QR Pass](docs/screenshots/02_digital_ticket_qr.png)
+**ParkEase** bridges this gap by delivering an end-to-end, high-trust urban mobility solution inspired by modern European parking ecosystems (such as JustPark):
 
-### 3. Space Facility Details & Turn-by-Turn Directions
-![Facility Details](docs/screenshots/03_lot_detail.png)
+* **For Motorists (Drivers):** Provides a clean, frictionless booking journey to search for nearby parking facilities, compare real-time hourly rates, reserve guaranteed bays in advance, navigate via turn-by-turn maps, and enter/exit using live scannable QR passes.
+* **For Parking Space Owners:** Offers a dedicated Space Owner Studio to list parking facilities, configure flexible vehicle-specific tariffs, monitor visual slot occupancy in real time, review duration extension requests, and track daily revenue.
+* **For Platform Administrators:** Features a centralized Administrative Studio to oversee platform-wide metrics, enforce pricing and overstay penalty policies, manage promotional coupons, handle disputes, and audit email delivery logs.
 
-### 4. Space Checkout & Official Razorpay Gateway
-![Checkout & Razorpay](docs/screenshots/04_book_lot_checkout.png)
+The platform is engineered using Django's Model-View-Template (MVT) architecture with strict role-based access control (RBAC), database normalization, asynchronous email notifications, and an official Razorpay payment gateway integration.
+
+---
+
+## ✨ Key Features
+
+### 🚗 1. Motorist & Driver Experience
+* **Smart Facility Search & Geo-Discovery:** Locate available parking spots by city, neighborhood, airport, or landmark with real-time distance calculations and interactive maps.
+* **Guaranteed Bay Reservation:** Reserve parking ahead of arrival with customized vehicle category rates (Two-Wheeler, Hatchback/Sedan, SUV, EV).
+* **Dual QR Scan Gate Policy:** Generates cryptographically verifiable, scannable digital QR passes that are verified at both entrance and exit boom barriers.
+* **Automated Overstay Detection:** Built-in monitoring that detects parking sessions exceeding the booked window, automatically calculates penalty fees based on admin grace periods, and allows 1-click clearance.
+* **Digital Garage & Vehicle Management:** Add and manage multiple vehicle registration plates with automatic ANPR format normalization.
+* **Digital Pass & Directions:** Instant access to digital parking tickets with 1-click turn-by-turn Google Maps navigation and print/PDF download capabilities.
+* **My Bookings Dashboard:** Filter between active upcoming reservations and past booking history with cancellation and refund triggers.
+
+### 🏢 2. Space Owner Management Suite
+* **Facility Onboarding & Multi-Tariff Setup:** Multi-step wizard to register parking lots, set base hourly tariffs, define vehicle-specific pricing, and highlight amenities (CCTV, Covered, 24/7 Security, EV charging).
+* **Visual Bay & Slot Grid:** Real-time visual matrix displaying the live status of every parking bay (Available, Reserved, Occupied, Maintenance).
+* **Duration Extension Handling:** Motorists can request time extensions; owners can review requests, detect subsequent schedule conflicts, and approve or reassign bays.
+* **Financial Insights & Settlement Hub:** Live dashboards tracking gross turnover, platform commission deductions, and net payouts.
+* **Customer Reviews & Ratings:** Monitor driver feedback and average star ratings for each facility.
+
+### 🛡️ 3. Platform Administration Studio
+* **Executive KPI Dashboard:** Real-time metrics for total revenue, active bookings, overall slot occupancy, open disputes, and driver registrations.
+* **Revenue & Performance Charts:** Interactive multi-metric analytical charts (Revenue, Bookings Count, Hours Parked) toggleable by time period (7 Days, 30 Days, Last Quarter, 1 Year).
+* **Global Pricing & Overstay Policy:** Configure platform maximum hourly rate caps, grace period windows (minutes), and overstay fine multipliers.
+* **Promotional Discount & Coupon Engine:** Create, publish, activate, or disable promotional discount codes with custom percentage discounts and maximum deduction caps.
+* **Payment & Refund Reconciliation:** Full financial audit trail with transaction logs and instant refund mechanisms.
+* **Automated Email Notification System:** Built-in HTML email dispatcher for booking confirmations, password resets, and admin alerts, complete with a delivery audit log.
+
+### 💳 4. Official Razorpay Payment Gateway Integration
+* **Official Razorpay Checkout SDK:** Integrated directly with Razorpay's client-side library (`checkout.js`) without simulated or third-party wrappers.
+* **Multi-Method Support:** Accepts Credit Cards, Debit Cards (Visa, MasterCard, RuPay, Maestro), Netbanking across 30+ Indian banks, and digital wallets.
+* **Demo / Test Sandbox Ready:** Fully testable using test card credentials (`4111 1111 1111 1111`) and test bank simulation with zero SMS wait times.
+* **Asynchronous Post-Payment Flow:** Triggers asynchronous email dispatching upon confirmation and instantly redirects the motorist to their generated QR pass (< 0.1s latency).
+
+---
+
+## 🛠️ Technology Stack
+
+### Backend & Core Architecture
+* **Python (3.10+ / 3.11 / 3.12):** Core server-side programming language.
+* **Django (5.0+):** High-level Python web framework handling ORM database modeling, session management, URL routing, authentication, and form validation.
+* **Django Templates (DTL):** Server-rendered, reusable modular UI templates with context processors and custom filters.
+* **Python Multi-Threading (`threading.Thread`):** Asynchronous background execution for SMTP emails and notification dispatches without blocking HTTP responses.
+
+### Frontend, Styling & UI
+* **HTML5 & CSS3:** Semantic markup and custom styling with CSS custom properties (variables) for consistent themes.
+* **Bootstrap 5.3:** Responsive grid system, modal overlays, flexbox utilities, and responsive breakpoints for mobile and desktop.
+* **Bootstrap Icons:** Comprehensive SVG icon system for UI navigation, status indicators, and actions.
+* **Plus Jakarta Sans:** Modern, high-trust geometric typography imported via Google Fonts.
+* **Vanilla JavaScript (ES6+):** Client-side dynamic interactions, dynamic vehicle/slot selection, asynchronous fetch requests, and print handlers.
+
+### Mapping, GIS & Routing
+* **Leaflet.js (v1.9.4):** Lightweight, open-source interactive mapping library for mobile and desktop browsers.
+* **MapLibre GL:** WebGL-accelerated vector tile rendering for interactive parking bay discovery.
+* **OpenFreeMap Liberty:** Vector map tile server providing high-resolution street and satellite map layers without expensive third-party API keys.
+* **OSRM (Open Source Routing Machine):** Road routing engine calculating live driving distances (km) and travel duration between user coordinates and parking facilities.
+
+### Payment Gateway
+* **Razorpay Official Checkout SDK (`https://checkout.razorpay.com/v1/checkout.js`):** Client-side modal library for secure PCI-DSS compliant payment processing.
+* **Razorpay Python SDK (`razorpay`):** Server-side verification and order authentication.
+
+### Media, QR Code & File Processing
+* **Python `qrcode` Library:** Generates dynamic, high-resolution QR codes encoded with secure booking tokens and ANPR payloads.
+* **Pillow (PIL):** Python imaging library for dynamic QR code image generation and Base64 stream rendering directly into templates.
+
+### Database & Environment Management
+* **SQLite3:** Embedded relational database utilized for local development, rapid testing, and demo seeding.
+* **Django ORM:** Database abstraction layer ensuring out-of-the-box compatibility with PostgreSQL, MySQL, and SQLite.
+* **`python-dotenv`:** 12-factor application configuration to securely manage environment variables (`.env`).
+
+### Development & Version Control Tools
+* **Git & GitHub:** Distributed version control, branch management, and repository hosting.
+* **Chrome DevTools:** Responsive viewport debugging, layout inspection, and network payload verification.
+
+---
+
+## 📸 Project Screenshots
+
+### 1. Homepage & Smart Facility Discovery
+*Clean, gentle search interface allowing motorists to search parking spaces by city, street, or landmark.*
+
+![Homepage & Smart Search](docs/screenshots/01_home_search.png)
+
+---
+
+### 2. Authentication (Login & Registration)
+*Dedicated sign-in and motorist onboarding with role-based routing.*
+
+| Motorist Login | New Account Registration |
+| :---: | :---: |
+| ![Login Page](docs/screenshots/05_login_page.png) | ![Registration Page](docs/screenshots/06_registration_page.png) |
+
+---
+
+### 3. User Dashboard (My Bookings)
+*Driver portal showing active bay reservations, QR pass access, and booking history.*
+
+![User Dashboard - My Bookings](docs/screenshots/07_user_dashboard.png)
+
+---
+
+### 4. Admin Dashboard (Platform Governance Studio)
+*Executive analytics studio tracking daily parking revenue turnover, booking volumes, and dispute queues.*
+
+![Admin Dashboard](docs/screenshots/08_admin_dashboard.png)
+
+---
+
+### 5. Main Functionalities
+
+#### A. Parking Facility Details & Interactive Map Navigation
+*Detailed facility view showing real-time slot availability, hourly tariffs by vehicle type, amenities, and interactive Leaflet map.*
+
+![Facility Detail & Maps](docs/screenshots/03_lot_detail.png)
+
+#### B. Booking Checkout & Official Razorpay Gateway
+*Pre-booking step with bay allocation, price summary, and official Razorpay secure checkout integration.*
+
+![Booking Checkout & Razorpay](docs/screenshots/04_book_lot_checkout.png)
+
+#### C. Digital Parking Ticket with Scannable QR Pass
+*Post-payment digital pass with live entry/exit QR code, vehicle ANPR registration, arrival/departure windows, and Google Maps directions.*
+
+![Digital Entry Ticket Pass](docs/screenshots/02_digital_ticket_qr.png)
 
 ---
 
 ## Project Credentials (All 3 Portals)
 
-The application provides out-of-the-box role accounts for testing and evaluation across all three platform workflows:
+The application provides pre-configured role accounts for testing and evaluation across all three platform workflows:
 
 | Role | Username / Email | Password | Access Portal URL |
 | :--- | :--- | :--- | :--- |
@@ -137,12 +260,12 @@ ParkEase/
 │   └── seeds.py                  # Database seeder (creates default users & demo lots)
 │
 ├── docs/                         # Documentation & assets
-│   └── screenshots/              # High-resolution platform previews
+│   └── screenshots/              # High-resolution platform visual previews
 │
 ├── static/                       # Static stylesheets, brand media & scripts
 │   ├── css/style.css             # Main unified stylesheet (responsive & cleaned)
 │   ├── js/                       # Client-side JavaScript helpers
-│   └── img/                      # Official platform logos and markers
+│   └── images/                   # Official platform logos and markers
 │
 ├── templates/                    # Cleaned, responsive HTML templates
 │   ├── accounts/                 # Driver login, register, profile
