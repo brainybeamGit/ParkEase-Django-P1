@@ -26,7 +26,7 @@
 
 ---
 
-## 🔑 Project Credentials (All 3 Portals)
+## Project Credentials (All 3 Portals)
 
 The application provides out-of-the-box role accounts for testing and evaluation across all three platform workflows:
 
@@ -38,7 +38,7 @@ The application provides out-of-the-box role accounts for testing and evaluation
 
 ---
 
-## 🚀 Installation & Setup Guide
+## Installation & Setup Guide
 
 ### Windows
 
@@ -102,7 +102,7 @@ Open `http://127.0.0.1:8000` in your browser.
 
 ---
 
-## 🏗️ Project Architecture & Skeleton
+##  Project Architecture & Skeleton
 
 ```text
 ParkEase/
@@ -158,22 +158,6 @@ ParkEase/
 ├── README.md                     # Comprehensive project documentation
 └── requirements.txt              # Pinned Python package dependencies
 ```
-
----
-
-## 💳 Payment Gateway (Razorpay Official Test Mode)
-
-ParkEase comes with pre-configured official **Razorpay Checkout**:
-* **Test Mode API Key:** Pre-configured in `.env` (or override with your own from [dashboard.razorpay.com](https://dashboard.razorpay.com/)).
-* **Simulated Card Payments:**
-  * **Card Number:** `4111 1111 1111 1111`
-  * **Expiry:** Any future date (e.g. `12/28`)
-  * **CVV:** Any 3 digits (e.g. `123`)
-  * **OTP:** Enter any random number (e.g. `123456`) or click **Success** on the test simulator.
-* **Instant 1-Click Netbanking:** Select any bank (SBI, HDFC, ICICI) and click **Success**.
-* **Automatic Redirection:** Upon payment confirmation, the system creates the booking record, triggers asynchronous confirmation emails, and immediately redirects the user to the generated digital ticket with a scannable entry QR pass.
-
----
 
 ## 🛡️ License
 
