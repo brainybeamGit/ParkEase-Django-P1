@@ -1,0 +1,519 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Owner Registration - Step 2: Parking Space Details - ParkEase{% endblock %}
+
+{% block content %}
+<section class="owner-register-section">
+    <div class="container" style="max-width: 960px;">
+
+        <div class="owner-stepper-card">
+            <h1 class="owner-stepper-title">ParkEase Space Owner Registration</h1>
+            <p class="owner-stepper-subtitle">
+                Describe the parking location and vehicle capacity being submitted for approval.
+            </p>
+
+            <div class="stepper-nav">
+                <div class="stepper-connector-line">
+                    <div class="stepper-connector-fill" style="width: 50%;"></div>
+                </div>
+
+                <a href="{% url 'lot_owner_panel:register_step1' %}" class="stepper-step-item completed text-decoration-none">
+                    <div class="stepper-circle">✓</div>
+                    <span class="stepper-label">Personal & ID Details</span>
+                </a>
+
+                <div class="stepper-step-item active">
+                    <div class="stepper-circle">2</div>
+                    <span class="stepper-label">Parking Details</span>
+                </div>
+
+                <div class="stepper-step-item">
+                    <div class="stepper-circle">3</div>
+                    <span class="stepper-label">Policy & Agreement</span>
+                </div>
+            </div>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" action="{% url 'lot_owner_panel:register_step2' %}" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <div class="owner-single-form-card">
+
+                <h3 class="owner-form-section-title">Parking Space Details & Location</h3>
+
+                <div class="mb-3">
+                    <label for="id_parking_lot_name" class="form-label fw-bold small text-dark">
+                        Parking Lot Name <span class="text-danger">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="parking_lot_name"
+                        id="id_parking_lot_name"
+                        class="reg-input"
+                        placeholder="e.g. Shree Complex Parking, CP Central Bay"
+                        value="{{ parking_lot_name|default:'' }}"
+                        required
+                        autofocus>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="id_space_type" class="form-label fw-bold small text-dark">
+                            Space Type <span class="text-danger">*</span>
+                        </label>
+                        <select name="space_type" id="id_space_type" class="reg-input">
+                            <option value="residential" {% if space_type == 'residential' or not space_type %}selected{% endif %}>Residential Driveway</option>
+                            <option value="commercial" {% if space_type == 'commercial' %}selected{% endif %}>Commercial Building Parking</option>
+                            <option value="open_plot" {% if space_type == 'open_plot' %}selected{% endif %}>Open Plot / Ground</option>
+                            <option value="covered" {% if space_type == 'covered' %}selected{% endif %}>Covered Parking</option>
+                            <option value="basement" {% if space_type == 'basement' %}selected{% endif %}>Basement Parking</option>
+                            <option value="multilevel" {% if space_type == 'multilevel' %}selected{% endif %}>Multilevel Facility</option>
+                            <option value="other" {% if space_type == 'other' %}selected{% endif %}>Other Supported Space</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="id_building_name" class="form-label fw-bold small text-dark">
+                            Building / Complex Name <span class="text-muted fw-normal">(Optional)</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="building_name"
+                            id="id_building_name"
+                            class="reg-input"
+                            placeholder="e.g. Tower B, Metro Residency"
+                            value="{{ building_name|default:'' }}">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_street_address" class="form-label fw-bold small text-dark">
+                        Street Address <span class="text-danger">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="street_address"
+                        id="id_street_address"
+                        class="reg-input"
+                        placeholder="House / Plot No., Road, Street"
+                        value="{{ street_address|default:'' }}"
+                        required>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="id_area" class="form-label fw-bold small text-dark">
+                            Area / Locality <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="area"
+                            id="id_area"
+                            class="reg-input"
+                            placeholder="e.g. Connaught Place, Indiranagar"
+                            value="{{ area|default:'' }}"
+                            required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="id_city" class="form-label fw-bold small text-dark">
+                            City <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="city"
+                            id="id_city"
+                            class="reg-input"
+                            placeholder="City"
+                            value="{{ city|default:'' }}"
+                            required>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="id_state" class="form-label fw-bold small text-dark">
+                            State <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="state"
+                            id="id_state"
+                            class="reg-input"
+                            placeholder="State"
+                            value="{{ state|default:'' }}"
+                            required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="id_pin_code" class="form-label fw-bold small text-dark">
+                            PIN Code <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="pin_code"
+                            id="id_pin_code"
+                            class="reg-input"
+                            placeholder="PIN Code (6 digits)"
+                            maxlength="6"
+                            value="{{ pin_code|default:'' }}"
+                            required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="id_map_location" class="form-label fw-bold small text-dark">
+                        Map Location / GPS Landmark <span class="text-muted fw-normal">(Optional)</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="map_location"
+                        id="id_map_location"
+                        class="reg-input"
+                        placeholder="e.g. Near Metro Gate 3, Opp. City Mall, or 28.6328, 77.2197"
+                        value="{{ map_location|default:'' }}">
+                </div>
+
+                <h3 class="owner-form-section-title">Capacity, Vehicle Types & Pricing</h3>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label for="id_total_capacity" class="form-label fw-bold small text-dark">
+                            Total Parking Capacity <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="number"
+                            name="total_capacity"
+                            id="id_total_capacity"
+                            class="reg-input"
+                            min="1"
+                            max="5000"
+                            placeholder="e.g. 50"
+                            value="{{ total_capacity|default:'' }}"
+                            required>
+                        <small class="text-muted">Total vehicles that can fit concurrently</small>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="id_parking_arrangement" class="form-label fw-bold small text-dark">
+                            Parking Arrangement
+                        </label>
+                        <select name="parking_arrangement" id="id_parking_arrangement" class="reg-input">
+                            <option value="open_air" {% if parking_arrangement == 'open_air' %}selected{% endif %}>Open-air</option>
+                            <option value="covered" {% if parking_arrangement == 'covered' %}selected{% endif %}>Covered bay</option>
+                            <option value="basement" {% if parking_arrangement == 'basement' %}selected{% endif %}>Basement parking</option>
+                            <option value="multilevel" {% if parking_arrangement == 'multilevel' %}selected{% endif %}>Multilevel facility</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="id_hourly_rate" class="form-label fw-bold small text-dark">
+                            Hourly Rate (₹) <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="number"
+                            name="hourly_rate"
+                            id="id_hourly_rate"
+                            class="reg-input"
+                            min="10"
+                            step="5"
+                            placeholder="e.g. 50"
+                            value="{{ hourly_rate|default:'' }}"
+                            required>
+                        <small class="text-muted">Starting rate per hour for drivers</small>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold small text-dark d-block mb-2">
+                        Vehicle Types Supported <span class="text-danger">*</span>
+                    </label>
+                    <div class="d-flex flex-wrap gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="supported_vehicles" value="Two-wheelers (Bikes / Scooters)" id="v_bike" {% if "Two-wheelers (Bikes / Scooters)" in supported_vehicles %}checked{% endif %}>
+                            <label class="form-check-label text-dark small" for="v_bike">Two-wheelers (Bikes / Scooters)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="supported_vehicles" value="Cars (Hatchback / Sedan)" id="v_car" {% if "Cars (Hatchback / Sedan)" in supported_vehicles %}checked{% endif %}>
+                            <label class="form-check-label text-dark small" for="v_car">Cars (Hatchback / Sedan)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="supported_vehicles" value="SUVs & MUVs" id="v_suv" {% if "SUVs & MUVs" in supported_vehicles %}checked{% endif %}>
+                            <label class="form-check-label text-dark small" for="v_suv">SUVs & MUVs</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="supported_vehicles" value="Electric Vehicles (EVs)" id="v_ev" {% if "Electric Vehicles (EVs)" in supported_vehicles %}checked{% endif %}>
+                            <label class="form-check-label text-dark small" for="v_ev">Electric Vehicles (EVs)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold small text-dark d-block mb-2">
+                        Operating Hours <span class="text-danger">*</span>
+                    </label>
+
+                    <div class="row g-3 align-items-center mb-2">
+                        <div class="col-md-5">
+                            <label for="id_opening_hour" class="form-label small text-secondary mb-1">
+                                Opening Time (24-Hour)
+                            </label>
+                            <select name="opening_hour" id="id_opening_hour" class="reg-input">
+                                <option value="00:00" {% if opening_hour == '00:00' %}selected{% endif %}>00:00 (Midnight)</option>
+                                <option value="01:00" {% if opening_hour == '01:00' %}selected{% endif %}>01:00</option>
+                                <option value="02:00" {% if opening_hour == '02:00' %}selected{% endif %}>02:00</option>
+                                <option value="03:00" {% if opening_hour == '03:00' %}selected{% endif %}>03:00</option>
+                                <option value="04:00" {% if opening_hour == '04:00' %}selected{% endif %}>04:00</option>
+                                <option value="05:00" {% if opening_hour == '05:00' %}selected{% endif %}>05:00</option>
+                                <option value="06:00" {% if opening_hour == '06:00' or not opening_hour %}selected{% endif %}>06:00 (Early Morning)</option>
+                                <option value="07:00" {% if opening_hour == '07:00' %}selected{% endif %}>07:00</option>
+                                <option value="08:00" {% if opening_hour == '08:00' %}selected{% endif %}>08:00</option>
+                                <option value="09:00" {% if opening_hour == '09:00' %}selected{% endif %}>09:00</option>
+                                <option value="10:00" {% if opening_hour == '10:00' %}selected{% endif %}>10:00</option>
+                                <option value="11:00" {% if opening_hour == '11:00' %}selected{% endif %}>11:00</option>
+                                <option value="12:00" {% if opening_hour == '12:00' %}selected{% endif %}>12:00 (Noon)</option>
+                                <option value="13:00" {% if opening_hour == '13:00' %}selected{% endif %}>13:00</option>
+                                <option value="14:00" {% if opening_hour == '14:00' %}selected{% endif %}>14:00</option>
+                                <option value="15:00" {% if opening_hour == '15:00' %}selected{% endif %}>15:00</option>
+                                <option value="16:00" {% if opening_hour == '16:00' %}selected{% endif %}>16:00</option>
+                                <option value="17:00" {% if opening_hour == '17:00' %}selected{% endif %}>17:00</option>
+                                <option value="18:00" {% if opening_hour == '18:00' %}selected{% endif %}>18:00</option>
+                                <option value="19:00" {% if opening_hour == '19:00' %}selected{% endif %}>19:00</option>
+                                <option value="20:00" {% if opening_hour == '20:00' %}selected{% endif %}>20:00</option>
+                                <option value="21:00" {% if opening_hour == '21:00' %}selected{% endif %}>21:00</option>
+                                <option value="22:00" {% if opening_hour == '22:00' %}selected{% endif %}>22:00</option>
+                                <option value="23:00" {% if opening_hour == '23:00' %}selected{% endif %}>23:00</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-5">
+                            <label for="id_closing_hour" class="form-label small text-secondary mb-1">
+                                Closing Time (24-Hour)
+                            </label>
+                            <select name="closing_hour" id="id_closing_hour" class="reg-input">
+                                <option value="06:00" {% if closing_hour == '06:00' %}selected{% endif %}>06:00</option>
+                                <option value="07:00" {% if closing_hour == '07:00' %}selected{% endif %}>07:00</option>
+                                <option value="08:00" {% if closing_hour == '08:00' %}selected{% endif %}>08:00</option>
+                                <option value="09:00" {% if closing_hour == '09:00' %}selected{% endif %}>09:00</option>
+                                <option value="10:00" {% if closing_hour == '10:00' %}selected{% endif %}>10:00</option>
+                                <option value="11:00" {% if closing_hour == '11:00' %}selected{% endif %}>11:00</option>
+                                <option value="12:00" {% if closing_hour == '12:00' %}selected{% endif %}>12:00 (Noon)</option>
+                                <option value="13:00" {% if closing_hour == '13:00' %}selected{% endif %}>13:00</option>
+                                <option value="14:00" {% if closing_hour == '14:00' %}selected{% endif %}>14:00</option>
+                                <option value="15:00" {% if closing_hour == '15:00' %}selected{% endif %}>15:00</option>
+                                <option value="16:00" {% if closing_hour == '16:00' %}selected{% endif %}>16:00</option>
+                                <option value="17:00" {% if closing_hour == '17:00' %}selected{% endif %}>17:00</option>
+                                <option value="18:00" {% if closing_hour == '18:00' %}selected{% endif %}>18:00</option>
+                                <option value="19:00" {% if closing_hour == '19:00' %}selected{% endif %}>19:00</option>
+                                <option value="20:00" {% if closing_hour == '20:00' %}selected{% endif %}>20:00</option>
+                                <option value="21:00" {% if closing_hour == '21:00' %}selected{% endif %}>21:00</option>
+                                <option value="22:00" {% if closing_hour == '22:00' or not closing_hour %}selected{% endif %}>22:00 (Night)</option>
+                                <option value="23:00" {% if closing_hour == '23:00' %}selected{% endif %}>23:00</option>
+                                <option value="23:59" {% if closing_hour == '23:59' %}selected{% endif %}>23:59 (Late Night)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-2 d-flex align-items-end pt-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_24_7" id="id_is_24_7" value="1" {% if is_24_7 or operating_hours == '24/7' or operating_hours == '24/7 Access' %}checked{% endif %}>
+                                <label class="form-check-label fw-bold text-dark small" for="id_is_24_7">
+                                    24/7 Access
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold small text-dark d-block mb-2">
+                        Available Services & Amenities
+                    </label>
+                    <div class="d-flex flex-wrap gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="available_services" value="CCTV Surveillance" id="s_cctv" {% if "CCTV Surveillance" in available_services %}checked{% endif %}>
+                            <label class="form-check-label text-dark small" for="s_cctv">CCTV Surveillance</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="available_services" value="Security Guard" id="s_guard" {% if "Security Guard" in available_services %}checked{% endif %}>
+                            <label class="form-check-label text-dark small" for="s_guard">Security Guard</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="available_services" value="Night Lighting" id="s_lighting" {% if "Night Lighting" in available_services %}checked{% endif %}>
+                            <label class="form-check-label text-dark small" for="s_lighting">Night Lighting</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="available_services" value="EV Charging Point" id="s_ev" {% if "EV Charging Point" in available_services %}checked{% endif %}>
+                            <label class="form-check-label text-dark small" for="s_ev">EV Charging Point</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="available_services" value="Washroom" id="s_washroom" {% if "Washroom" in available_services %}checked{% endif %}>
+                            <label class="form-check-label text-dark small" for="s_washroom">Restroom / Washroom</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="id_access_instructions" class="form-label fw-bold small text-dark">
+                        Access Instructions & Entry Rules <span class="text-muted fw-normal">(Optional)</span>
+                    </label>
+                    <textarea
+                        name="access_instructions"
+                        id="id_access_instructions"
+                        rows="2"
+                        class="reg-input"
+                        placeholder="e.g. Main gate is on the north side. Show QR code pass to the security guard or automated scanner. Height limit 2.2m.">{{ access_instructions|default:'' }}</textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold small text-dark">
+                        Upload Parking Space Photo <span class="text-muted fw-normal">(Optional)</span>
+                    </label>
+                    <div class="owner-upload-dropzone-noicon" onclick="document.getElementById('id_space_photo').click();">
+                        <span class="d-block fw-bold text-dark mb-1">Click to upload entrance or parking space photo</span>
+                        <small class="text-muted d-block">JPG, PNG, or WEBP. Max size 5MB. Optional.</small>
+                        <span class="badge bg-light text-primary border mt-2 px-3 py-1" id="photoChosenLabel">
+                            No photo chosen
+                        </span>
+                    </div>
+                    <input
+                        type="file"
+                        name="space_photo"
+                        id="id_space_photo"
+                        class="d-none"
+                        accept="image/*"
+                        onchange="if(this.files.length) document.getElementById('photoChosenLabel').textContent = this.files[0].name;">
+                </div>
+
+                <h3 class="owner-form-section-title mt-4">4. Bank & Settlement Account Details</h3>
+                <p class="text-muted small mb-3">Manage payout bank accounts, IFSC code, and direct deposit preferences.</p>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="id_bank_account_holder" class="form-label fw-bold small text-dark">
+                            Account Holder Name <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="bank_account_holder"
+                            id="id_bank_account_holder"
+                            class="reg-input"
+                            placeholder="e.g. Demo Seller"
+                            value="{{ bank_account_holder|default:'' }}"
+                            required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="id_bank_name" class="form-label fw-bold small text-dark">
+                            Bank Name <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="bank_name"
+                            id="id_bank_name"
+                            class="reg-input"
+                            placeholder="e.g. State Bank of India"
+                            value="{{ bank_name|default:'' }}"
+                            required>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="id_bank_account_number" class="form-label fw-bold small text-dark">
+                            Bank Account Number <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="bank_account_number"
+                            id="id_bank_account_number"
+                            class="reg-input font-monospace"
+                            placeholder="e.g. 45632145698741"
+                            value="{{ bank_account_number|default:'' }}"
+                            required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="id_bank_ifsc_code" class="form-label fw-bold small text-dark">
+                            IFSC Code <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="bank_ifsc_code"
+                            id="id_bank_ifsc_code"
+                            class="reg-input font-monospace text-uppercase"
+                            placeholder="e.g. SBIHR656565"
+                            value="{{ bank_ifsc_code|default:'' }}"
+                            required>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label for="id_bank_branch" class="form-label fw-bold small text-dark">
+                            Branch Name / Location
+                        </label>
+                        <input
+                            type="text"
+                            name="bank_branch"
+                            id="id_bank_branch"
+                            class="reg-input"
+                            placeholder="e.g. Ahmedabad"
+                            value="{{ bank_branch|default:'' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="id_bank_account_type" class="form-label fw-bold small text-dark">
+                            Account Type
+                        </label>
+                        <select name="bank_account_type" id="id_bank_account_type" class="reg-input">
+                            <option value="Current Account / Business" {% if bank_account_type == 'Current Account / Business' or not bank_account_type %}selected{% endif %}>Current Account / Business</option>
+                            <option value="Savings Account" {% if bank_account_type == 'Savings Account' %}selected{% endif %}>Savings Account</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                    <a href="{% url 'lot_owner_panel:register_step1' %}" class="btn btn-outline-secondary px-4 py-2 fw-semibold">
+                        Previous
+                    </a>
+                    <button type="submit" class="btn btn-theme-primary px-5 py-3 fw-bold fs-6 shadow-sm">
+                        Next
+                    </button>
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const is247Check = document.getElementById('id_is_24_7');
+    const openSelect = document.getElementById('id_opening_hour');
+    const closeSelect = document.getElementById('id_closing_hour');
+
+    function toggle247() {
+        if (is247Check && openSelect && closeSelect) {
+            if (is247Check.checked) {
+                openSelect.disabled = true;
+                closeSelect.disabled = true;
+            } else {
+                openSelect.disabled = false;
+                closeSelect.disabled = false;
+            }
+        }
+    }
+
+    if (is247Check) {
+        is247Check.addEventListener('change', toggle247);
+        toggle247();
+    }
+});
+</script>
+{% endblock %}

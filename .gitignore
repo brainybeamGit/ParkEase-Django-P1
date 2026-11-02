@@ -1,0 +1,45 @@
+# ==============================================================================
+# ParkEase .gitignore
+# ==============================================================================
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment Variables & Secrets (NEVER push to GitHub)
+.env
+.env.*
+!.env.example
+
+# Local SQLite Database
+db.sqlite3
+db.sqlite3-journal
+*.sqlite3
+
+# Django staticfiles & user uploads
+media/
+staticfiles/
+*.log
+
+# Development scratch files & test artifacts
+scratch/
+verify_*.py
+test_*.py
+
+# IDE & Editor folders
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db

@@ -1,0 +1,459 @@
+<style>
+@media (max-width: 575.98px) {
+    .booking-action-buttons {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        width: 100% !important;
+        gap: 0.5rem !important;
+    }
+    .booking-action-buttons .btn {
+        width: 100% !important;
+        text-align: center !important;
+        padding: 0.6rem 1rem !important;
+    }
+    .booking-time-col {
+        font-size: 0.82rem !important;
+    }
+}
+</style>
+{% load static %}
+<div class="d-flex flex-column gap-4">
+    {% for b in booking_list %}
+        <div class="card border border-light-subtle rounded-4 p-4 shadow-sm bg-white position-relative">
+
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                        {% if b.payment_status == 'refunded' %}
+                            <span class="badge bg-purple px-3 py-1 small fw-bold" style="background-color: #8b5cf6; color: #ffffff;">
+                                REFUNDED
+                            </span>
+                        {% elif b.payment_status == 'refund_requested' %}
+                            <span class="badge bg-warning text-dark px-3 py-1 small fw-bold">
+                                REFUND REQUESTED
+                            </span>
+                        {% elif b.booking_status == 'active' and b.is_parked %}
+                            <span class="badge bg-info text-dark px-3 py-1 small fw-bold">
+                                PARKED INSIDE
+                            </span>
+                        {% elif b.booking_status == 'active' %}
+                            <span class="badge bg-success px-3 py-1 small fw-bold">
+                                ACTIVE / CONFIRMED
+                            </span>
+                        {% elif b.booking_status == 'completed' %}
+                            <span class="badge bg-secondary px-3 py-1 small fw-bold">
+                                COMPLETED
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger px-3 py-1 small fw-bold">
+                                CANCELLED
+                            </span>
+                        {% endif %}
+
+                        <span class="badge bg-light text-muted border font-monospace">
+                            Ref: #PE-BK-{{ b.id }}
+                        </span>
+                    </div>
+
+                    <h4 class="fw-bold text-dark mb-1" style="font-size: 1.2rem;">
+                        {{ b.lot.name|default:b.parking_lot }}
+                    </h4>
+                    <div class="text-muted small">
+                        Token: <span class="font-monospace text-dark fw-semibold">{{ b.qr_code_token }}</span>
+                        {% if b.lot.owner %}
+                            <span class="ms-2">· Space Owner: <strong class="text-dark">{{ b.lot.owner.get_full_name|default:b.lot.owner.username }}</strong></span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="text-md-end">
+                    <span class="fs-3 fw-extrabold text-primary d-block fw-bold" style="color: #0284c7 !important;">
+                        ₹{{ b.total_amount }}
+                    </span>
+                    <span class="badge bg-light text-muted border small">
+                        Paid via Razorpay
+                    </span>
+                    {% if b.refund_transaction_id %}
+                        <div class="text-success small fw-bold mt-1">
+                            Refund Txn: {{ b.refund_transaction_id }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row g-3 py-3 border-top border-bottom my-1 bg-light bg-opacity-50 rounded-3 px-2">
+                <div class="col-6 col-md-3">
+                    <span class="text-muted small d-block mb-1">Vehicle Plate</span>
+                    <strong class="text-dark font-monospace fs-6">
+                        {{ b.vehicle.registration_number|default:"GUEST-ANPR" }}
+                    </strong>
+                </div>
+                <div class="col-6 col-md-3">
+                    <span class="text-muted small d-block mb-1">Vehicle Type</span>
+                    <span class="text-dark fw-semibold">
+                        {{ b.vehicle.get_vehicle_type_display|default:"Standard Vehicle" }}
+                    </span>
+                </div>
+                <div class="col-6 col-md-3">
+                    <span class="text-muted small d-block mb-1">Arrival Window</span>
+                    <strong class="text-dark">
+                        {{ b.start_time|date:"d M Y, h:i A" }}
+                    </strong>
+                </div>
+                <div class="col-6 col-md-3">
+                    <span class="text-muted small d-block mb-1">Departure Window</span>
+                    <strong class="text-dark">
+                        {{ b.end_time|date:"d M Y, h:i A" }}
+                    </strong>
+                </div>
+            </div>
+
+            {% if b.refund_reason %}
+                <div class="p-2 px-3 mt-2 rounded-2 bg-warning bg-opacity-10 border border-warning text-dark small">
+                    <strong>Refund Reason:</strong> {{ b.refund_reason }}
+                </div>
+            {% endif %}
+
+            {% if b.latest_extension_request %}
+                {% if b.latest_extension_request.status == 'pending' %}
+                    <div class="p-2 px-3 mt-2 rounded-2 bg-warning bg-opacity-10 border border-warning text-dark small d-flex flex-wrap align-items-center justify-content-between gap-2">
+                        <div>
+                            <i class="bi bi-clock-history me-1 text-warning-emphasis"></i>
+                            <strong>Extension Requested:</strong> +{{ b.latest_extension_request.additional_hours|floatformat:0 }} hr(s) until {{ b.latest_extension_request.requested_new_end_time|date:"d M Y, h:i A" }} (Extra fee: &#8377;{{ b.latest_extension_request.additional_fee }}).
+                        </div>
+                        <span class="badge bg-warning text-dark px-2 py-1 rounded-pill fw-bold">Awaiting Owner Approval</span>
+                    </div>
+                {% elif b.latest_extension_request.status == 'approved' %}
+                    <div class="p-2 px-3 mt-2 rounded-2 bg-success bg-opacity-10 border border-success border-opacity-25 text-success-emphasis small d-flex flex-wrap align-items-center justify-content-between gap-2">
+                        <div>
+                            <i class="bi bi-check-circle-fill me-1 text-success"></i>
+                            <strong>Extension Approved:</strong> +{{ b.latest_extension_request.additional_hours|floatformat:0 }} hr(s) granted by space owner. Valid until {{ b.end_time|date:"d M Y, h:i A" }}.
+                            {% if b.latest_extension_request.owner_note %}
+                                <div class="small mt-1 text-muted"><strong>Owner Note:</strong> {{ b.latest_extension_request.owner_note }}</div>
+                            {% endif %}
+                        </div>
+                        <span class="badge bg-success px-2 py-1 rounded-pill fw-bold">Approved</span>
+                    </div>
+                {% elif b.latest_extension_request.status == 'rejected' %}
+                    <div class="p-2 px-3 mt-2 rounded-2 bg-danger bg-opacity-10 border border-danger border-opacity-25 text-danger small">
+                        <i class="bi bi-x-circle-fill me-1"></i>
+                        <strong>Extension Declined:</strong> Owner was unable to extend this slot due to subsequent bookings.
+                        {% if b.latest_extension_request.owner_note %}
+                            <span class="ms-1">({{ b.latest_extension_request.owner_note }})</span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            {% if b.user_review %}
+                <div class="p-3 bg-light rounded-3 border mt-3">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-1">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-success-subtle text-success fw-bold px-2 py-1">Your Verified Service Rating</span>
+                            <span class="small text-muted">Owner: <strong class="text-dark">{{ b.lot.owner.get_full_name|default:b.lot.owner.username }}</strong></span>
+                        </div>
+                        <div class="text-warning fs-6">
+                            <span class="fw-bold text-dark me-1">{{ b.user_review.rating }}.0</span>
+                            {% if b.user_review.rating == 5 %}★★★★★{% elif b.user_review.rating == 4 %}★★★★☆{% elif b.user_review.rating == 3 %}★★★☆☆{% elif b.user_review.rating == 2 %}★★☆☆☆{% else %}★☆☆☆☆{% endif %}
+                        </div>
+                    </div>
+                    <p class="small text-secondary mb-0 fst-italic">"{{ b.user_review.comment }}"</p>
+                    {% if b.user_review.owner_reply %}
+                        <div class="mt-2 pt-2 border-top bg-white p-2 rounded">
+                            <span class="badge bg-dark me-1">Space Owner Response</span>
+                            <small class="text-dark">{{ b.user_review.owner_reply }}</small>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <div class="d-flex flex-wrap justify-content-end align-items-center gap-2 pt-3 booking-action-buttons">
+
+                {% if is_history or b.booking_status == 'completed' or b.booking_status == 'cancelled' or b.payment_status == 'refunded' %}
+                    {% if not b.user_review %}
+
+                        <button type="button" class="btn btn-sm btn-outline-warning text-dark fw-bold px-3 py-2" style="border-radius: 6px;" data-bs-toggle="modal" data-bs-target="#rateServiceModal{{ b.id }}">
+                            Rate Parking Service
+                        </button>
+                    {% endif %}
+                {% endif %}
+
+                <a href="{% url 'parking:booking_ticket' b.id %}" class="btn btn-sm btn-outline-dark fw-bold px-3 py-2" style="border-radius: 6px;">
+                    View QR Pass & Ticket
+                </a>
+
+                {% if b.booking_status == 'active' %}
+                    {% if b.has_pending_extension %}
+                        <button type="button"
+                                class="btn btn-sm btn-outline-warning text-dark fw-bold px-3 py-2"
+                                disabled
+                                style="border-radius: 6px;"
+                                title="Your extension request is currently being reviewed by the space owner">
+                            <i class="bi bi-hourglass-split me-1"></i> Extension Under Review
+                        </button>
+                    {% else %}
+                        <button type="button"
+                                class="btn btn-sm btn-outline-primary fw-bold px-3 py-2"
+                                style="border-radius: 6px;"
+                                data-bs-toggle="modal"
+                                data-bs-target="#extendModal{{ b.id }}">
+                            + Extend Parking Time
+                        </button>
+                    {% endif %}
+
+                    {% if not b.is_parked %}
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger fw-bold px-3 py-2"
+                                style="border-radius: 6px;"
+                                data-bs-toggle="modal"
+                                data-bs-target="#cancelModal{{ b.id }}">
+                            Cancel Booking
+                        </button>
+                    {% endif %}
+                {% endif %}
+
+                {% if b.payment_status not in 'refunded refund_requested' %}
+                    <button type="button"
+                            class="btn btn-sm btn-outline-warning text-dark fw-bold px-3 py-2"
+                            style="border-radius: 6px;"
+                            data-bs-toggle="modal"
+                            data-bs-target="#refundModal{{ b.id }}">
+                        Request Refund
+                    </button>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        <div class="modal fade" id="extendModal{{ b.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0 shadow">
+                    <form method="POST" action="{% url 'parking:extend_booking' b.id %}">
+                        {% csrf_token %}
+                        <div class="modal-header border-bottom px-4 pt-4 pb-3">
+                            <div>
+                                <h5 class="modal-title fw-bold text-dark">Extend Booking Duration</h5>
+                                <small class="text-muted">Booking #BK-{{ b.id }} · {{ b.parking_lot }}</small>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <p class="small text-muted mb-3">
+                                Need more time? You can extend your scheduled departure time instantly. Additional tariff is calculated using the lot's approved hourly rate.
+                            </p>
+
+                            <div class="mb-3">
+                                <label for="extendHours{{ b.id }}" class="form-label small fw-bold text-dark mb-1">
+                                    Enter Additional Hours to Extend
+                                </label>
+                                <div class="input-group">
+                                    <input type="number"
+                                           name="additional_hours"
+                                           id="extendHours{{ b.id }}"
+                                           class="form-control form-control-lg extend-hours-input"
+                                           min="1"
+                                           max="72"
+                                           value="1"
+                                           step="1"
+                                           required
+                                           data-booking-id="{{ b.id }}"
+                                           data-hourly-rate="{{ b.lot.hourly_rate|default:50.00 }}"
+                                           data-end-iso="{{ b.end_time|date:'c' }}"
+                                           oninput="updateExtendCalculation('{{ b.id }}')">
+                                    <span class="input-group-text bg-white text-muted fw-semibold">Hours</span>
+                                </div>
+                                <div class="form-text small text-muted">Enter the extra duration in hours you wish to extend.</div>
+                            </div>
+
+                            <div class="p-3 bg-light rounded-3 small border mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Current End Time:</span>
+                                    <strong class="text-dark">{{ b.end_time|date:"d M Y, h:i A" }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Facility Hourly Tariff:</span>
+                                    <span class="text-dark fw-bold">&#8377;{{ b.lot.hourly_rate|default:50.00 }} / hr</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2 pt-2 border-top">
+                                    <span class="fw-semibold text-dark">New Scheduled End Time:</span>
+                                    <strong id="newEndTime{{ b.id }}" class="text-primary fw-bold">--</strong>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                    <span class="fw-bold text-dark fs-6">Remaining Amount to be Paid:</span>
+                                    <span id="amountToPay{{ b.id }}" class="fs-5 fw-extrabold text-success fw-bold">&#8377;{{ b.lot.hourly_rate|default:50.00 }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer px-4 pb-4 pt-2 border-0">
+                            <button type="button" class="btn btn-light rounded-3 px-3" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary fw-bold rounded-3 px-4 py-2" style="background-color: #0B3B60; border: none;">
+                                Extend Parking Time
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="cancelModal{{ b.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0 shadow">
+                    <form method="POST" action="{% url 'parking:cancel_booking' b.id %}">
+                        {% csrf_token %}
+                        <div class="modal-header border-bottom px-4 pt-4 pb-3">
+                            <div>
+                                <h5 class="modal-title fw-bold text-danger">Cancel Parking Reservation</h5>
+                                <small class="text-muted">Booking #BK-{{ b.id }} · {{ b.parking_lot }}</small>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <p class="text-dark mb-3">
+                                Are you sure you want to cancel your parking reservation for <strong>{{ b.lot.name|default:b.parking_lot }}</strong>?
+                            </p>
+                            <div class="alert alert-warning small mb-0">
+                                <strong>Cancellation Policy:</strong> Free cancellation is supported prior to scheduled entry time. The reserved slot will be released back to the facility. A cancellation email confirmation will be sent to your registered email.
+                            </div>
+                        </div>
+                        <div class="modal-footer px-4 pb-4 pt-2 border-0">
+                            <button type="button" class="btn btn-light rounded-3 px-3" data-bs-dismiss="modal">Keep Booking</button>
+                            <button type="submit" class="btn btn-danger fw-bold rounded-3 px-4">
+                                Confirm Cancellation
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="refundModal{{ b.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0 shadow">
+                    <form method="POST" action="{% url 'parking:request_refund' b.id %}">
+                        {% csrf_token %}
+                        <div class="modal-header border-bottom px-4 pt-4 pb-3">
+                            <div>
+                                <h5 class="modal-title fw-bold text-dark">Submit Refund Request</h5>
+                                <small class="text-muted">Booking #BK-{{ b.id }} · Amount: ₹{{ b.total_amount }}</small>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-dark">Select Reason for Refund <span class="text-danger">*</span></label>
+                                <select name="refund_reason" class="form-select" required>
+                                    <option value="Trip cancelled / Change of plans">Trip cancelled / Change of travel plans</option>
+                                    <option value="Space was occupied upon arrival">Space was occupied upon arrival</option>
+                                    <option value="Gate scanner / Barrier technical error">Gate scanner / Barrier technical error</option>
+                                    <option value="Accidental duplicate reservation">Accidental duplicate reservation</option>
+                                    <option value="Other customer service reason">Other reason</option>
+                                </select>
+                            </div>
+
+                            <div class="p-3 bg-light rounded-3 small border">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Booking Total:</span>
+                                    <strong class="text-dark">₹{{ b.total_amount }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Original Payment Method:</span>
+                                    <span class="text-dark">Razorpay (Online)</span>
+                                </div>
+                                <div class="d-flex justify-content-between text-muted pt-2 border-top">
+                                    <span>Processing SLA:</span>
+                                    <span>2 - 4 business hours</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer px-4 pb-4 pt-2 border-0">
+                            <button type="button" class="btn btn-light rounded-3 px-3" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-warning text-dark fw-bold rounded-3 px-4">
+                                Submit Refund Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="rateServiceModal{{ b.id }}" tabindex="-1" aria-labelledby="rateServiceModalLabel{{ b.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0 shadow">
+                    <form method="POST" action="{% url 'parking:submit_booking_review' b.id %}">
+                        {% csrf_token %}
+                        <div class="modal-header border-bottom px-4 pt-4 pb-3">
+                            <div>
+                                <h5 class="modal-title fw-bold text-dark mb-0" id="rateServiceModalLabel{{ b.id }}">
+                                    Rate Parking Service & Owner
+                                </h5>
+                                <small class="text-muted">{{ b.lot.name|default:b.parking_lot }} · Space Owner: <strong class="text-dark">{{ b.lot.owner.get_full_name|default:b.lot.owner.username }}</strong></small>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <p class="small text-muted mb-3">
+                                Share how your parking session went. Your rating directly affects the total score of verified space owner <strong>{{ b.lot.owner.get_full_name|default:b.lot.owner.username }}</strong> and helps other motorists choose the best bays.
+                            </p>
+
+                            <div class="mb-4 text-center p-3 bg-light rounded-3 border">
+                                <label class="form-label d-block fw-bold small text-dark mb-2">Select Your Star Rating</label>
+                                <div class="star-rating d-inline-flex flex-row-reverse justify-content-center gap-2">
+                                    <input type="radio" class="star-radio" name="rating" id="reviewRate5_{{ b.id }}" value="5" checked onchange="document.getElementById('starLabel{{ b.id }}').textContent = '5 Stars - Excellent';">
+                                    <label for="reviewRate5_{{ b.id }}" class="modal-star-label" title="5 Stars">&#9733;</label>
+
+                                    <input type="radio" class="star-radio" name="rating" id="reviewRate4_{{ b.id }}" value="4" onchange="document.getElementById('starLabel{{ b.id }}').textContent = '4 Stars - Good';">
+                                    <label for="reviewRate4_{{ b.id }}" class="modal-star-label" title="4 Stars">&#9733;</label>
+
+                                    <input type="radio" class="star-radio" name="rating" id="reviewRate3_{{ b.id }}" value="3" onchange="document.getElementById('starLabel{{ b.id }}').textContent = '3 Stars - Average';">
+                                    <label for="reviewRate3_{{ b.id }}" class="modal-star-label" title="3 Stars">&#9733;</label>
+
+                                    <input type="radio" class="star-radio" name="rating" id="reviewRate2_{{ b.id }}" value="2" onchange="document.getElementById('starLabel{{ b.id }}').textContent = '2 Stars - Fair';">
+                                    <label for="reviewRate2_{{ b.id }}" class="modal-star-label" title="2 Stars">&#9733;</label>
+
+                                    <input type="radio" class="star-radio" name="rating" id="reviewRate1_{{ b.id }}" value="1" onchange="document.getElementById('starLabel{{ b.id }}').textContent = '1 Star - Poor';">
+                                    <label for="reviewRate1_{{ b.id }}" class="modal-star-label" title="1 Star">&#9733;</label>
+                                </div>
+                                <div class="text-muted small fw-semibold mt-1" id="starLabel{{ b.id }}">5 Stars - Excellent</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-dark mb-1">Your Review & Comments</label>
+                                <textarea name="comment" class="form-control rounded-3" rows="3" placeholder="How was the space, security, entrance barrier, cleanliness, and owner service?" required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer px-4 pb-4 pt-2 border-0">
+                            <button type="button" class="btn btn-light rounded-3 px-3" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary fw-bold rounded-3 px-4 py-2" style="background-color: #0284c7; border: none;">
+                                Submit Rating & Review
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    {% endfor %}
+</div>
+
+<style>
+.star-radio {
+    display: none;
+}
+.modal-star-label {
+    font-size: 2.4rem;
+    color: #cbd5e1;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.15s ease, transform 0.15s ease;
+}
+.modal-star-label:hover,
+.modal-star-label:hover ~ .modal-star-label,
+.star-radio:checked ~ .modal-star-label {
+    color: #f59e0b;
+}
+.modal-star-label:hover {
+    transform: scale(1.15);
+}
+</style>

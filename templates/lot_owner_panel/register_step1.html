@@ -1,0 +1,617 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Owner Registration - Step 1: Personal & ID Details - ParkEase{% endblock %}
+
+{% block content %}
+<section class="owner-register-section">
+    <div class="container" style="max-width: 960px;">
+
+        <div class="owner-stepper-card">
+            <h1 class="owner-stepper-title">ParkEase Space Owner Registration</h1>
+            <p class="owner-stepper-subtitle">
+                Complete your 3-step registration to start renting out your parking space on ParkEase.
+            </p>
+
+            <div class="stepper-nav">
+                <div class="stepper-connector-line">
+                    <div class="stepper-connector-fill" style="width: 0%;"></div>
+                </div>
+
+                <div class="stepper-step-item active">
+                    <div class="stepper-circle">1</div>
+                    <span class="stepper-label">Personal & ID Details</span>
+                </div>
+
+                <div class="stepper-step-item">
+                    <div class="stepper-circle">2</div>
+                    <span class="stepper-label">Parking Details</span>
+                </div>
+
+                <div class="stepper-step-item">
+                    <div class="stepper-circle">3</div>
+                    <span class="stepper-label">Policy & Agreement</span>
+                </div>
+            </div>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" action="{% url 'lot_owner_panel:register_step1' %}" enctype="multipart/form-data" id="step1Form" novalidate>
+            {% csrf_token %}
+
+            <input type="hidden" name="mobile_verified" id="id_mobile_verified" value="{{ mobile_verified|default:'0' }}">
+            <input type="hidden" name="email_verified" id="id_email_verified" value="{{ email_verified|default:'0' }}">
+
+            <div class="owner-single-form-card">
+
+                <h3 class="owner-form-section-title">1. Personal Details</h3>
+
+                <div class="row mb-3">
+                    <div class="col-12 col-md-6">
+                        <label for="id_owner_type" class="form-label fw-bold small text-dark">
+                            Owner Type <span class="text-danger">*</span>
+                        </label>
+                        <select name="owner_type" id="id_owner_type" class="reg-input">
+                            <option value="individual" {% if owner_type == 'individual' or not owner_type %}selected{% endif %}>Individual</option>
+                            <option value="business" {% if owner_type == 'business' %}selected{% endif %}>Business / Enterprise</option>
+                            <option value="property_manager" {% if owner_type == 'property_manager' %}selected{% endif %}>Property Manager</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_full_name" class="form-label fw-bold small text-dark">
+                        Full Name <span class="text-danger">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="full_name"
+                        id="id_full_name"
+                        class="reg-input"
+                        placeholder="Enter your full name"
+                        value="{{ full_name|default:'' }}"
+                        required
+                        autofocus>
+
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_mobile_number" class="form-label fw-bold small text-dark">
+                        Mobile Number <span class="text-danger">*</span>
+                    </label>
+                    <div class="row align-items-center g-2">
+                        <div class="col-12 col-md-5">
+                            <input
+                                type="tel"
+                                name="mobile_number"
+                                id="id_mobile_number"
+                                class="reg-input"
+                                placeholder="Enter 10-digit mobile number"
+                                maxlength="10"
+                                value="{{ mobile_number|default:'' }}"
+                                required>
+                        </div>
+
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-dark fw-bold px-4" id="btnSendMobileOtp" style="background-color: #1a1a1a; height: 44px; border-radius: 6px; letter-spacing: 0.5px;">
+                                OTP
+                            </button>
+                        </div>
+
+                        <div class="col-12 col-md-5" id="mobileOtpFieldWrapper" style="display: none;">
+                            <div class="d-flex align-items-center gap-2">
+                                <input
+                                    type="text"
+                                    id="mobileOtpInput"
+                                    class="reg-input text-center font-monospace fw-bold"
+                                    placeholder="Enter OTP"
+                                    maxlength="6"
+                                    style="width: 130px; height: 44px; letter-spacing: 2px; border: 1.5px solid #1a1a1a; border-radius: 6px;">
+                                <button type="button" class="btn btn-dark fw-bold px-3" id="btnVerifyMobileOtp" style="background-color: #1a1a1a; border-color: #1a1a1a; color: #fff; height: 44px; border-radius: 6px;">
+                                    Verify
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-auto d-none" id="mobileVerifiedBadge">
+                            <span class="badge bg-success px-3 py-2 fw-bold" style="font-size: 0.88rem;">
+                                Verified ✓
+                            </span>
+                        </div>
+                    </div>
+                    <small class="text-muted d-block mt-1">Must be exactly 10 digits. Verification required.</small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_email" class="form-label fw-bold small text-dark">
+                        Email Address <span class="text-danger">*</span>
+                    </label>
+                    <div class="row align-items-center g-2">
+                        <div class="col-12 col-md-5">
+                            <input
+                                type="email"
+                                name="email"
+                                id="id_email"
+                                class="reg-input"
+                                placeholder="seller@business.com"
+                                value="{{ email|default:'' }}"
+                                required>
+                        </div>
+
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-dark fw-bold px-4" id="btnSendEmailOtp" style="background-color: #1a1a1a; height: 44px; border-radius: 6px; letter-spacing: 0.5px;">
+                                OTP
+                            </button>
+                        </div>
+
+                        <div class="col-12 col-md-5" id="emailOtpFieldWrapper" style="display: none;">
+                            <div class="d-flex align-items-center gap-2">
+                                <input
+                                    type="text"
+                                    id="emailOtpInput"
+                                    class="reg-input text-center font-monospace fw-bold"
+                                    placeholder="Enter OTP"
+                                    maxlength="6"
+                                    style="width: 130px; height: 44px; letter-spacing: 2px; border: 1.5px solid #1a1a1a; border-radius: 6px;">
+                                <button type="button" class="btn btn-dark fw-bold px-3" id="btnVerifyEmailOtp" style="background-color: #1a1a1a; border-color: #1a1a1a; color: #fff; height: 44px; border-radius: 6px;">
+                                    Verify
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-auto d-none" id="emailVerifiedBadge">
+                            <span class="badge bg-success px-3 py-2 fw-bold" style="font-size: 0.88rem;">
+                                Verified ✓
+                            </span>
+                        </div>
+                    </div>
+                    <small class="text-muted d-block mt-1">Valid email format required (e.g. seller@business.com). Verification required.</small>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="id_password" class="form-label fw-bold small text-dark">
+                            Password <span class="text-danger">*</span>
+                        </label>
+                        <div class="position-relative">
+                            <input
+                                type="password"
+                                name="password"
+                                id="id_password"
+                                class="reg-input pe-5"
+                                placeholder="Min 6 characters"
+                                required>
+                            <button
+                                type="button"
+                                class="btn position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-transparent text-secondary p-1"
+                                id="btnTogglePassword"
+                                tabindex="-1"
+                                aria-label="Show/Hide Password">
+                                <i class="bi bi-eye-slash" id="eyeIconPassword"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="id_confirm_password" class="form-label fw-bold small text-dark">
+                            Confirm Password <span class="text-danger">*</span>
+                        </label>
+                        <div class="position-relative">
+                            <input
+                                type="password"
+                                name="confirm_password"
+                                id="id_confirm_password"
+                                class="reg-input pe-5"
+                                placeholder="Re-enter password"
+                                required>
+                            <button
+                                type="button"
+                                class="btn position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-transparent text-secondary p-1"
+                                id="btnToggleConfirmPassword"
+                                tabindex="-1"
+                                aria-label="Show/Hide Confirm Password">
+                                <i class="bi bi-eye-slash" id="eyeIconConfirmPassword"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="id_profile_photo" class="form-label fw-bold small text-dark">
+                        Profile Photo <span class="text-muted fw-normal">(Optional)</span>
+                    </label>
+                    <input
+                        type="file"
+                        name="profile_photo"
+                        id="id_profile_photo"
+                        class="form-control reg-input"
+                        accept="image/*">
+                    <small class="text-muted">JPG, PNG, or WEBP. Max file size 2MB. Optional.</small>
+                </div>
+
+                <h3 class="owner-form-section-title">2. Present Communication Address</h3>
+
+                <div class="mb-3">
+                    <label for="id_present_address" class="form-label fw-bold small text-dark">
+                        Address Line <span class="text-danger">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="present_address"
+                        id="id_present_address"
+                        class="reg-input"
+                        placeholder="Flat / House No., Building Name, Street / Locality"
+                        value="{{ present_address|default:'' }}"
+                        required>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label for="id_city" class="form-label fw-bold small text-dark">
+                            City <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="city"
+                            id="id_city"
+                            class="reg-input"
+                            placeholder="City"
+                            value="{{ city|default:'' }}"
+                            required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="id_state" class="form-label fw-bold small text-dark">
+                            State <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="state"
+                            id="id_state"
+                            class="reg-input"
+                            placeholder="State / Province"
+                            value="{{ state|default:'' }}"
+                            required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="id_pin_code" class="form-label fw-bold small text-dark">
+                            PIN Code <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="pin_code"
+                            id="id_pin_code"
+                            class="reg-input"
+                            placeholder="e.g. 110001"
+                            maxlength="6"
+                            value="{{ pin_code|default:'' }}"
+                            required>
+                    </div>
+                </div>
+
+                <h3 class="owner-form-section-title">3. Identity Verification</h3>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-5">
+                        <label for="id_type" class="form-label fw-bold small text-dark">
+                            ID Type <span class="text-danger">*</span>
+                        </label>
+                        <select name="id_type" id="id_type" class="reg-input" required>
+                            <option value="aadhaar" {% if id_type == 'aadhaar' or not id_type %}selected{% endif %}>Aadhaar Card</option>
+                            <option value="pan" {% if id_type == 'pan' %}selected{% endif %}>PAN Card</option>
+                            <option value="passport" {% if id_type == 'passport' %}selected{% endif %}>Passport</option>
+                            <option value="driving_licence" {% if id_type == 'driving_licence' %}selected{% endif %}>Driving Licence</option>
+                            <option value="voter_id" {% if id_type == 'voter_id' %}selected{% endif %}>Voter ID</option>
+                        </select>
+                    </div>
+                    <div class="col-md-7">
+                        <label for="id_number" class="form-label fw-bold small text-dark">
+                            ID Number <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="id_number"
+                            id="id_number"
+                            class="reg-input font-monospace text-uppercase"
+                            placeholder="12-digit Aadhaar number (e.g. 548921034872)"
+                            value="{{ id_number|default:'' }}"
+                            required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold small text-dark">
+                        Upload ID Document Proof <span class="text-muted fw-normal">(Optional)</span>
+                    </label>
+                    <div class="owner-upload-dropzone-noicon" onclick="document.getElementById('id_document_input').click();">
+                        <span class="d-block fw-bold text-dark mb-1">Click to upload or drag & drop official ID document</span>
+                        <small class="text-muted d-block">Supported formats: PDF, JPG, PNG (Max 5MB). Optional.</small>
+                        <span class="badge bg-light text-primary border mt-2 px-3 py-1" id="fileChosenLabel">
+                            No file chosen
+                        </span>
+                    </div>
+                    <input
+                        type="file"
+                        name="id_document"
+                        id="id_document_input"
+                        class="d-none"
+                        accept=".pdf,image/*"
+                        onchange="if(this.files.length) document.getElementById('fileChosenLabel').textContent = this.files[0].name;">
+                </div>
+
+                <div class="d-flex justify-content-end align-items-center pt-3 border-top">
+                    <button type="submit" class="btn btn-theme-primary px-5 py-3 fw-bold fs-6 shadow-sm" id="btnNextPage">
+                        Next Page
+                    </button>
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    function setupPasswordToggle(toggleId, inputId, iconId) {
+        const toggleBtn = document.getElementById(toggleId);
+        const passInput = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+
+        if (toggleBtn && passInput && icon) {
+            toggleBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (passInput.type === 'password') {
+                    passInput.type = 'text';
+                    icon.classList.remove('bi-eye-slash');
+                    icon.classList.add('bi-eye');
+                } else {
+                    passInput.type = 'password';
+                    icon.classList.remove('bi-eye');
+                    icon.classList.add('bi-eye-slash');
+                }
+                passInput.focus();
+            });
+        }
+    }
+    setupPasswordToggle('btnTogglePassword', 'id_password', 'eyeIconPassword');
+    setupPasswordToggle('btnToggleConfirmPassword', 'id_confirm_password', 'eyeIconConfirmPassword');
+
+    const fullNameInput = document.getElementById('id_full_name');
+
+    const pinInput = document.getElementById('id_pin_code');
+    if (pinInput) {
+        pinInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').slice(0, 6);
+        });
+    }
+
+    const idTypeSelect = document.getElementById('id_type');
+    const idNumberInput = document.getElementById('id_number');
+
+    const idRules = {
+        'aadhaar': {
+            placeholder: '12-digit Aadhaar number (e.g. 548921034872)',
+            maxlength: 12,
+            filter: (val) => val.replace(/\D/g, '').slice(0, 12),
+            regex: /^\d{12}$/
+        },
+        'pan': {
+            placeholder: 'ABCDE1234F (5 letters, 4 digits, 1 letter)',
+            maxlength: 10,
+            filter: (val) => val.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10),
+            regex: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/
+        },
+        'passport': {
+            placeholder: 'A1234567 (1 letter, 7 digits)',
+            maxlength: 8,
+            filter: (val) => val.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8),
+            regex: /^[A-Z][0-9]{7}$/
+        },
+        'driving_licence': {
+            placeholder: 'DL0420110012345 (10 to 16 alphanumeric characters)',
+            maxlength: 16,
+            filter: (val) => val.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 16),
+            regex: /^[A-Z0-9]{10,16}$/
+        },
+        'voter_id': {
+            placeholder: 'ABC1234567 (3 letters, 7 digits)',
+            maxlength: 10,
+            filter: (val) => val.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10),
+            regex: /^[A-Z]{3}[0-9]{7}$/
+        }
+    };
+
+    function updateIdRules() {
+        const type = idTypeSelect ? idTypeSelect.value : 'aadhaar';
+        const rule = idRules[type] || idRules['aadhaar'];
+
+        idNumberInput.setAttribute('placeholder', rule.placeholder);
+        idNumberInput.setAttribute('maxlength', rule.maxlength);
+        idNumberInput.value = rule.filter(idNumberInput.value);
+    }
+
+    if (idTypeSelect && idNumberInput) {
+        idTypeSelect.addEventListener('change', updateIdRules);
+        idNumberInput.addEventListener('input', function() {
+            const type = idTypeSelect.value;
+            const rule = idRules[type] || idRules['aadhaar'];
+            this.value = rule.filter(this.value);
+        });
+        updateIdRules();
+    }
+
+    const mobileInput = document.getElementById('id_mobile_number');
+    const btnSendMobileOtp = document.getElementById('btnSendMobileOtp');
+    const mobileOtpFieldWrapper = document.getElementById('mobileOtpFieldWrapper');
+    const mobileOtpInput = document.getElementById('mobileOtpInput');
+    const btnVerifyMobileOtp = document.getElementById('btnVerifyMobileOtp');
+    const mobileVerifiedBadge = document.getElementById('mobileVerifiedBadge');
+    const mobileVerifiedFlag = document.getElementById('id_mobile_verified');
+
+    if (mobileInput) {
+        mobileInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').slice(0, 10);
+            if (mobileVerifiedFlag.value === '1') {
+                mobileVerifiedFlag.value = '0';
+                mobileVerifiedBadge.classList.add('d-none');
+                btnSendMobileOtp.style.display = 'block';
+            }
+        });
+    }
+
+    if (btnSendMobileOtp) {
+        btnSendMobileOtp.addEventListener('click', function() {
+            const val = mobileInput.value.trim();
+            if (val.length !== 10) {
+                alert('Please enter a valid 10-digit mobile number first.');
+                mobileInput.focus();
+                return;
+            }
+
+            mobileOtpFieldWrapper.style.display = 'block';
+            btnSendMobileOtp.textContent = 'Resend';
+            mobileOtpInput.focus();
+        });
+    }
+
+    if (btnVerifyMobileOtp) {
+        btnVerifyMobileOtp.addEventListener('click', function() {
+            const entered = mobileOtpInput.value.trim();
+            if (entered === '123456') {
+                mobileVerifiedFlag.value = '1';
+                mobileOtpFieldWrapper.style.display = 'none';
+                btnSendMobileOtp.style.display = 'none';
+                mobileVerifiedBadge.classList.remove('d-none');
+                alert('Mobile number verified successfully!');
+            } else {
+                alert('Invalid OTP. Please enter 123456 to verify.');
+                mobileOtpInput.focus();
+            }
+        });
+    }
+
+    const emailInput = document.getElementById('id_email');
+    const btnSendEmailOtp = document.getElementById('btnSendEmailOtp');
+    const emailOtpFieldWrapper = document.getElementById('emailOtpFieldWrapper');
+    const emailOtpInput = document.getElementById('emailOtpInput');
+    const btnVerifyEmailOtp = document.getElementById('btnVerifyEmailOtp');
+    const emailVerifiedBadge = document.getElementById('emailVerifiedBadge');
+    const emailVerifiedFlag = document.getElementById('id_email_verified');
+
+    if (emailInput) {
+        emailInput.addEventListener('input', function() {
+            if (emailVerifiedFlag.value === '1') {
+                emailVerifiedFlag.value = '0';
+                emailVerifiedBadge.classList.add('d-none');
+                btnSendEmailOtp.style.display = 'block';
+            }
+        });
+    }
+
+    function isValidEmail(email) {
+        return /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(email);
+    }
+
+    if (btnSendEmailOtp) {
+        btnSendEmailOtp.addEventListener('click', function() {
+            const val = emailInput.value.trim();
+            if (!isValidEmail(val)) {
+                alert('Please enter a valid email address (e.g. seller@business.com).');
+                emailInput.focus();
+                return;
+            }
+
+            emailOtpFieldWrapper.style.display = 'block';
+            btnSendEmailOtp.textContent = 'Resend';
+            emailOtpInput.focus();
+        });
+    }
+
+    if (btnVerifyEmailOtp) {
+        btnVerifyEmailOtp.addEventListener('click', function() {
+            const entered = emailOtpInput.value.trim();
+            if (entered === '123456') {
+                emailVerifiedFlag.value = '1';
+                emailOtpFieldWrapper.style.display = 'none';
+                btnSendEmailOtp.style.display = 'none';
+                emailVerifiedBadge.classList.remove('d-none');
+                alert('Email address verified successfully!');
+            } else {
+                alert('Invalid OTP. Please enter 123456 to verify.');
+                emailOtpInput.focus();
+            }
+        });
+    }
+
+    const step1Form = document.getElementById('step1Form');
+    if (step1Form) {
+        step1Form.addEventListener('submit', function(e) {
+            const mobileVal = mobileInput.value.trim();
+            if (mobileVal.length !== 10) {
+                e.preventDefault();
+                alert('Mobile Number must be exactly 10 digits.');
+                mobileInput.focus();
+                return;
+            }
+
+            if (mobileVerifiedFlag.value !== '1') {
+                e.preventDefault();
+                alert('Please verify your Mobile Number using the OTP button.');
+                btnSendMobileOtp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            const emailVal = emailInput.value.trim();
+            if (!isValidEmail(emailVal)) {
+                e.preventDefault();
+                alert('Please enter a valid Email Address.');
+                emailInput.focus();
+                return;
+            }
+
+            if (emailVerifiedFlag.value !== '1') {
+                e.preventDefault();
+                alert('Please verify your Email Address using the OTP button.');
+                btnSendEmailOtp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            const pass1 = document.getElementById('id_password').value;
+            const pass2 = document.getElementById('id_confirm_password').value;
+            if (!pass1 || pass1.length < 6) {
+                e.preventDefault();
+                alert('Password must be at least 6 characters long.');
+                document.getElementById('id_password').focus();
+                return;
+            }
+            if (pass1 !== pass2) {
+                e.preventDefault();
+                alert('Passwords do not match. Please re-enter.');
+                document.getElementById('id_confirm_password').focus();
+                return;
+            }
+
+            const idVal = idNumberInput.value.trim();
+            const type = idTypeSelect.value;
+            const rule = idRules[type] || idRules['aadhaar'];
+            if (!idVal || !rule.regex.test(idVal)) {
+                e.preventDefault();
+                alert('Please enter a valid ' + idTypeSelect.options[idTypeSelect.selectedIndex].text + ' number according to the format:\n' + rule.placeholder);
+                idNumberInput.focus();
+                return;
+            }
+        });
+    }
+
+});
+</script>
+{% endblock %}

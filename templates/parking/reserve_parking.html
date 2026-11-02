@@ -1,0 +1,465 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reserve Your Parking in Advance - ParkEase{% endblock %}
+
+{% block content %}
+
+<section class="reserve-hero-section">
+    <div class="container pt-1 pb-4">
+        <div class="row align-items-stretch g-4 g-lg-5">
+
+            <div class="col-lg-6 d-flex flex-column">
+                <h1 class="reserve-hero-title text-white">
+                    Reserve <span class="highlight-blue">Your Parking</span> in Advance
+                </h1>
+                <p class="reserve-hero-subtitle text-white-50">
+                    With thousands of reservable spaces available, pre-book your parking in advance. Join drivers and enjoy stress-free, cheaper parking.
+                </p>
+
+                <div class="reserve-search-card">
+
+                    <div class="jp-tabs-container mb-3">
+                        <button type="button" class="jp-tab-btn active" data-tab="hourly">Hourly/Daily</button>
+                        <button type="button" class="jp-tab-btn" data-tab="monthly">Monthly</button>
+                        <button type="button" class="jp-tab-btn" data-tab="airport">Airport</button>
+                    </div>
+
+                    <form id="justParkSearchForm" action="{% url 'parking:search' %}" method="GET">
+                        <input type="hidden" id="hiddenSearchMode" name="mode" value="hourly">
+                        <input type="hidden" id="hiddenFromDate" name="from_date">
+                        <input type="hidden" id="hiddenFromTime" name="from_time">
+                        <input type="hidden" id="hiddenUntilDate" name="until_date">
+                        <input type="hidden" id="hiddenUntilTime" name="until_time">
+                        <input type="hidden" id="hiddenMonthlyStartDate" name="monthly_start_date">
+                        <input type="hidden" id="hiddenMonthlyAvailability" name="monthly_availability" value="Mon-Fri">
+                        <input type="hidden" id="hiddenVehicleType" name="vehicle_type" value="hatchback">
+
+                        <div class="jp-input-group" id="destinationFieldGroup">
+                            <label for="destinationInput" class="jp-input-label">Park at</label>
+                            <div class="jp-search-field">
+                                <input type="text" id="destinationInput" name="q" class="jp-search-input" placeholder="Enter a place, area, or postcode" autocomplete="off">
+                                <i class="bi bi-search jp-search-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="jp-input-group d-none" id="airportFieldGroup">
+                            <label for="airportSelect" class="jp-input-label">Flying from</label>
+                            <div class="jp-search-field">
+                                <select id="airportSelect" name="airport" class="jp-search-input jp-airport-select">
+                                    <option value="DEL" selected>Indira Gandhi International Airport (DEL) - New Delhi</option>
+                                    <option value="BOM">Chhatrapati Shivaji Maharaj International (BOM) - Mumbai</option>
+                                    <option value="BLR">Kempegowda International Airport (BLR) - Bengaluru</option>
+                                    <option value="HYD">Rajiv Gandhi International Airport (HYD) - Hyderabad</option>
+                                    <option value="MAA">Chennai International Airport (MAA) - Chennai</option>
+                                    <option value="CCU">Netaji Subhash Bose Airport (CCU) - Kolkata</option>
+                                    <option value="AMD">Sardar Vallabhbhai Patel Airport (AMD) - Ahmedabad</option>
+                                    <option value="COK">Cochin International Airport (COK) - Kochi</option>
+                                    <option value="GOI">Goa Dabolim / Mopa Airport (GOI / GOX) - Goa</option>
+                                    <option value="PNQ">Pune International Airport (PNQ) - Pune</option>
+                                </select>
+                                <i class="bi bi-airplane-fill jp-search-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="jp-datetime-row position-relative" id="hourlyDatetimeRow">
+
+                            <div class="jp-datetime-box" id="jpFromBox">
+                                <span class="jp-datetime-label" id="fromBoxLabel">From</span>
+                                <div class="jp-datetime-val-row">
+                                    <span class="jp-datetime-text" id="jpFromText">Today at 20:00</span>
+                                    <i class="bi bi-chevron-down jp-datetime-arrow"></i>
+                                </div>
+                            </div>
+
+                            <div class="jp-datetime-separator">
+                                <i class="bi bi-arrow-right"></i>
+                            </div>
+
+                            <div class="jp-datetime-box" id="jpUntilBox">
+                                <span class="jp-datetime-label" id="untilBoxLabel">Until</span>
+                                <div class="jp-datetime-val-row">
+                                    <span class="jp-datetime-text" id="jpUntilText">Tomorrow at 00:00</span>
+                                    <i class="bi bi-chevron-down jp-datetime-arrow"></i>
+                                </div>
+                            </div>
+
+                            <div class="jp-popover-wrapper" id="jpDatetimePopover">
+                                <div class="jp-popover-body">
+
+                                    <div class="jp-calendar-column">
+                                        <div class="jp-cal-nav">
+                                            <span class="jp-cal-month-title" id="jpCalMonthTitle">October 2026</span>
+                                            <div class="d-flex gap-1">
+                                                <button type="button" class="jp-cal-nav-btn" id="jpCalPrevBtn" title="Previous Month">
+                                                    <i class="bi bi-chevron-left"></i>
+                                                </button>
+                                                <button type="button" class="jp-cal-nav-btn" id="jpCalNextBtn" title="Next Month">
+                                                    <i class="bi bi-chevron-right"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div class="jp-cal-weekdays">
+                                            <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+                                        </div>
+
+                                        <div class="jp-cal-days-grid" id="jpCalDaysGrid"></div>
+                                    </div>
+
+                                    <div class="jp-time-column">
+                                        <div class="jp-time-title">Select Time</div>
+                                        <div class="jp-time-scroll-list" id="jpTimeScrollList"></div>
+                                    </div>
+
+                                </div>
+
+                                <div class="jp-popover-footer">
+                                    <div class="jp-popover-summary-text" id="jpPopoverSummary">
+                                        Enter after: <strong>Today at 20:00</strong>
+                                    </div>
+                                    <button type="button" class="btn-jp-popover-done" id="jpPopoverDoneBtn">
+                                        Done
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="jp-datetime-row position-relative d-none" id="monthlyDatetimeRow">
+
+                            <div class="jp-datetime-box" id="jpMonthlyStartBox">
+                                <span class="jp-datetime-label">Starting on</span>
+                                <div class="jp-datetime-val-row">
+                                    <span class="jp-datetime-text" id="jpMonthlyStartText">Tomorrow</span>
+                                    <i class="bi bi-chevron-down jp-datetime-arrow"></i>
+                                </div>
+                            </div>
+
+                            <div class="jp-datetime-separator">
+                                <i class="bi bi-arrow-right"></i>
+                            </div>
+
+                            <div class="jp-datetime-box" id="jpMonthlyAvailabilityBox">
+                                <span class="jp-datetime-label">Availability</span>
+                                <div class="jp-datetime-val-row">
+                                    <span class="jp-datetime-text" id="jpMonthlyAvailabilityText">Mon-Fri</span>
+                                    <i class="bi bi-chevron-down jp-datetime-arrow"></i>
+                                </div>
+                            </div>
+
+                            <div class="jp-popover-wrapper jp-monthly-calendar-popover" id="jpMonthlyCalendarPopover">
+                                <div class="jp-monthly-cal-body">
+                                    <div class="jp-cal-nav">
+                                        <span class="jp-cal-month-title" id="jpMonthlyCalMonthTitle">October 2026</span>
+                                        <div class="d-flex gap-1">
+                                            <button type="button" class="jp-cal-nav-btn" id="jpMonthlyCalPrevBtn" title="Previous Month">
+                                                <i class="bi bi-chevron-left"></i>
+                                            </button>
+                                            <button type="button" class="jp-cal-nav-btn" id="jpMonthlyCalNextBtn" title="Next Month">
+                                                <i class="bi bi-chevron-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="jp-cal-weekdays">
+                                        <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+                                    </div>
+
+                                    <div class="jp-cal-days-grid" id="jpMonthlyCalDaysGrid"></div>
+
+                                    <div class="mt-3">
+                                        <button type="button" class="btn-jp-popover-done w-100" id="jpMonthlyCalDoneBtn">
+                                            Done
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="jp-popover-wrapper jp-availability-popover" id="jpMonthlyAvailabilityPopover">
+                                <div class="jp-availability-body">
+
+                                    <label class="jp-radio-option" data-value="Every day">
+                                        <span class="jp-radio-label">Every day</span>
+                                        <input type="radio" name="availability_opt" value="Every day" class="jp-radio-input">
+                                        <span class="jp-radio-circle"></span>
+                                    </label>
+
+                                    <label class="jp-radio-option selected" data-value="Mon-Fri">
+                                        <span class="jp-radio-label">Mon-Fri</span>
+                                        <input type="radio" name="availability_opt" value="Mon-Fri" class="jp-radio-input" checked>
+                                        <span class="jp-radio-circle"></span>
+                                    </label>
+
+                                    <label class="jp-radio-option" data-value="Sat-Sun">
+                                        <span class="jp-radio-label">Sat-Sun</span>
+                                        <input type="radio" name="availability_opt" value="Sat-Sun" class="jp-radio-input">
+                                        <span class="jp-radio-circle"></span>
+                                    </label>
+
+                                    <div class="mt-3">
+                                        <button type="button" class="btn-jp-popover-done w-100" id="jpAvailabilityDoneBtn">
+                                            Done
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="jp-vehicle-group">
+                            <label for="vehicleTypeSelect" class="jp-vehicle-label">Vehicle Type</label>
+                            <select id="vehicleTypeSelect" class="jp-vehicle-select-control">
+                                <option value="hatchback" selected>Bike / Scooter (Two-Wheeler)</option>
+                                <option value="sedan">Hatchback (Compact Car)</option>
+                                <option value="suv">SUV / 4x4 car</option>
+                                <option value="bike">Sedan (Standard Car)</option>
+                                <option value="van">Van / Large Vehicle</option>
+                                <option value="ev">Electric Vehicle with Charging Bay</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-jp-search-submit w-100">
+                            Find parking spaces
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-6 d-flex">
+                <div class="reserve-hero-img-wrapper w-100">
+                    <img src="{% static 'images/reserve-hero-couple.jpg' %}" alt="Drivers reserving parking in advance" class="reserve-hero-img shadow-lg">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<section class="section-padding" style="background-color: var(--bg-page);">
+    <div class="container">
+
+        <div class="mb-5">
+            <h2 class="section-title text-start">
+                How to <span class="highlight-blue">pre-book parking</span>
+            </h2>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-3 col-md-6">
+                <div class="prebook-card">
+                    <span class="prebook-step-badge">STEP 1</span>
+                    <h3 class="prebook-title mt-2">Enter a destination</h3>
+                    <p class="prebook-desc">
+                        Search by location name, landmark, or postcode to find available parking nearby.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="prebook-card">
+                    <span class="prebook-step-badge">STEP 2</span>
+                    <h3 class="prebook-title mt-2">Select time and date</h3>
+                    <p class="prebook-desc">
+                        This helps space owners confirm your booking and guarantees your reserved bay upon arrival.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="prebook-card">
+                    <span class="prebook-step-badge">STEP 3</span>
+                    <h3 class="prebook-title mt-2">Enter your vehicle details</h3>
+                    <p class="prebook-desc">
+                        Entering your details helps space owners know who is parking there for seamless gate verification.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="prebook-card">
+                    <span class="prebook-step-badge">STEP 4</span>
+                    <h3 class="prebook-title mt-2">Pay for your parking</h3>
+                    <p class="prebook-desc">
+                        Confirm your parking by paying securely and receive instant confirmation with digital QR pass instructions.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<section class="section-padding bg-white">
+    <div class="container">
+
+        <div class="mb-5">
+            <h2 class="section-title text-start">
+                Your Complete Guide to <span class="highlight-blue">Parking Reservations</span>
+            </h2>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-6">
+                <div class="guide-card">
+                    <div class="guide-card-header">
+                        <h3 class="guide-card-title">Reserving Parking for City Breaks</h3>
+                    </div>
+                    <p class="guide-card-text">
+                        Take the stress out of city parking with our trusted private driveways and car parks. Reserve your space in advance and follow the simple instructions to park on arrival, no circling the streets or hunting for a spot. Booking ahead gets you a convenient, secure location so you can start exploring straight away. Enjoy your city break with one less thing to worry about.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="guide-card">
+                    <div class="guide-card-header">
+                        <h3 class="guide-card-title">Reserving Parking for Concerts</h3>
+                    </div>
+                    <p class="guide-card-text">
+                        Make concert days hassle-free with our trusted private driveways and car parks. Reserve your space in advance and follow the instructions to park on arrival &ndash; no searching or waiting. Booking ahead ensures a convenient, secure spot close to the venue so you can focus on enjoying the show. Start the night stress-free and get there in plenty of time for the music.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="guide-card">
+                    <div class="guide-card-header">
+                        <h3 class="guide-card-title">Reserving Parking for Sporting Events</h3>
+                    </div>
+                    <p class="guide-card-text">
+                        Make parking on sporting event days simple and stress-free with our trusted private driveways and car parks. Reserve your space in advance and follow the instructions to park when you arrive &ndash; no searching, no hassle. Booking ahead ensures a convenient, secure spot close to the stadium or arena. Focus on the game and enjoy a smoother, worry-free experience from the moment you arrive.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="guide-card">
+                    <div class="guide-card-header">
+                        <h3 class="guide-card-title">Reserving Parking for Commuting</h3>
+                    </div>
+                    <p class="guide-card-text">
+                        Simplify your daily commute with our trusted private driveways and car parks. Reserve your space in advance and park on arrival &ndash; no more circling for a spot or worrying about availability. Booking ahead helps you find a convenient, secure location so you can get to work on time, every day. Start your commute relaxed and stress-free.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<section class="section-padding" style="background-color: var(--bg-page);">
+    <div class="container">
+
+        <div class="row align-items-center g-5">
+
+            <div class="col-lg-6">
+                <h2 class="section-title text-start mb-4">
+                    What are the benefits of <span class="highlight-blue">reserving your parking space?</span>
+                </h2>
+
+                <div class="benefits-checklist-card">
+                    <div class="benefits-checklist-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>Best spaces available</span>
+                    </div>
+                    <div class="benefits-checklist-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>Peace of mind</span>
+                    </div>
+                    <div class="benefits-checklist-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>Price lock</span>
+                    </div>
+                    <div class="benefits-checklist-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>Save time & money</span>
+                    </div>
+                    <div class="benefits-checklist-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>Simple booking</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <img src="{% static 'images/parking-benefits.jpg' %}" alt="Organized reserved parking spaces" class="benefits-hero-img shadow-lg">
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<section class="section-padding bg-white">
+    <div class="container">
+
+        <div class="mb-5">
+            <h2 class="section-title text-start">
+                FAQs on <span class="highlight-blue">pre-booking parking</span>
+            </h2>
+        </div>
+
+        <div class="accordion" id="faqPrebookingAccordion">
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button faq-accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        How can I find parking on someone's driveway?
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqPrebookingAccordion">
+                    <div class="faq-accordion-body">
+                        Search your destination on ParkEase to view verified private driveways and reserved parking spaces nearby. Each listing displays real-time slot availability, hourly or daily tariffs, and owner grace periods. Once you complete your reservation, you receive turn-by-turn directions and a digital QR pass for entry.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Do I need to book in advance, or can I park immediately?
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqPrebookingAccordion">
+                    <div class="faq-accordion-body">
+                        You can do both! We recommend pre-booking in advance to guarantee your parking bay before leaving home so you never circle crowded city blocks. However, if you are already on the move, you can also search for active nearby spaces and book on-demand instantly from your phone.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="headingThree">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        Is it safe to park on a private driveway?
+                    </button>
+                </h2>
+                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqPrebookingAccordion">
+                    <div class="faq-accordion-body">
+                        Yes, 100%. Every parking lot and driveway on ParkEase is verified by our administrative team before being approved. Many spaces are situated in quiet, secure residential areas and feature added protection like CCTV cameras, security lighting, and gated perimeters.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="headingFour">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                        Can I extend my parking time if I need to stay longer?
+                    </button>
+                </h2>
+                <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqPrebookingAccordion">
+                    <div class="faq-accordion-body">
+                        Absolutely. If your meeting runs late or your concert goes into overtime, you can extend your active parking booking in one click from your phone, avoiding any overstay penalties.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+{% endblock %}

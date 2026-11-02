@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Login - ParkEase{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container pt-1 pb-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-10 col-lg-8 col-xl-7" style="max-width: 640px;">
+
+                <div class="auth-card auth-card-login">
+
+                    <div class="auth-card-navy-header text-center">
+                        <h1 class="auth-title text-white mb-2">
+                            Welcome <span style="color: #38bdf8;">Back</span>
+                        </h1>
+                        <p class="auth-subtitle mb-0" style="color: rgba(255, 255, 255, 0.85);">
+                            Sign in to manage platform infrastructure, verify owners, and oversee operations.
+                        </p>
+                    </div>
+
+                    <div class="auth-card-body">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags|default:'danger' }} py-2 px-3 mb-3 small d-flex align-items-center gap-2" role="alert" style="border-radius: 8px;">
+                                    <i class="bi bi-exclamation-triangle-fill"></i>
+                                    <div>{{ message }}</div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="POST" action="{% url 'admin_panel:login' %}" novalidate id="adminLoginForm">
+                            {% csrf_token %}
+                            {% if next %}
+                                <input type="hidden" name="next" value="{{ next }}">
+                            {% endif %}
+
+                            <div class="mb-3">
+                                <label for="id_admin_username" class="auth-label">Administrator Username</label>
+                                <input
+                                    type="text"
+                                    name="username"
+                                    id="id_admin_username"
+                                    class="reg-input"
+                                    placeholder="Enter your administrator username"
+                                    value="{{ identifier|default:'' }}"
+                                    required
+                                    autofocus
+                                    autocomplete="username">
+                            </div>
+
+                            <div class="mb-2">
+                                <label for="id_admin_password" class="auth-label">Password</label>
+                                <div class="position-relative">
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        id="id_admin_password"
+                                        class="reg-input pe-5"
+                                        placeholder="Enter your password"
+                                        required
+                                        autocomplete="current-password">
+                                    <button
+                                        type="button"
+                                        class="btn position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-transparent text-secondary p-1"
+                                        id="btnToggleAdminPassword"
+                                        tabindex="-1"
+                                        aria-label="Show/Hide Password">
+                                        <i class="bi bi-eye-slash fs-5" id="eyeIconAdminPassword"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-4 pt-1">
+                                <div class="form-check m-0">
+                                    <input class="form-check-input auth-checkbox" type="checkbox" id="adminRememberMe" name="remember_me" checked>
+                                    <label class="form-check-label auth-remember-label" for="adminRememberMe">
+                                        Remember me
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-theme-primary w-100 py-2 fs-6">
+                                Admin Login
+                            </button>
+
+                        </form>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const toggleBtn = document.getElementById('btnToggleAdminPassword');
+    const passInput = document.getElementById('id_admin_password');
+    const eyeIcon = document.getElementById('eyeIconAdminPassword');
+
+    if (toggleBtn && passInput && eyeIcon) {
+        toggleBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                eyeIcon.classList.remove('bi-eye-slash');
+                eyeIcon.classList.add('bi-eye');
+            } else {
+                passInput.type = 'password';
+                eyeIcon.classList.remove('bi-eye');
+                eyeIcon.classList.add('bi-eye-slash');
+            }
+            passInput.focus();
+        });
+    }
+});
+</script>
+{% endblock %}

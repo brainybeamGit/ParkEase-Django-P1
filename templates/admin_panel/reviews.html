@@ -1,0 +1,99 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load static %}
+
+{% block title %}Reviews & Ratings - ParkEase Admin Studio{% endblock %}
+{% block page_heading %}Platform Reviews Moderation & Quality Ratings{% endblock %}
+
+{% block admin_content %}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="admin-card-metric">
+            <span class="metric-title">PLATFORM AVERAGE RATING</span>
+            <div class="metric-value text-dark">{{ avg_rating }} <span class="fs-4 text-dark">★</span></div>
+            <p class="metric-subtitle">Across verified driver feedback</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="admin-card-metric">
+            <span class="metric-title">TOTAL REVIEWS</span>
+            <div class="metric-value text-dark">{{ total_reviews }}</div>
+            <p class="metric-subtitle">Verified motorist testimonials</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="admin-card-metric">
+            <span class="metric-title">REPORTED REVIEWS</span>
+            <div class="metric-value text-dark">{{ reported_count }}</div>
+            <p class="metric-subtitle">Flagged for policy moderation</p>
+        </div>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="pb-3 border-bottom mb-3">
+        <h5 class="fw-bold text-dark mb-0">Motorist Reviews & Moderation Queue</h5>
+    </div>
+
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>DRIVER / MOTORIST</th>
+                    <th>PARKING LOT</th>
+                    <th>RATING</th>
+                    <th>COMMENT & OWNER REPLY</th>
+                    <th>DATE</th>
+                    <th class="text-end">ACTION</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in reviews %}
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-dark">{{ r.driver_name }}</div>
+                            <small class="text-muted">Ref #BK-{{ r.booking_ref }}</small>
+                        </td>
+                        <td>
+                            <span class="small fw-semibold text-dark">{{ r.parking_lot.name }}</span>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-dark fs-6">{{ r.rating }}</span>
+                        </td>
+                        <td style="max-width: 320px;">
+                            <div class="small text-dark mb-1">“{{ r.comment }}”</div>
+                            {% if r.owner_reply %}
+                                <div class="p-2 rounded bg-light border small text-muted" style="font-size: 0.76rem;">
+                                    <strong>Owner Reply:</strong> {{ r.owner_reply }}
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="small text-muted">{{ r.created_at|date:"M d, Y" }}</span>
+                        </td>
+                        <td class="text-end">
+                            <form method="POST" action="{% url 'admin_panel:moderate_review' r.id %}" class="d-inline">
+                                {% csrf_token %}
+                                {% if r.is_reported %}
+                                    <input type="hidden" name="action" value="dismiss">
+                                    <button type="submit" class="btn btn-sm btn-outline-success py-1 px-2 fw-semibold" style="font-size: 0.75rem;">Approve</button>
+                                {% endif %}
+                            </form>
+                            <form method="POST" action="{% url 'admin_panel:moderate_review' r.id %}" class="d-inline" onsubmit="return confirm('Permanently remove this review?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2 fw-semibold" style="font-size: 0.75rem;">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">No reviews recorded.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

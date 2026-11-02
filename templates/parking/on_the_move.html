@@ -1,0 +1,381 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Find Parking on the Move - Apple CarPlay & Android Auto | ParkEase{% endblock %}
+
+{% block content %}
+
+<section class="reserve-hero-section">
+    <div class="container pt-1 pb-4">
+        <div class="row align-items-stretch g-4 g-lg-5">
+
+            <div class="col-lg-6 d-flex flex-column">
+                <h1 class="reserve-hero-title text-white">
+                    Find parking <span class="highlight-blue">on the move</span>
+                </h1>
+                <p class="reserve-hero-subtitle text-white-50">
+                    Driving around trying to find a space? Use Apple CarPlay and Android Auto to show you the nearest available spaces. Reserve, pay & navigate on the move with a few taps.
+                </p>
+
+                <div class="reserve-search-card">
+
+                    <div class="jp-tabs-container mb-3">
+                        <button type="button" class="jp-tab-btn active" data-tab="hourly">Hourly/Daily</button>
+                        <button type="button" class="jp-tab-btn" data-tab="monthly">Monthly</button>
+                        <button type="button" class="jp-tab-btn" data-tab="airport">Airport</button>
+                    </div>
+
+                    <form id="justParkSearchForm" action="#" method="GET">
+                        <input type="hidden" id="hiddenSearchMode" name="mode" value="hourly">
+                        <input type="hidden" id="hiddenFromDate" name="from_date">
+                        <input type="hidden" id="hiddenFromTime" name="from_time">
+                        <input type="hidden" id="hiddenUntilDate" name="until_date">
+                        <input type="hidden" id="hiddenUntilTime" name="until_time">
+                        <input type="hidden" id="hiddenMonthlyStartDate" name="monthly_start_date">
+                        <input type="hidden" id="hiddenMonthlyAvailability" name="monthly_availability" value="Mon-Fri">
+                        <input type="hidden" id="hiddenVehicleType" name="vehicle_type" value="hatchback">
+
+                        <div class="jp-input-group mb-3" id="destinationFieldGroup">
+                            <label for="destinationInput" class="jp-input-label">Where would you like to park?</label>
+                            <div class="jp-search-field">
+                                <input type="text" id="destinationInput" name="area" class="jp-search-input" placeholder="Enter destination or postcode" autocomplete="off">
+                                <i class="bi bi-search jp-search-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="jp-input-group mb-3 d-none" id="airportFieldGroup">
+                            <label for="airportSelect" class="jp-input-label">Flying from</label>
+                            <div class="jp-search-field">
+                                <select id="airportSelect" name="airport" class="jp-search-input jp-airport-select">
+                                    <option value="DEL" selected>Indira Gandhi International Airport (DEL) - New Delhi</option>
+                                    <option value="BOM">Chhatrapati Shivaji Maharaj International (BOM) - Mumbai</option>
+                                    <option value="BLR">Kempegowda International Airport (BLR) - Bengaluru</option>
+                                    <option value="HYD">Rajiv Gandhi International Airport (HYD) - Hyderabad</option>
+                                    <option value="MAA">Chennai International Airport (MAA) - Chennai</option>
+                                    <option value="CCU">Netaji Subhash Bose Airport (CCU) - Kolkata</option>
+                                </select>
+                                <i class="bi bi-airplane-fill jp-search-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="jp-datetime-row position-relative mb-3" id="hourlyDatetimeRow">
+                            <div class="jp-datetime-box" id="jpFromBox">
+                                <span class="jp-datetime-label" id="fromBoxLabel">From</span>
+                                <div class="jp-datetime-val-row">
+                                    <span class="jp-datetime-text" id="jpFromText">Today at 20:00</span>
+                                    <i class="bi bi-chevron-down jp-datetime-arrow"></i>
+                                </div>
+                            </div>
+
+                            <div class="jp-datetime-separator">
+                                <i class="bi bi-arrow-right"></i>
+                            </div>
+
+                            <div class="jp-datetime-box" id="jpUntilBox">
+                                <span class="jp-datetime-label" id="untilBoxLabel">Until</span>
+                                <div class="jp-datetime-val-row">
+                                    <span class="jp-datetime-text" id="jpUntilText">Tomorrow at 00:00</span>
+                                    <i class="bi bi-chevron-down jp-datetime-arrow"></i>
+                                </div>
+                            </div>
+
+                            <div class="jp-popover-wrapper" id="jpDatetimePopover">
+                                <div class="jp-popover-body">
+                                    <div class="jp-calendar-column">
+                                        <div class="jp-cal-nav">
+                                            <span class="jp-cal-month-title" id="jpCalMonthTitle">October 2026</span>
+                                            <div class="d-flex gap-1">
+                                                <button type="button" class="jp-cal-nav-btn" id="jpCalPrevBtn"><i class="bi bi-chevron-left"></i></button>
+                                                <button type="button" class="jp-cal-nav-btn" id="jpCalNextBtn"><i class="bi bi-chevron-right"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="jp-cal-weekdays">
+                                            <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+                                        </div>
+                                        <div class="jp-cal-days-grid" id="jpCalDaysGrid"></div>
+                                    </div>
+                                    <div class="jp-time-column">
+                                        <div class="jp-time-title">Select Time</div>
+                                        <div class="jp-time-scroll-list" id="jpTimeScrollList"></div>
+                                    </div>
+                                </div>
+                                <div class="jp-popover-footer">
+                                    <div class="jp-popover-summary-text" id="jpPopoverSummary">Enter after: <strong>Today at 20:00</strong></div>
+                                    <button type="button" class="btn-jp-popover-done" id="jpPopoverDoneBtn">Done</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="jp-datetime-row position-relative mb-3 d-none" id="monthlyDatetimeRow">
+                            <div class="jp-datetime-box" id="jpMonthlyStartBox">
+                                <span class="jp-datetime-label">Starting on</span>
+                                <div class="jp-datetime-val-row">
+                                    <span class="jp-datetime-text" id="jpMonthlyStartText">Tomorrow</span>
+                                    <i class="bi bi-chevron-down jp-datetime-arrow"></i>
+                                </div>
+                            </div>
+                            <div class="jp-datetime-separator">
+                                <i class="bi bi-arrow-right"></i>
+                            </div>
+                            <div class="jp-datetime-box" id="jpMonthlyAvailabilityBox">
+                                <span class="jp-datetime-label">Availability</span>
+                                <div class="jp-datetime-val-row">
+                                    <span class="jp-datetime-text" id="jpMonthlyAvailabilityText">Mon-Fri</span>
+                                    <i class="bi bi-chevron-down jp-datetime-arrow"></i>
+                                </div>
+                            </div>
+
+                            <div class="jp-popover-wrapper jp-monthly-calendar-popover" id="jpMonthlyCalendarPopover">
+                                <div class="jp-monthly-cal-body">
+                                    <div class="jp-cal-nav">
+                                        <span class="jp-cal-month-title" id="jpMonthlyCalMonthTitle">October 2026</span>
+                                        <div class="d-flex gap-1">
+                                            <button type="button" class="jp-cal-nav-btn" id="jpMonthlyCalPrevBtn"><i class="bi bi-chevron-left"></i></button>
+                                            <button type="button" class="jp-cal-nav-btn" id="jpMonthlyCalNextBtn"><i class="bi bi-chevron-right"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="jp-cal-weekdays">
+                                        <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+                                    </div>
+                                    <div class="jp-cal-days-grid" id="jpMonthlyCalDaysGrid"></div>
+                                    <div class="mt-3">
+                                        <button type="button" class="btn-jp-popover-done w-100" id="jpMonthlyCalDoneBtn">Done</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="jp-popover-wrapper jp-availability-popover" id="jpMonthlyAvailabilityPopover">
+                                <div class="jp-availability-body">
+                                    <label class="jp-radio-option" data-value="Every day">
+                                        <span class="jp-radio-label">Every day</span>
+                                        <input type="radio" name="availability_opt" value="Every day" class="jp-radio-input">
+                                        <span class="jp-radio-circle"></span>
+                                    </label>
+                                    <label class="jp-radio-option selected" data-value="Mon-Fri">
+                                        <span class="jp-radio-label">Mon-Fri</span>
+                                        <input type="radio" name="availability_opt" value="Mon-Fri" class="jp-radio-input" checked>
+                                        <span class="jp-radio-circle"></span>
+                                    </label>
+                                    <label class="jp-radio-option" data-value="Sat-Sun">
+                                        <span class="jp-radio-label">Sat-Sun</span>
+                                        <input type="radio" name="availability_opt" value="Sat-Sun" class="jp-radio-input">
+                                        <span class="jp-radio-circle"></span>
+                                    </label>
+                                    <div class="mt-3">
+                                        <button type="button" class="btn-jp-popover-done w-100" id="jpAvailabilityDoneBtn">Done</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="jp-vehicle-group mb-3">
+                            <label for="vehicleTypeSelect" class="jp-vehicle-label">Vehicle Type</label>
+                            <select id="vehicleTypeSelect" class="jp-vehicle-select-control">
+                                <option value="hatchback" selected>Bike / Scooter (Two-Wheeler)</option>
+                                <option value="sedan">Hatchback (Compact Car)</option>
+                                <option value="suv">SUV / 4x4 car</option>
+                                <option value="bike">Sedan (Standard Car)</option>
+                                <option value="van">Van / Large Vehicle</option>
+                                <option value="ev">Electric Vehicle with Charging Bay</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-jp-search-submit w-100">
+                            Find parking spaces
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-6 d-flex">
+                <div class="reserve-hero-img-wrapper w-100">
+                    <img src="{% static 'images/on-the-move-hero.jpg' %}" alt="Driver tapping navigation touchscreen on the move" class="reserve-hero-img shadow-lg">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<section class="section-padding" style="background-color: var(--bg-page);">
+    <div class="container">
+
+        <div class="mb-5">
+            <h2 class="section-title text-start">
+                When to use <span class="highlight-blue">CarPlay / Android Auto</span>
+            </h2>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-4 col-md-6">
+                <div class="otm-feature-card">
+                    <div class="otm-card-media">
+                        <img src="{% static 'images/otm-work.jpg' %}" alt="Skyscrapers and office district" class="otm-card-img">
+                    </div>
+                    <div class="otm-card-body">
+                        <h3 class="otm-card-title">Heading into work?</h3>
+                        <p class="otm-card-desc">
+                            With hybrid working being a lot more common these days, it can be hard to know exactly what days you'll be making your commute into the office. Well, whether you park by the office or next to the train station, with CarPlay / Android Auto you can just book your spot on the go.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="otm-feature-card">
+                    <div class="otm-card-media">
+                        <img src="{% static 'images/otm-shopping.jpg' %}" alt="Town center and shopping destination" class="otm-card-img">
+                    </div>
+                    <div class="otm-card-body">
+                        <h3 class="otm-card-title">Popping into town?</h3>
+                        <p class="otm-card-desc">
+                            Time over the weekend is precious, we don't want to spend it hunting for a parking space. Whether you are running errands, popping to the shops or catching up with friends, CarPlay / Android Auto will have you parked in minutes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="otm-feature-card">
+                    <div class="otm-card-media">
+                        <img src="{% static 'images/otm-adventure.jpg' %}" alt="Scenic road trip destination" class="otm-card-img">
+                    </div>
+                    <div class="otm-card-body">
+                        <h3 class="otm-card-title">Having an adventure?</h3>
+                        <p class="otm-card-desc">
+                            Driving in a new area can be stressful enough, let alone finding a place to park. With CarPlay / Android Auto, you will turn you into a local expert in just a few taps. When that car park you were hoping to stumble upon doesn't appear - just ask to find parking and we will find you a space nearby and take you right to it.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<section class="section-padding bg-white">
+    <div class="container">
+
+        <div class="mb-5">
+            <h2 class="section-title text-start">
+                Your Complete Guide to <span class="highlight-blue">Finding Parking on the go</span>
+            </h2>
+        </div>
+
+        <div class="row g-4 mb-5">
+
+            <div class="col-lg-6">
+                <div class="guide-wide-card">
+                    <div class="guide-wide-header">
+                        <div class="guide-tag-badge">ON-DEMAND ACCESS</div>
+                        <h3 class="guide-wide-title">What is parking on the move?</h3>
+                    </div>
+                    <p class="guide-wide-text">
+                        Our network of over 100,000 bookable private driveways and parking spaces let drivers book parking in advance. However, as we all know, life can be unpredictable and you can't always plan in advance. And now, you don't need to. Next time you're out and you need parking, just ask Siri / Google Assistant to find parking using ParkEase and let us guide you to the nearest available space.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="guide-wide-card">
+                    <div class="guide-wide-header">
+                        <div class="guide-tag-badge">SEAMLESS INTEGRATION</div>
+                        <h3 class="guide-wide-title">How does parking on the move work?</h3>
+                    </div>
+                    <p class="guide-wide-text">
+                        Our app constantly searches for the nearest available parking space, which means as soon as you need to park, we've already found the best spots for you. Once you have asked for the search to take place, simply select the space that suits you and in a few taps we'll have reserved it for you. We'll also navigate you straight to the space using your preferred maps app.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="otm-testimonial-banner">
+            <h3 class="otm-testimonial-title">Change the way you park.</h3>
+            <p class="otm-testimonial-quote">
+                &ldquo;Pre-booking a space is really handy when you already know what your day is going to look like. But between flexible working, last minute client meetings, pick-ups, drop-offs... life isn't always that predictable. Being able to find a space just saying a few words is a game-changer for me. The time you save, not to mention the stress you avoid, is such a help on busy days. I'll definitely be recommending this to all of my friends.&rdquo;
+            </p>
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                <div class="otm-trust-stars">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                </div>
+                <span class="otm-trust-label">Rated Excellent &bull; Verified ParkEase Driver Review</span>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section class="section-padding" style="background-color: var(--bg-page);">
+    <div class="container">
+
+        <div class="mb-5">
+            <h2 class="section-title text-start">
+                FAQs on <span class="highlight-blue">Finding Parking Near Me</span>
+            </h2>
+        </div>
+
+        <div class="accordion" id="faqOnTheMoveAccordion">
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="otmHeadingOne">
+                    <button class="accordion-button faq-accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#otmCollapseOne" aria-expanded="true" aria-controls="otmCollapseOne">
+                        How do you choose which parking spaces to show me?
+                    </button>
+                </h2>
+                <div id="otmCollapseOne" class="accordion-collapse collapse show" aria-labelledby="otmHeadingOne" data-bs-parent="#faqOnTheMoveAccordion">
+                    <div class="faq-accordion-body">
+                        When using CarPlay, Android Auto, or voice search, ParkEase prioritizes the closest available spaces with guaranteed slot availability, real-time access clearance, and verified pricing. We factor in your current live GPS heading so the suggested spaces are along your direction of travel.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="otmHeadingTwo">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#otmCollapseTwo" aria-expanded="false" aria-controls="otmCollapseTwo">
+                        How is this different to booking in advance?
+                    </button>
+                </h2>
+                <div id="otmCollapseTwo" class="accordion-collapse collapse" aria-labelledby="otmHeadingTwo" data-bs-parent="#faqOnTheMoveAccordion">
+                    <div class="faq-accordion-body">
+                        Booking on the move is built for spontaneous, live journeys. Instead of selecting specific dates and hours ahead of time, the system locks in the space immediately from the moment you tap 'Park Now' and guides you directly via your dashboard screen.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="otmHeadingThree">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#otmCollapseThree" aria-expanded="false" aria-controls="otmCollapseThree">
+                        How do I pay for parking?
+                    </button>
+                </h2>
+                <div id="otmCollapseThree" class="accordion-collapse collapse" aria-labelledby="otmHeadingThree" data-bs-parent="#faqOnTheMoveAccordion">
+                    <div class="faq-accordion-body">
+                        Payment is completely hands-free and cashless. Your default payment method stored in your ParkEase account (Apple Pay, Google Pay, or card) is charged automatically once you confirm the booking on your dashboard.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="otmHeadingFour">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#otmCollapseFour" aria-expanded="false" aria-controls="otmCollapseFour">
+                        What if I need to park for longer than I've selected?
+                    </button>
+                </h2>
+                <div id="otmCollapseFour" class="accordion-collapse collapse" aria-labelledby="otmHeadingFour" data-bs-parent="#faqOnTheMoveAccordion">
+                    <div class="faq-accordion-body">
+                        You can extend your active parking session with a single tap on your in-car touchscreen or via the ParkEase smartphone app before your current session expires.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+{% endblock %}

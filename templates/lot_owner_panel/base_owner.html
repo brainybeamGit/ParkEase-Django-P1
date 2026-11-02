@@ -1,0 +1,840 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Space Owner Studio - ParkEase{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --owner-primary: #0f2942;
+            --owner-primary-hover: #183d63;
+            --owner-brand-blue: #0284c7;
+            --owner-brand-blue-hover: #0369a1;
+
+            --owner-sidebar-bg: #0f2942;
+            --owner-sidebar-hover: rgba(255, 255, 255, 0.09);
+            --owner-sidebar-active: #0284c7;
+            --owner-sidebar-active-text: #ffffff;
+            --owner-sidebar-text: #ffffff;
+            --owner-sidebar-heading: #94a3b8;
+
+            --owner-dark: #0f172a;
+            --owner-body-bg: #f8fafc;
+            --owner-card-border: #e2e8f0;
+            --owner-muted: #64748b;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--owner-body-bg);
+            color: #334155;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .owner-sidebar {
+            width: 260px;
+            min-width: 260px;
+            max-width: 260px;
+            background-color: var(--owner-sidebar-bg);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 1020;
+        }
+
+        .owner-sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+        .owner-sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .owner-sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        .owner-brand-header {
+            padding: 24px 22px 18px 22px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .owner-brand-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .owner-brand-subtitle {
+            font-size: 0.72rem;
+            letter-spacing: 1.2px;
+            color: #38bdf8;
+            font-weight: 700;
+            margin-top: 3px;
+            text-transform: uppercase;
+        }
+
+        .owner-nav-section-title {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--owner-sidebar-heading);
+            padding: 16px 22px 6px 22px;
+            margin: 0;
+        }
+
+        .owner-nav-list {
+            list-style: none;
+            padding: 0 12px;
+            margin: 0;
+        }
+
+        .owner-nav-item {
+            margin-bottom: 3px;
+        }
+
+        .owner-nav-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            color: var(--owner-sidebar-text);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.16s ease-in-out;
+        }
+
+        .owner-nav-link:hover {
+            background-color: var(--owner-sidebar-hover);
+            color: #ffffff;
+        }
+
+        .owner-nav-link.active {
+            background-color: var(--owner-sidebar-active);
+            color: var(--owner-sidebar-active-text);
+            font-weight: 600;
+        }
+
+        .owner-nav-link.active:hover {
+            background-color: var(--owner-sidebar-active);
+            color: var(--owner-sidebar-active-text);
+        }
+
+        .owner-topbar {
+            height: 64px;
+            min-height: 64px;
+            background-color: #ffffff;
+            border-bottom: 1px solid var(--owner-card-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            position: sticky;
+            top: 0;
+            z-index: 1010;
+            width: 100%;
+        }
+
+        .owner-page-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.18rem;
+            font-weight: 700;
+            color: var(--owner-dark);
+            margin: 0;
+            letter-spacing: -0.3px;
+        }
+
+        .owner-store-badge {
+            font-size: 0.88rem;
+            color: var(--owner-dark);
+            font-weight: 600;
+        }
+
+        .owner-store-badge span {
+            font-size: 0.78rem;
+            color: var(--owner-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-right: 4px;
+        }
+
+        .btn-owner-bell {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--owner-card-border);
+            background: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--owner-dark);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-owner-bell:hover {
+            background-color: #f1f5f9;
+        }
+
+        .owner-bell-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background-color: #ef4444;
+            color: #ffffff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #ffffff;
+        }
+
+        .owner-avatar-circle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background-color: var(--owner-primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 0.5px;
+        }
+
+        .owner-verified-pill {
+            font-size: 0.75rem;
+            color: #16a34a;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 600;
+        }
+
+        .owner-card {
+            background: #ffffff;
+            border: 1px solid var(--owner-card-border);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+            margin-bottom: 24px;
+        }
+
+        .owner-card-metric {
+            background: #ffffff;
+            border: 1px solid var(--owner-card-border);
+            border-radius: 12px;
+            padding: 20px 22px;
+            height: 100%;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .owner-card-metric:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+        }
+
+        .metric-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--owner-muted);
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: var(--owner-dark);
+            line-height: 1.1;
+            margin-bottom: 6px;
+        }
+
+        .metric-subtitle {
+            font-size: 0.8rem;
+            color: var(--owner-muted);
+            margin: 0;
+        }
+
+        .action-center-header {
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+            color: var(--owner-dark);
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--owner-card-border);
+            margin-bottom: 0;
+        }
+
+        .action-item-row {
+            padding: 16px 4px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .action-item-row:last-child {
+            border-bottom: none;
+        }
+
+        .action-item-title {
+            font-weight: 600;
+            font-size: 0.92rem;
+            color: var(--owner-dark);
+            margin-bottom: 3px;
+        }
+
+        .action-item-sub {
+            font-size: 0.8rem;
+            color: var(--owner-muted);
+            margin: 0;
+        }
+
+        .btn-owner-action-outline {
+            border: 1px solid var(--owner-card-border);
+            background: #ffffff;
+            color: var(--owner-dark);
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 6px 18px;
+            border-radius: 6px;
+            transition: all 0.15s ease;
+            text-decoration: none;
+        }
+
+        .btn-owner-action-outline:hover {
+            background-color: var(--owner-primary);
+            color: #ffffff;
+            border-color: var(--owner-primary);
+        }
+
+        .btn-owner-dark {
+            background-color: var(--owner-primary);
+            color: #ffffff;
+            font-size: 0.88rem;
+            font-weight: 600;
+            padding: 8px 20px;
+            border-radius: 6px;
+            border: none;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn-owner-dark:hover {
+            background-color: var(--owner-primary-hover);
+            color: #ffffff;
+        }
+
+        .owner-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .owner-table th {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--owner-muted);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--owner-card-border);
+            background-color: #f8fafc;
+        }
+
+        .owner-table td {
+            font-size: 0.88rem;
+            padding: 14px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        .owner-table tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        .dropdown-menu-notifications {
+            width: 420px;
+            max-width: 90vw;
+            max-height: 520px;
+            overflow-y: auto;
+            border: 1px solid var(--owner-card-border);
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1);
+            border-radius: 12px;
+            padding: 0;
+            background-color: #ffffff;
+        }
+
+        .notif-dropdown-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--owner-card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8fafc;
+        }
+
+        .notif-item {
+            padding: 14px 18px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.15s ease;
+            position: relative;
+            background-color: #ffffff;
+        }
+        .notif-item:hover {
+            background-color: #f8fafc;
+        }
+        .notif-item.unread {
+            background-color: #ffffff;
+            border-left: 3.5px solid var(--owner-brand-blue);
+        }
+
+        .notif-bell-icon {
+            color: var(--owner-muted);
+            font-size: 1.1rem;
+            margin-top: 2px;
+        }
+
+        .notif-dismiss-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.1rem;
+            line-height: 1;
+            padding: 0;
+            cursor: pointer;
+            transition: color 0.15s ease;
+        }
+        .notif-dismiss-btn:hover {
+            color: var(--owner-dark);
+        }
+
+        .owner-sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(2px);
+            z-index: 1019;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .owner-sidebar-backdrop.show {
+            display: block;
+            opacity: 1;
+        }
+
+        @media (max-width: 991.98px) {
+            .owner-sidebar {
+                position: fixed !important;
+                left: -270px !important;
+                z-index: 1050 !important;
+                transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                box-shadow: none;
+            }
+            .owner-sidebar.show {
+                left: 0 !important;
+                box-shadow: 0 0 50px rgba(0, 0, 0, 0.5) !important;
+            }
+            .owner-topbar {
+                padding: 0 16px !important;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .owner-topbar {
+                padding: 0 12px !important;
+                height: 56px !important;
+                min-height: 56px !important;
+            }
+            .owner-page-title {
+                font-size: 0.98rem !important;
+            }
+            .owner-card {
+                padding: 16px !important;
+                margin-bottom: 16px !important;
+                border-radius: 10px !important;
+            }
+            .owner-card-metric {
+                padding: 16px !important;
+            }
+            .metric-value {
+                font-size: 1.45rem !important;
+            }
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+{% include 'includes/_page_loader.html' %}
+
+<div class="d-flex">
+
+    <aside class="owner-sidebar" id="ownerSidebar">
+
+        <div class="owner-brand-header">
+            <h2 class="owner-brand-title">ParkEase</h2>
+        </div>
+
+        <nav class="flex-grow-1 py-2">
+
+            <ul class="owner-nav-list mb-2">
+                <li class="owner-nav-item">
+                    <a href="{% url 'lot_owner_panel:dashboard' %}" class="owner-nav-link {% if active_tab == 'dashboard' %}active{% endif %}">
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+            </ul>
+
+            <p class="owner-nav-section-title">Operations</p>
+            <ul class="owner-nav-list mb-2">
+
+                <li class="owner-nav-item">
+                    <a href="{% url 'lot_owner_panel:parking_lots' %}" class="owner-nav-link {% if active_tab == 'parking_lots' %}active{% endif %}">
+                        <span>My Parking Lots</span>
+                    </a>
+                </li>
+
+                <li class="owner-nav-item">
+                    <a href="{% url 'lot_owner_panel:bookings' %}" class="owner-nav-link {% if active_tab == 'bookings' %}active{% endif %}">
+                        <span>Bookings</span>
+                    </a>
+                </li>
+
+                <li class="owner-nav-item">
+                    <a href="{% url 'lot_owner_panel:extensions' %}" class="owner-nav-link {% if active_tab == 'extensions' %}active{% endif %}">
+                        <span>Parking Extensions</span>
+                    </a>
+                </li>
+
+                <li class="owner-nav-item">
+                    <a href="{% url 'lot_owner_panel:slots' %}" class="owner-nav-link {% if active_tab == 'slots' %}active{% endif %}">
+                        <span>Slot & Availability</span>
+                    </a>
+                </li>
+
+                <li class="owner-nav-item">
+                    <a href="{% url 'lot_owner_panel:pricing' %}" class="owner-nav-link {% if active_tab == 'pricing' %}active{% endif %}">
+                        <span>Pricing & Offers</span>
+                    </a>
+                </li>
+
+                <li class="owner-nav-item">
+                    <a href="{% url 'lot_owner_panel:ev_charging' %}" class="owner-nav-link {% if active_tab == 'ev_charging' %}active{% endif %}">
+                        <span>EV Charging</span>
+                    </a>
+                </li>
+            </ul>
+
+            <p class="owner-nav-section-title">Finance & Growth</p>
+            <ul class="owner-nav-list mb-2">
+
+                <li class="owner-nav-item">
+                    <a href="{% url 'lot_owner_panel:earnings' %}" class="owner-nav-link {% if active_tab == 'earnings' %}active{% endif %}">
+                        <span>Earnings & Payouts</span>
+                    </a>
+                </li>
+
+                <li class="owner-nav-item">
+                    <a href="{% url 'lot_owner_panel:reports' %}" class="owner-nav-link {% if active_tab == 'reports' %}active{% endif %}">
+                        <span>Reports & Analytics</span>
+                    </a>
+                </li>
+
+                <li class="owner-nav-item">
+                    <a href="{% url 'lot_owner_panel:reviews' %}" class="owner-nav-link {% if active_tab == 'reviews' %}active{% endif %}">
+                        <span>Reviews & Ratings</span>
+                    </a>
+                </li>
+            </ul>
+
+            <p class="owner-nav-section-title">Account & Help</p>
+            <ul class="owner-nav-list mb-3">
+
+                <li class="owner-nav-item">
+                    <a href="{% url 'lot_owner_panel:notifications' %}" class="owner-nav-link {% if active_tab == 'notifications' %}active{% endif %}">
+                        <span>Notifications</span>
+                    </a>
+                </li>
+
+                <li class="owner-nav-item">
+                    <a href="{% url 'lot_owner_panel:profile_settings' %}" class="owner-nav-link {% if active_tab == 'profile' %}active{% endif %}">
+                        <span>Profile & Settings</span>
+                    </a>
+                </li>
+
+                <li class="owner-nav-item">
+                    <a href="{% url 'lot_owner_panel:support' %}" class="owner-nav-link {% if active_tab == 'support' %}active{% endif %}">
+                        <span>Help & Support</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="px-4 py-3 border-top mt-auto" style="border-color: rgba(255, 255, 255, 0.1) !important;">
+            <a href="{% url 'lot_owner_panel:logout' %}" class="d-inline-block fw-semibold text-decoration-none" style="color: #f87171; font-size: 0.92rem;">
+                Sign Out
+            </a>
+        </div>
+
+    </aside>
+    <div class="owner-sidebar-backdrop" id="ownerSidebarBackdrop"></div>
+
+    <div class="flex-grow-1 d-flex flex-column" style="min-width: 0; min-height: 100vh;">
+
+        <header class="owner-topbar d-flex align-items-center justify-content-between px-4">
+
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-sm d-lg-none p-1 border-0" id="sidebarToggleBtn" aria-label="Toggle Menu">
+                    <span class="fs-4">☰</span>
+                </button>
+                <h1 class="owner-page-title">{% block page_heading %}Space Owner Studio Overview{% endblock %}</h1>
+            </div>
+
+            <div class="d-flex align-items-center gap-4">
+
+                <div class="owner-store-badge d-none d-md-block">
+                    <span>Lot:</span> {{ current_lot_name|default:"Shree Complex Parking" }}
+                </div>
+
+                <div class="dropdown">
+                    <button class="btn-owner-bell" id="notificationDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
+                        <i class="bi bi-bell fs-5"></i>
+                        {% if unread_notifications_count %}
+                            <span class="owner-bell-badge" id="bellBadge">{{ unread_notifications_count }}</span>
+                        {% endif %}
+                    </button>
+
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-notifications p-0" aria-labelledby="notificationDropdownBtn" id="notificationDropdownMenu">
+
+                        <div class="notif-dropdown-header d-flex justify-content-between align-items-center" id="notifDropdownHeader">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fw-bold fs-6 text-dark mb-0">Notifications</span>
+                                {% if unread_notifications_count %}
+                                    <span class="badge rounded-pill fw-bold" style="background-color: #f1f5f9; color: var(--owner-primary); font-size: 0.72rem; padding: 4px 8px; border: 1px solid #e2e8f0;" id="notifDropdownBadge">
+                                        {{ unread_notifications_count }} new
+                                    </span>
+                                {% endif %}
+                            </div>
+                            {% if unread_notifications_count %}
+                                <a href="{% url 'lot_owner_panel:mark_notifications_read' %}" class="small text-muted text-decoration-none fw-semibold" id="markAllReadBtn" onclick="handleMarkAllRead(event)">
+                                    Mark all read
+                                </a>
+                            {% endif %}
+                        </div>
+
+                        <div class="notification-items-container" id="notifItemsContainer">
+                            {% for notif in recent_notifications %}
+                                <div class="notif-item unread d-flex align-items-start gap-3">
+                                    <div class="notif-bell-icon">
+                                        <i class="bi bi-bell"></i>
+                                    </div>
+                                    <div class="flex-grow-1 pe-2">
+                                        <div class="d-flex justify-content-between align-items-start mb-1">
+                                            <span class="fw-bold text-dark small" style="line-height: 1.25;">{{ notif.title }}</span>
+                                            <button type="button" class="notif-dismiss-btn" title="Dismiss" onclick="dismissNotifItem(this);">&times;</button>
+                                        </div>
+                                        <p class="text-secondary small mb-1" style="font-size: 0.8rem; line-height: 1.35;">{{ notif.message }}</p>
+                                        <span class="text-muted" style="font-size: 0.72rem;">{{ notif.created_at|timesince }} ago</span>
+                                    </div>
+                                </div>
+                            {% empty %}
+
+                                <div class="py-5 px-4 text-center" id="allCaughtUpBox">
+                                    <div class="d-inline-flex align-items-center justify-content-center mb-3" style="width: 52px; height: 52px; border-radius: 50%; background-color: #ecfdf5; color: #10b981; font-size: 1.5rem; font-weight: bold;">
+                                        ✓
+                                    </div>
+                                    <h5 class="fw-bold text-dark fs-6 mb-1">All caught up!</h5>
+                                    <p class="text-muted small mb-0">You have no unread notifications right now.</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="p-3 text-center border-top bg-light bg-opacity-50">
+                            <a href="{% url 'lot_owner_panel:notifications' %}" class="small text-decoration-none fw-semibold" style="color: var(--owner-brand-blue, #0284c7);">
+                                View all notifications in Studio →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <div class="owner-avatar-circle">
+                        {{ owner_initials|default:"OP" }}
+                    </div>
+                    <div class="d-none d-sm-block text-start" style="line-height: 1.2;">
+                        <div class="fw-bold text-dark" style="font-size: 0.88rem;">
+                            {{ owner_display_name|default:request.user.get_full_name|default:request.user.username }}
+                        </div>
+                        <div class="owner-verified-pill">
+                            <span>Verified Owner</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </header>
+
+        <main class="flex-grow-1 p-3 p-md-4">
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm mb-4" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block owner_content %}{% endblock %}
+
+        </main>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    const toggleBtn = document.getElementById('sidebarToggleBtn');
+    const sidebar = document.getElementById('ownerSidebar');
+    const backdrop = document.getElementById('ownerSidebarBackdrop');
+    if (toggleBtn && sidebar) {
+        function openSidebar() {
+            sidebar.classList.add('show');
+            if (backdrop) backdrop.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeSidebar() {
+            sidebar.classList.remove('show');
+            if (backdrop) backdrop.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+        toggleBtn.addEventListener('click', function() {
+            if (sidebar.classList.contains('show')) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        });
+        if (backdrop) {
+            backdrop.addEventListener('click', closeSidebar);
+        }
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth < 992 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                closeSidebar();
+            }
+        });
+    }
+
+    (function initOwnerSidebarScroll() {
+        const ownerSidebar = document.getElementById('ownerSidebar');
+        if (!ownerSidebar) return;
+
+        ownerSidebar.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function() {
+                sessionStorage.setItem('owner_sidebar_scroll', ownerSidebar.scrollTop);
+            });
+        });
+
+        const savedScroll = sessionStorage.getItem('owner_sidebar_scroll');
+        if (savedScroll !== null) {
+            ownerSidebar.scrollTop = parseInt(savedScroll, 10);
+        }
+
+        const activeLink = ownerSidebar.querySelector('.owner-nav-link.active');
+        if (activeLink) {
+            const sRect = ownerSidebar.getBoundingClientRect();
+            const lRect = activeLink.getBoundingClientRect();
+
+            if (lRect.bottom > sRect.bottom - 20 || lRect.top < sRect.top + 60) {
+                const targetScroll = (lRect.top - sRect.top + ownerSidebar.scrollTop) - (ownerSidebar.clientHeight / 2) + (lRect.height / 2);
+                ownerSidebar.scrollTop = Math.max(0, targetScroll);
+            }
+        }
+    })();
+});
+
+function handleMarkAllRead(event) {
+    if (event) {
+        event.preventDefault();
+    }
+
+    const bellBadge = document.getElementById('bellBadge');
+    if (bellBadge) bellBadge.style.display = 'none';
+
+    const notifDropdownBadge = document.getElementById('notifDropdownBadge');
+    if (notifDropdownBadge) notifDropdownBadge.remove();
+    const markAllReadBtn = document.getElementById('markAllReadBtn');
+    if (markAllReadBtn) markAllReadBtn.remove();
+
+    const itemsContainer = document.getElementById('notifItemsContainer');
+    if (itemsContainer) {
+        itemsContainer.innerHTML = `
+            <div class="py-5 px-4 text-center" id="allCaughtUpBox">
+                <div class="d-inline-flex align-items-center justify-content-center mb-3" style="width: 52px; height: 52px; border-radius: 50%; background-color: #ecfdf5; color: #10b981; font-size: 1.5rem; font-weight: bold;">
+                    ✓
+                </div>
+                <h5 class="fw-bold text-dark fs-6 mb-1">All caught up!</h5>
+                <p class="text-muted small mb-0">You have no unread notifications right now.</p>
+            </div>
+        `;
+    }
+
+    fetch("{% url 'lot_owner_panel:mark_notifications_read' %}?format=json", {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    }).catch(err => console.error("Error marking read:", err));
+}
+
+function dismissNotifItem(btn) {
+    const item = btn.closest('.notif-item');
+    if (item) {
+        item.remove();
+        const container = document.getElementById('notifItemsContainer');
+        if (container && container.querySelectorAll('.notif-item').length === 0) {
+            handleMarkAllRead(null);
+        }
+    }
+}
+</script>
+
+{% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

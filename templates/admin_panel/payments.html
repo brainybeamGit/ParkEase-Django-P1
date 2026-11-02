@@ -1,0 +1,162 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load static %}
+
+{% block title %}Payments & Refunds - ParkEase Admin Studio{% endblock %}
+{% block page_heading %}Razorpay Transactions & Refund Reconciliation{% endblock %}
+
+{% block admin_content %}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="admin-card-metric">
+            <span class="metric-title">TOTAL VOLUME PROCESSED</span>
+            <div class="metric-value">₹{{ total_volume|floatformat:2 }}</div>
+            <p class="metric-subtitle">Across UPI, Cards & NetBanking</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="admin-card-metric">
+            <span class="metric-title">SUCCESSFUL TRANSACTIONS</span>
+            <div class="metric-value text-success">{{ successful_count }}</div>
+            <p class="metric-subtitle">100% gateway success rate</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="admin-card-metric">
+            <span class="metric-title">REFUNDS INITIATED</span>
+            <div class="metric-value text-danger">{{ refunded_count }}</div>
+            <p class="metric-subtitle">Customer cancellation refunds</p>
+        </div>
+    </div>
+</div>
+
+<div class="admin-card">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="admin-filter-tabs mb-0">
+            <a href="{% url 'admin_panel:payments' %}?status=all" class="admin-filter-tab {% if status_filter == 'all' %}active{% endif %}">
+                All Transactions
+            </a>
+            <a href="{% url 'admin_panel:payments' %}?status=paid" class="admin-filter-tab {% if status_filter == 'paid' %}active{% endif %}">
+                Paid
+            </a>
+            <a href="{% url 'admin_panel:payments' %}?status=refunded" class="admin-filter-tab {% if status_filter == 'refunded' %}active{% endif %}">
+                Refunded
+            </a>
+            <a href="{% url 'admin_panel:payments' %}?status=pending" class="admin-filter-tab {% if status_filter == 'pending' %}active{% endif %}">
+                Pending
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>TRANSACTION REF</th>
+                    <th>BOOKING & USER</th>
+                    <th>FACILITY</th>
+                    <th>AMOUNT</th>
+                    <th>GATEWAY</th>
+                    <th>STATUS</th>
+                    <th>TIMESTAMP</th>
+                    <th class="text-end">ACTION</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in transactions %}
+                    <tr>
+                        <td>
+                            <code class="text-primary fw-bold">{{ tx.tx_ref }}</code>
+                        </td>
+                        <td>
+                            <div class="fw-bold text-dark">#BK-{{ tx.booking.id }}</div>
+                            <small class="text-muted">{{ tx.booking.user.username }}</small>
+                        </td>
+                        <td>
+                            <span class="small text-dark">{{ tx.booking.parking_lot|truncatechars:28 }}</span>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-dark">₹{{ tx.amount|floatformat:2 }}</span>
+                        </td>
+                        <td>
+                            <span class="badge" style="background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;">{{ tx.gateway }}</span>
+                        </td>
+                        <td>
+                            {% if tx.status == 'paid' %}
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Paid</span>
+                            {% elif tx.status == 'refunded' %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25">Refunded</span>
+                            {% elif tx.status == 'refund_requested' %}
+                                <span class="badge bg-warning text-dark border border-warning fw-bold">
+                                    <i class="bi bi-clock-history me-1"></i>Approval Required
+                                </span>
+                                {% if tx.booking.refund_reason %}
+                                    <div class="small text-muted mt-1" style="font-size: 0.74rem;">
+                                        <strong>Reason:</strong> {{ tx.booking.refund_reason|truncatechars:35 }}
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="small text-muted">{{ tx.date|date:"M d, Y H:i" }}</span>
+                        </td>
+                        <td class="text-end">
+                            {% if tx.status == 'refund_requested' %}
+                                <form method="POST" action="{% url 'admin_panel:process_refund' tx.booking.id %}" onsubmit="return confirm('Approve and complete Razorpay refund of ₹{{ tx.amount }} for Booking #{{ tx.booking.id }}?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-success py-1 px-3 fw-bold shadow-sm" style="font-size: 0.78rem; border-radius: 6px;">
+                                        <i class="bi bi-check2-circle me-1"></i>Approve Refund
+                                    </button>
+                                </form>
+                            {% elif tx.can_refund %}
+                                <form method="POST" action="{% url 'admin_panel:process_refund' tx.booking.id %}" onsubmit="return confirm('Initiate Razorpay refund for ₹{{ tx.amount }}?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2 fw-semibold" style="font-size: 0.76rem;">Process Refund</button>
+                                </form>
+                            {% else %}
+                                <span class="text-muted small">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td><code class="text-primary fw-bold">pay_razor_001042</code></td>
+                        <td><div class="fw-bold text-dark">#BK-1042</div><small class="text-muted">Rohit Sharma</small></td>
+                        <td><span class="small text-dark">Shree Complex Parking</span></td>
+                        <td><span class="fw-bold text-dark">₹150.00</span></td>
+                        <td><span class="badge" style="background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;">Razorpay UPI</span></td>
+                        <td><span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Paid</span></td>
+                        <td><span class="small text-muted">Oct 29, 2026 13:45</span></td>
+                        <td class="text-end"><span class="text-muted small">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><code class="text-primary fw-bold">pay_razor_001041</code></td>
+                        <td><div class="fw-bold text-dark">#BK-1041</div><small class="text-muted">Pooja Verma</small></td>
+                        <td><span class="small text-dark">Shree Complex Parking</span></td>
+                        <td><span class="fw-bold text-dark">₹4,500.00</span></td>
+                        <td><span class="badge" style="background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;">Razorpay NetBanking</span></td>
+                        <td><span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Paid</span></td>
+                        <td><span class="small text-muted">Oct 29, 2026 09:12</span></td>
+                        <td class="text-end"><span class="text-muted small">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><code class="text-primary fw-bold">pay_razor_001040</code></td>
+                        <td><div class="fw-bold text-dark">#BK-1040</div><small class="text-muted">Ankit Shah</small></td>
+                        <td><span class="small text-dark">Shree Complex Parking</span></td>
+                        <td><span class="fw-bold text-dark">₹420.00</span></td>
+                        <td><span class="badge" style="background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;">Razorpay Card</span></td>
+                        <td><span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25">Refund Requested</span></td>
+                        <td><span class="small text-muted">Oct 29, 2026 10:50</span></td>
+                        <td class="text-end"><button class="btn btn-sm btn-outline-danger py-1 px-2 fw-semibold" style="font-size: 0.76rem;">Refund</button></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

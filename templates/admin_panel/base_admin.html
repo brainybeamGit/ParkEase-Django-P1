@@ -1,0 +1,838 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ParkEase Admin Studio{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            /* ParkEase Project Theme Colors */
+            --admin-primary: #0f2942;
+            --admin-primary-hover: #183d63;
+            --admin-brand-blue: #0284c7;
+            --admin-brand-blue-hover: #0369a1;
+
+            --admin-sidebar-bg: #0f2942;
+            --admin-sidebar-hover: rgba(255, 255, 255, 0.09);
+            --admin-sidebar-active: #0284c7;
+            --admin-sidebar-active-text: #ffffff;
+            --admin-sidebar-text: #ffffff;
+            --admin-sidebar-heading: #94a3b8;
+
+            --admin-dark: #0f172a;
+            --admin-body-bg: #f8fafc;
+            --admin-card-border: #e2e8f0;
+            --admin-muted: #64748b;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--admin-body-bg);
+            color: #334155;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .admin-sidebar {
+            width: 270px;
+            min-width: 270px;
+            max-width: 270px;
+            background-color: var(--admin-sidebar-bg);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 1020;
+        }
+
+        .admin-sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+        .admin-sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .admin-sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        .admin-brand-header {
+            padding: 24px 22px 18px 22px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-brand-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .admin-brand-subtitle {
+            font-size: 0.72rem;
+            letter-spacing: 1.2px;
+            color: #38bdf8;
+            font-weight: 700;
+            margin-top: 3px;
+            text-transform: uppercase;
+        }
+
+        .admin-nav-section-title {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--admin-sidebar-heading);
+            padding: 16px 22px 6px 22px;
+            margin: 0;
+        }
+
+        .admin-nav-list {
+            list-style: none;
+            padding: 0 12px;
+            margin: 0;
+        }
+
+        .admin-nav-item {
+            margin-bottom: 3px;
+        }
+
+        .admin-nav-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            color: var(--admin-sidebar-text);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.16s ease-in-out;
+        }
+
+        .admin-nav-link:hover {
+            background-color: var(--admin-sidebar-hover);
+            color: #ffffff;
+        }
+
+        .admin-nav-link.active {
+            background-color: var(--admin-sidebar-active);
+            color: var(--admin-sidebar-active-text);
+            font-weight: 600;
+        }
+
+        .admin-nav-link.active:hover {
+            background-color: var(--admin-sidebar-active);
+            color: var(--admin-sidebar-active-text);
+        }
+
+        .admin-nav-pill-badge {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        .admin-topbar {
+            height: 64px;
+            min-height: 64px;
+            background-color: #ffffff;
+            border-bottom: 1px solid var(--admin-card-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            position: sticky;
+            top: 0;
+            z-index: 1010;
+            width: 100%;
+        }
+
+        .admin-page-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.18rem;
+            font-weight: 700;
+            color: var(--admin-dark);
+            margin: 0;
+            letter-spacing: -0.3px;
+        }
+
+        .btn-admin-bell {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--admin-card-border);
+            background: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--admin-dark);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-admin-bell:hover {
+            background-color: #f1f5f9;
+        }
+
+        .admin-bell-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background-color: #ef4444;
+            color: #ffffff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #ffffff;
+        }
+
+        .admin-avatar-circle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background-color: var(--admin-primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 0.5px;
+        }
+
+        .admin-card {
+            background: #ffffff;
+            border: 1px solid var(--admin-card-border);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+            margin-bottom: 24px;
+        }
+
+        .admin-card-metric {
+            background: #ffffff;
+            border: 1px solid var(--admin-card-border);
+            border-radius: 12px;
+            padding: 20px 22px;
+            height: 100%;
+            min-height: 130px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .admin-card-metric:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+        }
+
+        .metric-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--admin-muted);
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: var(--admin-dark);
+            line-height: 1.1;
+            margin-bottom: 6px;
+        }
+
+        .metric-subtitle {
+            font-size: 0.8rem;
+            color: var(--admin-muted);
+            margin: 0;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .admin-table th {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--admin-muted);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--admin-card-border);
+            background-color: #f8fafc;
+        }
+
+        .admin-table td {
+            font-size: 0.88rem;
+            padding: 14px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        .admin-table tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        .dropdown-menu-notifications {
+            width: 420px;
+            max-width: 92vw;
+            max-height: 520px;
+            overflow-y: auto;
+            border: 1px solid var(--admin-card-border);
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1);
+            border-radius: 12px;
+            padding: 0;
+            background-color: #ffffff;
+        }
+
+        .notif-dropdown-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--admin-card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8fafc;
+        }
+
+        .notif-item {
+            padding: 14px 18px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.15s ease;
+            position: relative;
+            background-color: #ffffff;
+        }
+        .notif-item:hover {
+            background-color: #f8fafc;
+        }
+        .notif-item.unread {
+            background-color: #ffffff;
+            border-left: 3.5px solid var(--admin-brand-blue);
+        }
+
+        .notif-bell-icon {
+            color: var(--admin-muted);
+            font-size: 1.1rem;
+            margin-top: 2px;
+        }
+
+        .notif-dismiss-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.1rem;
+            line-height: 1;
+            padding: 0;
+            cursor: pointer;
+            transition: color 0.15s ease;
+        }
+        .notif-dismiss-btn:hover {
+            color: var(--admin-dark);
+        }
+
+        .admin-filter-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .admin-filter-tab {
+            display: inline-block;
+            padding: 0.4rem 0.85rem;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: #64748b;
+            text-decoration: none;
+            background: transparent;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            transition: all 0.15s ease-in-out;
+        }
+        .admin-filter-tab:hover {
+            color: #0f172a;
+            border-color: #cbd5e1;
+            background: transparent;
+        }
+        .admin-filter-tab.active {
+            color: #0f172a;
+            font-weight: 700;
+            border-color: #0f2942;
+            background: transparent;
+            box-shadow: inset 0 -2px 0 #0f2942;
+        }
+
+        .btn-admin-primary {
+            background-color: var(--admin-brand-blue);
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 7px 16px;
+            border-radius: 6px;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-admin-primary:hover {
+            background-color: var(--admin-brand-blue-hover);
+            color: #ffffff;
+        }
+        .btn-admin-outline {
+            border: 1px solid var(--admin-card-border);
+            background: #ffffff;
+            color: var(--admin-dark);
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-admin-outline:hover {
+            background: #f1f5f9;
+            color: var(--admin-dark);
+        }
+
+        .admin-sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(2px);
+            z-index: 1019;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .admin-sidebar-backdrop.show {
+            display: block;
+            opacity: 1;
+        }
+
+        @media (max-width: 991.98px) {
+            .admin-sidebar {
+                position: fixed !important;
+                left: -270px !important;
+                z-index: 1050 !important;
+                transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                box-shadow: none;
+            }
+            .admin-sidebar.show {
+                left: 0 !important;
+                box-shadow: 0 0 50px rgba(0, 0, 0, 0.5) !important;
+            }
+            .admin-topbar {
+                padding: 0 16px !important;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .admin-topbar {
+                padding: 0 12px !important;
+                height: 56px !important;
+                min-height: 56px !important;
+            }
+            .admin-page-title {
+                font-size: 0.92rem !important;
+                max-width: 210px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .btn-admin-bell {
+                width: 36px !important;
+                height: 36px !important;
+            }
+            .admin-avatar-circle {
+                width: 34px !important;
+                height: 34px !important;
+                font-size: 0.8rem !important;
+            }
+            .admin-table th, .admin-table td {
+                white-space: nowrap;
+            }
+            .admin-card {
+                padding: 16px !important;
+                margin-bottom: 16px !important;
+                border-radius: 10px !important;
+            }
+            .admin-card-metric {
+                padding: 16px !important;
+            }
+            .metric-value {
+                font-size: 1.45rem !important;
+            }
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+{% include 'includes/_page_loader.html' %}
+
+<div class="d-flex">
+
+    <aside class="admin-sidebar" id="adminSidebar">
+
+        <div class="admin-brand-header">
+            <h2 class="admin-brand-title">ParkEase</h2>
+        </div>
+
+        <nav class="flex-grow-1 py-2">
+
+            <ul class="admin-nav-list mb-2">
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_panel:dashboard' %}" class="admin-nav-link {% if active_tab == 'dashboard' %}active{% endif %}">
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+            </ul>
+
+            <p class="admin-nav-section-title">Accounts & Access</p>
+            <ul class="admin-nav-list mb-2">
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_panel:users' %}" class="admin-nav-link {% if active_tab == 'users' %}active{% endif %}">
+                        <span>User Management</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_panel:owner_verification' %}" class="admin-nav-link {% if active_tab == 'owner_verification' %}active{% endif %}">
+                        <span>Owner Verification</span>
+                    </a>
+                </li>
+            </ul>
+
+            <p class="admin-nav-section-title">Facilities & Operations</p>
+            <ul class="admin-nav-list mb-2">
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_panel:parking_lots' %}" class="admin-nav-link {% if active_tab == 'parking_lots' %}active{% endif %}">
+                        <span>Parking Lot Management</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_panel:bookings' %}" class="admin-nav-link {% if active_tab == 'bookings' %}active{% endif %}">
+                        <span>Booking Management</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_panel:payments' %}" class="admin-nav-link {% if active_tab == 'payments' %}active{% endif %}">
+                        <span>Payments & Refunds</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_panel:payouts' %}" class="admin-nav-link {% if active_tab == 'payouts' %}active{% endif %}">
+                        <span>Commission & Payouts</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_panel:ev_charging' %}" class="admin-nav-link {% if active_tab == 'ev_charging' %}active{% endif %}">
+                        <span>EV Charging</span>
+                    </a>
+                </li>
+            </ul>
+
+            <p class="admin-nav-section-title">Governance & Metrics</p>
+            <ul class="admin-nav-list mb-2">
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_panel:pricing' %}" class="admin-nav-link {% if active_tab == 'pricing' %}active{% endif %}">
+                        <span>Pricing, Fines & Offers</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_panel:reports' %}" class="admin-nav-link {% if active_tab == 'reports' %}active{% endif %}">
+                        <span>Reports & Analytics</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_panel:reviews' %}" class="admin-nav-link {% if active_tab == 'reviews' %}active{% endif %}">
+                        <span>Reviews & Ratings</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_panel:complaints' %}" class="admin-nav-link {% if active_tab == 'complaints' %}active{% endif %}">
+                        <span>Complaints & Disputes</span>
+                    </a>
+                </li>
+            </ul>
+
+            <p class="admin-nav-section-title">System & Support</p>
+            <ul class="admin-nav-list mb-3">
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_panel:notifications' %}" class="admin-nav-link {% if active_tab == 'notifications' %}active{% endif %}">
+                        <span>Notifications</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_panel:settings' %}" class="admin-nav-link {% if active_tab == 'settings' %}active{% endif %}">
+                        <span>System Settings</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_panel:support' %}" class="admin-nav-link {% if active_tab == 'support' %}active{% endif %}">
+                        <span>Help & Support</span>
+                    </a>
+                </li>
+            </ul>
+
+        </nav>
+
+        <div class="px-4 py-3 border-top mt-auto" style="border-color: rgba(255, 255, 255, 0.1) !important;">
+            <a href="{% url 'admin_panel:logout' %}" class="d-inline-block fw-semibold text-decoration-none" style="color: #f87171; font-size: 0.92rem;">
+                Sign Out
+            </a>
+        </div>
+
+    </aside>
+    <div class="admin-sidebar-backdrop" id="adminSidebarBackdrop"></div>
+
+    <div class="flex-grow-1 d-flex flex-column" style="min-width: 0; min-height: 100vh;">
+
+        <header class="admin-topbar d-flex align-items-center justify-content-between px-3 px-md-4">
+
+            <div class="d-flex align-items-center gap-2 gap-sm-3" style="min-width: 0; flex: 1;">
+                <button class="btn btn-sm d-lg-none p-1 border-0 flex-shrink-0" id="sidebarToggleBtn" aria-label="Toggle Menu">
+                    <span class="fs-4">☰</span>
+                </button>
+                <h1 class="admin-page-title text-truncate">{% block page_heading %}Platform Overview{% endblock %}</h1>
+            </div>
+
+            <div class="d-flex align-items-center gap-2 gap-sm-3 flex-shrink-0">
+
+                <div class="dropdown">
+                    <button class="btn-admin-bell" id="adminNotifDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
+                        <i class="bi bi-bell fs-5"></i>
+                        {% if unread_notifications_count %}
+                            <span class="admin-bell-badge" id="bellBadge">{{ unread_notifications_count }}</span>
+                        {% endif %}
+                    </button>
+
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-notifications p-0" aria-labelledby="adminNotifDropdownBtn" id="notifDropdownMenu">
+
+                        <div class="notif-dropdown-header d-flex justify-content-between align-items-center" id="notifDropdownHeader">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fw-bold fs-6 text-dark mb-0">Notifications</span>
+                                {% if unread_notifications_count %}
+                                    <span class="badge rounded-pill fw-bold" style="background-color: #f1f5f9; color: var(--admin-primary); font-size: 0.72rem; padding: 4px 8px; border: 1px solid #e2e8f0;" id="notifDropdownBadge">
+                                        {{ unread_notifications_count }} new
+                                    </span>
+                                {% endif %}
+                            </div>
+                            {% if unread_notifications_count %}
+                                <a href="{% url 'admin_panel:mark_notifications_read' %}" class="small text-muted text-decoration-none fw-semibold" id="markAllReadBtn" onclick="handleMarkAllRead(event)">
+                                    Mark all read
+                                </a>
+                            {% endif %}
+                        </div>
+
+                        <div class="notification-items-container" id="notifItemsContainer">
+                            {% for notif in recent_notifications %}
+                                <div class="notif-item unread d-flex align-items-start gap-3">
+                                    <div class="flex-grow-1 pe-2">
+                                        <div class="d-flex justify-content-between align-items-start mb-1">
+                                            <a href="{{ notif.link|default:'#' }}" class="fw-bold text-dark text-decoration-none small" style="line-height: 1.25;">
+                                                {{ notif.title }}
+                                            </a>
+                                            <button type="button" class="notif-dismiss-btn" title="Dismiss" onclick="dismissNotifItem(this, '{{ notif.id }}');">&times;</button>
+                                        </div>
+                                        <p class="text-secondary small mb-1" style="font-size: 0.8rem; line-height: 1.35;">{{ notif.message }}</p>
+                                        <span class="text-muted" style="font-size: 0.72rem;">{{ notif.created_at|timesince }} ago</span>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <div class="py-5 px-4 text-center" id="allCaughtUpBox">
+                                    <div class="d-inline-flex align-items-center justify-content-center mb-3" style="width: 52px; height: 52px; border-radius: 50%; background-color: #ecfdf5; color: #10b981; font-size: 1.5rem; font-weight: bold;">
+                                        ✓
+                                    </div>
+                                    <h5 class="fw-bold text-dark fs-6 mb-1">All caught up!</h5>
+                                    <p class="text-muted small mb-0">You have no unread notifications right now.</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="p-3 text-center border-top bg-light bg-opacity-50">
+                            <a href="{% url 'admin_panel:notifications' %}" class="small fw-semibold text-decoration-none" style="color: #0284c7;">
+                                View all notifications in Admin Studio &rarr;
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                    <div class="admin-avatar-circle">
+                        {{ admin_initials }}
+                    </div>
+                    <div class="d-none d-sm-block text-start lh-1">
+                        <div class="fw-bold text-dark small">{{ admin_display_name }}</div>
+                        <div class="text-muted" style="font-size: 0.72rem;">{{ admin_role }}</div>
+                    </div>
+                </div>
+
+            </div>
+        </header>
+
+        {% if messages %}
+            <div class="px-4 pt-3">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm py-2 px-3 small d-flex align-items-center justify-content-between mb-2" role="alert" style="border-radius: 8px;">
+                        <div>
+                            {{ message }}
+                        </div>
+                        <button type="button" class="btn-close p-2" data-bs-dismiss="alert" aria-label="Close" style="font-size: 0.75rem;"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <main class="flex-grow-1 p-4">
+            {% block admin_content %}{% endblock %}
+        </main>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+    const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+    const adminSidebar = document.getElementById('adminSidebar');
+    if (sidebarToggleBtn && adminSidebar) {
+        sidebarToggleBtn.addEventListener('click', function() {
+            adminSidebar.classList.toggle('show');
+        });
+    }
+
+    (function initSidebarScroll() {
+        const sidebar = document.getElementById('adminSidebar');
+        if (!sidebar) return;
+
+        sidebar.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function() {
+                sessionStorage.setItem('admin_sidebar_scroll', sidebar.scrollTop);
+            });
+        });
+
+        const savedScroll = sessionStorage.getItem('admin_sidebar_scroll');
+        if (savedScroll !== null) {
+            sidebar.scrollTop = parseInt(savedScroll, 10);
+        }
+
+        const activeLink = sidebar.querySelector('.admin-nav-link.active');
+        if (activeLink) {
+            const sRect = sidebar.getBoundingClientRect();
+            const lRect = activeLink.getBoundingClientRect();
+
+            if (lRect.bottom > sRect.bottom - 20 || lRect.top < sRect.top + 60) {
+                const targetScroll = (lRect.top - sRect.top + sidebar.scrollTop) - (sidebar.clientHeight / 2) + (lRect.height / 2);
+                sidebar.scrollTop = Math.max(0, targetScroll);
+            }
+        }
+    })();
+
+    function dismissNotifItem(btn, notifId) {
+        const item = btn.closest('.notif-item');
+        if (item) {
+            item.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(20px)';
+            setTimeout(() => {
+                item.remove();
+                checkEmptyNotifs();
+            }, 200);
+
+            if (notifId) {
+                fetch(`/admin-panel/notifications/${notifId}/dismiss/`, {
+                    headers: {'X-Requested-With': 'XMLHttpRequest'}
+                }).catch(e => console.log(e));
+            }
+        }
+    }
+
+    function handleMarkAllRead(e) {
+        e.preventDefault();
+        fetch('{% url "admin_panel:mark_notifications_read" %}', {
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        }).then(() => {
+            const container = document.getElementById('notifItemsContainer');
+            const bellBadge = document.getElementById('bellBadge');
+            const notifDropdownBadge = document.getElementById('notifDropdownBadge');
+            const markAllBtn = document.getElementById('markAllReadBtn');
+
+            if (bellBadge) bellBadge.remove();
+            if (notifDropdownBadge) notifDropdownBadge.remove();
+            if (markAllBtn) markAllBtn.remove();
+
+            if (container) {
+                container.innerHTML = `
+                    <div class="py-5 px-4 text-center" id="allCaughtUpBox">
+                        <div class="d-inline-flex align-items-center justify-content-center mb-3" style="width: 52px; height: 52px; border-radius: 50%; background-color: #ecfdf5; color: #10b981; font-size: 1.5rem; font-weight: bold;">
+                            ✓
+                        </div>
+                        <h5 class="fw-bold text-dark fs-6 mb-1">All caught up!</h5>
+                        <p class="text-muted small mb-0">You have no unread notifications right now.</p>
+                    </div>
+                `;
+            }
+        }).catch(() => {
+            window.location.href = '{% url "admin_panel:mark_notifications_read" %}';
+        });
+    }
+
+    function checkEmptyNotifs() {
+        const container = document.getElementById('notifItemsContainer');
+        if (container && container.querySelectorAll('.notif-item').length === 0) {
+            const bellBadge = document.getElementById('bellBadge');
+            const notifDropdownBadge = document.getElementById('notifDropdownBadge');
+            const markAllBtn = document.getElementById('markAllReadBtn');
+
+            if (bellBadge) bellBadge.remove();
+            if (notifDropdownBadge) notifDropdownBadge.remove();
+            if (markAllBtn) markAllBtn.remove();
+
+            container.innerHTML = `
+                <div class="py-5 px-4 text-center" id="allCaughtUpBox">
+                    <div class="d-inline-flex align-items-center justify-content-center mb-3" style="width: 52px; height: 52px; border-radius: 50%; background-color: #ecfdf5; color: #10b981; font-size: 1.5rem; font-weight: bold;">
+                        ✓
+                    </div>
+                    <h5 class="fw-bold text-dark fs-6 mb-1">All caught up!</h5>
+                    <p class="text-muted small mb-0">You have no unread notifications right now.</p>
+                </div>
+            `;
+        }
+    }
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

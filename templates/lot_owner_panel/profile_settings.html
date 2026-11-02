@@ -1,0 +1,208 @@
+{% extends 'lot_owner_panel/base_owner.html' %}
+{% load static %}
+
+{% block title %}Profile & Settings - Space Owner Studio{% endblock %}
+{% block page_heading %}Profile & Settings{% endblock %}
+
+{% block owner_content %}
+<div class="container-fluid px-0">
+
+    <div style="max-width: 75%; width: 100%; margin: 0 auto;">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h5 fw-bold text-dark mb-1">Account & Settlement Settings</h2>
+            <p class="text-muted small mb-0">Update personal communication details, official ID documents, and verified payout bank accounts.</p>
+        </div>
+        <span class="badge bg-success-subtle text-success fs-6 fw-bold px-3 py-2">
+            Verified Account
+        </span>
+    </div>
+
+    <div class="owner-card mb-4">
+        <h3 class="fw-bold fs-6 text-dark mb-1">1. Personal & Identity Verification Details</h3>
+        <p class="text-muted small mb-4">Information submitted during initial registration.</p>
+
+        <form method="POST" action="{% url 'lot_owner_panel:profile_settings' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="section" value="personal">
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-dark">Owner Type</label>
+                    <select name="owner_type" class="form-select">
+                        <option value="individual" {% if profile.owner_type == 'individual' %}selected{% endif %}>Individual</option>
+                        <option value="business" {% if profile.owner_type == 'business' %}selected{% endif %}>Business / Enterprise</option>
+                        <option value="property_manager" {% if profile.owner_type == 'property_manager' %}selected{% endif %}>Property Manager</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-dark">Full Legal Name</label>
+                    <input type="text" name="full_name" class="form-control" value="{{ request.user.get_full_name|default:request.user.username }}" required>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-dark">Email Address</label>
+                    <input type="email" name="email" class="form-control" value="{{ request.user.email }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-dark">Mobile Number</label>
+                    <input type="tel" name="mobile_number" class="form-control" value="{{ user_profile.mobile_number|default:'' }}" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-dark">Present Communication Address</label>
+                <input type="text" name="present_address" class="form-control" value="{{ profile.present_address }}" placeholder="Flat, Building, Street">
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-dark">City</label>
+                    <input type="text" name="city" class="form-control" value="{{ profile.city }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-dark">State</label>
+                    <input type="text" name="state" class="form-control" value="{{ profile.state }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-dark">PIN Code</label>
+                    <input type="text" name="pin_code" class="form-control" value="{{ profile.pin_code }}">
+                </div>
+            </div>
+
+            <div class="p-3 bg-light rounded-2 border mb-4">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-4">
+                        <span class="text-muted small d-block">ID Type</span>
+                        <strong class="text-dark small text-uppercase">{{ profile.id_type }}</strong>
+                    </div>
+                    <div class="col-md-5">
+                        <span class="text-muted small d-block">Verified ID Number</span>
+                        <strong class="text-dark font-monospace">{{ masked_id|default:profile.id_number }}</strong>
+                    </div>
+                    <div class="col-md-3 text-md-end">
+                        <span class="badge bg-success-subtle text-success fw-bold px-2 py-1">Identity Verified ✓</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-owner-dark">
+                    Update Personal Information
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="owner-card mb-4" id="bankDetailsSection" style="border: 1px solid #DFB09E;">
+
+        <div class="mb-3 pb-3 border-bottom">
+            <h3 class="fw-bold fs-5 text-dark mb-1" style="font-family: 'Playfair Display', Georgia, serif;">
+                Bank & Settlement Account Details
+            </h3>
+            <p class="text-muted small mb-0">
+                Manage payout bank accounts, IFSC code, and direct deposit preferences.
+            </p>
+        </div>
+
+        <form method="POST" action="{% url 'lot_owner_panel:profile_settings' %}">
+            {% csrf_token %}
+            <input type="hidden" name="section" value="bank">
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label for="id_bank_account_holder" class="form-label fw-bold small text-dark">
+                        Account Holder Name <span class="text-danger">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="bank_account_holder"
+                        id="id_bank_account_holder"
+                        class="form-control py-2"
+                        placeholder="Demo Seller"
+                        value="{{ profile.bank_account_holder|default:request.user.get_full_name|default:request.user.username }}"
+                        required>
+                </div>
+                <div class="col-md-6">
+                    <label for="id_bank_name" class="form-label fw-bold small text-dark">
+                        Bank Name <span class="text-danger">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="bank_name"
+                        id="id_bank_name"
+                        class="form-control py-2"
+                        placeholder="Seller"
+                        value="{{ profile.bank_name|default:'State Bank of India' }}"
+                        required>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label for="id_bank_account_number" class="form-label fw-bold small text-dark">
+                        Bank Account Number <span class="text-danger">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="bank_account_number"
+                        id="id_bank_account_number"
+                        class="form-control py-2 font-monospace"
+                        placeholder="45632145698741"
+                        value="{{ profile.bank_account_number|default:'45632145698741' }}"
+                        required>
+                </div>
+                <div class="col-md-6">
+                    <label for="id_bank_ifsc_code" class="form-label fw-bold small text-dark">
+                        IFSC Code <span class="text-danger">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="bank_ifsc_code"
+                        id="id_bank_ifsc_code"
+                        class="form-control py-2 font-monospace text-uppercase"
+                        placeholder="SBIHR656565"
+                        value="{{ profile.bank_ifsc_code|default:'SBIHR656565' }}"
+                        required>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label for="id_bank_branch" class="form-label fw-bold small text-dark">
+                        Branch Name / Location
+                    </label>
+                    <input
+                        type="text"
+                        name="bank_branch"
+                        id="id_bank_branch"
+                        class="form-control py-2"
+                        placeholder="Ahmedabad"
+                        value="{{ profile.bank_branch|default:'Ahmedabad' }}">
+                </div>
+                <div class="col-md-6">
+                    <label for="id_bank_account_type" class="form-label fw-bold small text-dark">
+                        Account Type
+                    </label>
+                    <select name="bank_account_type" id="id_bank_account_type" class="form-select py-2">
+                        <option value="Current Account / Business" {% if profile.bank_account_type == 'Current Account / Business' or not profile.bank_account_type %}selected{% endif %}>Current Account / Business</option>
+                        <option value="Savings Account" {% if profile.bank_account_type == 'Savings Account' %}selected{% endif %}>Savings Account</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-dark px-4 py-2 fw-bold" style="background-color: #000000; border-radius: 6px;">
+                    Save Bank & Payment Details
+                </button>
+            </div>
+        </form>
+    </div>
+
+    </div>
+
+</div>
+{% endblock %}

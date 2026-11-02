@@ -1,0 +1,126 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load static %}
+
+{% block title %}Reports & Analytics - ParkEase Admin Studio{% endblock %}
+{% block page_heading %}Platform Performance Reports & Business Intelligence{% endblock %}
+
+{% block admin_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="admin-filter-tabs mb-0">
+        <a href="{% url 'admin_panel:reports' %}?period=7d" class="admin-filter-tab {% if period == '7d' %}active{% endif %}">7 Days</a>
+        <a href="{% url 'admin_panel:reports' %}?period=30d" class="admin-filter-tab {% if period == '30d' or not period %}active{% endif %}">30 Days</a>
+        <a href="{% url 'admin_panel:reports' %}?period=quarter" class="admin-filter-tab {% if period == 'quarter' %}active{% endif %}">Last Quarter (4 Mo)</a>
+        <a href="{% url 'admin_panel:reports' %}?period=1y" class="admin-filter-tab {% if period == '1y' %}active{% endif %}">1 Year</a>
+    </div>
+
+    <a href="{% url 'admin_panel:export_reports' %}" class="btn-admin-primary">
+        Export Report to CSV
+    </a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">GROSS BOOKING TURNOVER</span>
+            <div class="metric-value">₹{{ total_turnover|floatformat:2 }}</div>
+            <p class="metric-subtitle">Across all Indian locations</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">COMMISSION EARNED</span>
+            <div class="metric-value text-success">₹{{ commission_earned|floatformat:2 }}</div>
+            <p class="metric-subtitle">Net retained platform margin</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">AVERAGE OCCUPANCY</span>
+            <div class="metric-value text-primary">{{ occupancy_rate }}%</div>
+            <p class="metric-subtitle">Peak bay utilization factor</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">COMPLETED SESSIONS</span>
+            <div class="metric-value">{{ completed_sessions }}</div>
+            <p class="metric-subtitle">Seamless barrier QR exits</p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">CANCELLATION RATE</span>
+            <div class="metric-value">{{ cancelled_rate }}%</div>
+            <p class="metric-subtitle">Well below industry benchmark</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">EV POWER DELIVERED</span>
+            <div class="metric-value text-success">{{ ev_usage_kwh }} kWh</div>
+            <p class="metric-subtitle">Total green kilowatt hours dispensed</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">AVG DWELL DURATION</span>
+            <div class="metric-value">{{ avg_dwell_hours }} hrs</div>
+            <p class="metric-subtitle">Average driver bay stay</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">REPEAT MOTORISTS</span>
+            <div class="metric-value text-primary">{{ repeat_driver_pct }}%</div>
+            <p class="metric-subtitle">High driver retention rate</p>
+        </div>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="pb-3 border-bottom mb-3">
+        <h5 class="fw-bold text-dark mb-0">City & Parking Type Breakdown</h5>
+    </div>
+
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>CITY / REGION</th>
+                    <th>ACTIVE LOTS</th>
+                    <th>TOTAL BAYS</th>
+                    <th>TURNOVER ({{ period_label }})</th>
+                    <th>AVG OCCUPANCY</th>
+                    <th>EV STATIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in city_breakdown %}
+                    <tr>
+                        <td><strong>{{ c.city }}</strong></td>
+                        <td>{{ c.lots }}</td>
+                        <td>{{ c.bays }}</td>
+                        <td><span class="fw-bold text-dark">₹{{ c.turnover|floatformat:2 }}</span></td>
+                        <td><span class="badge bg-success bg-opacity-10 text-success border">{{ c.occupancy }}</span></td>
+                        <td>{{ c.ev }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td><strong>Ahmedabad, Gujarat</strong></td>
+                        <td>12 Facilities</td>
+                        <td>680 Bays</td>
+                        <td><span class="fw-bold text-dark">₹{{ total_turnover|floatformat:2 }}</span></td>
+                        <td><span class="badge bg-success bg-opacity-10 text-success border">82%</span></td>
+                        <td>6 Chargers</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

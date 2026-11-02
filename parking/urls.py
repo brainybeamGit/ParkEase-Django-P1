@@ -1,0 +1,42 @@
+from django.urls import path
+from . import views
+
+app_name = 'parking'
+
+urlpatterns = [
+    path('', views.home, name='home'),
+    path('search/', views.search_view, name='search'),
+    path('lot/<int:lot_id>/', views.lot_detail_view, name='lot_detail'),
+    path('lot/<int:lot_id>/book/', views.book_lot_view, name='book_lot'),
+    path('booking/<int:booking_id>/ticket/', views.booking_ticket_view, name='booking_ticket'),
+    path('my-bookings/', views.my_bookings_view, name='my_bookings'),
+    path('submit-feedback/', views.submit_admin_feedback_view, name='submit_admin_feedback'),
+    path('booking/<int:booking_id>/review/', views.submit_booking_review_view, name='submit_booking_review'),
+    path('booking/<int:booking_id>/cancel/', views.cancel_booking_view, name='cancel_booking'),
+    path('booking/<int:booking_id>/request-refund/', views.request_refund_view, name='request_refund'),
+    path('booking/<int:booking_id>/extend/', views.extend_booking_view, name='extend_booking'),
+    path('booking/<int:booking_id>/scan-entry/', views.scan_entry_view, name='scan_entry'),
+    path('booking/<int:booking_id>/scan-exit/', views.scan_exit_view, name='scan_exit'),
+    path('booking/<int:booking_id>/pay-overstay/', views.pay_overstay_view, name='pay_overstay'),
+    path('gate-scanner/', views.gate_scanner_view, name='gate_scanner'),
+    path('solutions/reserve-parking/', views.reserve_parking_view, name='reserve_parking'),
+    path('solutions/monthly-parking/', views.monthly_parking_view, name='monthly_parking'),
+    path('solutions/drive-up-parking/', views.drive_up_parking_view, name='drive_up_parking'),
+    path('solutions/park-and-pay/', views.drive_up_parking_view, name='park_and_pay'),
+    path('solutions/on-the-move/', views.on_the_move_view, name='on_the_move'),
+    path('solutions/find-parking-near-me/', views.on_the_move_view, name='find_parking_near_me'),
+    path('solutions/parking-on-the-move/', views.on_the_move_view, name='parking_on_the_move'),
+    path('rent-out-your-space/', views.rent_out_your_space_view, name='rent_out_your_space'),
+    path('about-us/', views.about_us_view, name='about_us'),
+    path('press-news/', views.press_news_view, name='press_news'),
+    path('careers/', views.careers_view, name='careers'),
+    path('business/', views.business_view, name='business'),
+    path('help-center/', views.help_center_view, name='help_center'),
+    path('services-summary/', views.services_summary_view, name='services_summary'),
+    path('faqs-support/', views.faqs_support_view, name='faqs_support'),
+    path('browse-cities/', views.browse_cities_view, name='browse_cities'),
+    path('browse-airports/', views.browse_airports_view, name='browse_airports'),
+    path('policies/', views.policies_view, name='policies'),
+    path('privacy-policy/', views.policies_view, name='privacy_policy'),
+    path('overstay-policy/', views.policies_view, name='overstay_policy'),
+]

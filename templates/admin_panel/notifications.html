@@ -1,0 +1,139 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load static %}
+
+{% block title %}Notification Center - ParkEase Admin Studio{% endblock %}
+{% block page_heading %}Notification Center{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid px-0">
+
+    <div style="max-width: 70%; width: 100%;">
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div>
+                <h1 class="h5 fw-bold text-dark mb-1">Notification Center</h1>
+                <p class="text-muted small mb-0">Real-time alerts for incoming bookings, parking updates, settlements, and admin review queues.</p>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <a href="{% url 'admin_panel:mark_notifications_read' %}" class="btn btn-outline-dark btn-sm fw-semibold" style="border-color: #cbd5e1; border-radius: 6px; padding: 0.4rem 0.9rem;">
+                    Mark All as Read
+                </a>
+            </div>
+        </div>
+
+        <div class="admin-card p-0 mb-4" style="overflow: hidden;">
+            <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h2 class="fs-6 fw-bold text-dark mb-0">Recent Alerts & Triggers</h2>
+                <span class="text-muted small">{{ system_alerts|length }} total alerts</span>
+            </div>
+
+            <div class="list-group list-group-flush">
+                {% for alert in system_alerts %}
+                    <div class="list-group-item px-4 py-3 border-bottom {% if not alert.is_read %}bg-white{% else %}bg-light bg-opacity-25{% endif %}">
+                        <div class="d-flex flex-wrap flex-md-nowrap align-items-start justify-content-between gap-3">
+
+                            <div class="d-flex align-items-start gap-3">
+                                <span class="badge" style="background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-weight: 600; font-size: 0.75rem; padding: 0.35rem 0.65rem; border-radius: 4px;">
+                                    Notice
+                                </span>
+
+                                <div>
+                                    <h3 class="fs-6 fw-bold text-dark mb-1" style="line-height: 1.3;">
+                                        {{ alert.title }}
+                                    </h3>
+                                    <p class="text-secondary small mb-1" style="max-width: 720px; line-height: 1.45;">
+                                        {{ alert.message }}
+                                    </p>
+                                    <span class="text-muted" style="font-size: 0.75rem;">
+                                        {{ alert.created_at|date:"M d, Y H:i" }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="ms-auto ms-md-0 flex-shrink-0 align-self-center">
+                                <a href="{{ alert.link|default:'#' }}" class="btn btn-outline-dark btn-sm fw-semibold px-3" style="border-color: #cbd5e1; border-radius: 4px; font-size: 0.8rem;">
+                                    View
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="text-center py-5 text-muted">
+                        <p class="mb-0">No notifications found.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="row g-4 mt-2">
+
+            <div class="col-12 col-xl-6">
+                <div class="admin-card h-100 mb-0">
+                    <div class="pb-3 border-bottom mb-4">
+                        <h5 class="fw-bold text-dark mb-1">Broadcast Announcement</h5>
+                        <p class="text-muted small mb-0">Send platform-wide alerts to users and space owners</p>
+                    </div>
+
+                    <form method="POST" action="{% url 'admin_panel:broadcast_announcement' %}">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-dark">Target Audience</label>
+                            <select name="audience" class="form-select form-select-sm" required>
+                                <option value="all">All Users & Owners</option>
+                                <option value="drivers">Drivers Only</option>
+                                <option value="owners">Space Owners Only</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-dark">Announcement Title</label>
+                            <input type="text" name="title" class="form-control form-control-sm" placeholder="e.g. Scheduled System Upgrade" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-dark">Announcement Message</label>
+                            <textarea name="message" class="form-control form-control-sm" rows="4" placeholder="Enter message text to broadcast..." required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-admin-primary w-100 justify-content-center">
+                            Publish Announcement
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-6">
+                <div class="admin-card h-100 mb-0">
+                    <div class="pb-3 border-bottom mb-4">
+                        <h5 class="fw-bold text-dark mb-1">Broadcast History</h5>
+                        <p class="text-muted small mb-0">Recent platform communications</p>
+                    </div>
+
+                    <div class="list-group list-group-flush">
+                        {% for item in announcements %}
+                            <div class="list-group-item px-0 py-3 border-bottom">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <h6 class="fw-bold text-dark small mb-0">{{ item.title }}</h6>
+                                    <span class="badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; font-size: 0.72rem;">
+                                        {{ item.get_audience_display }}
+                                    </span>
+                                </div>
+                                <p class="text-muted small mb-2" style="font-size: 0.82rem; line-height: 1.4;">{{ item.message }}</p>
+                                <span class="text-muted" style="font-size: 0.72rem;">Published on {{ item.created_at|date:"M d, Y" }}</span>
+                            </div>
+                        {% empty %}
+                            <div class="text-center py-4 text-muted small">No announcements broadcast yet.</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

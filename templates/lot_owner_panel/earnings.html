@@ -1,0 +1,203 @@
+{% extends 'lot_owner_panel/base_owner.html' %}
+{% load static %}
+
+{% block title %}Earnings & Payouts - Space Owner Studio{% endblock %}
+{% block page_heading %}Earnings & Settlement Account{% endblock %}
+
+{% block owner_content %}
+<div class="container-fluid px-0">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h2 class="h5 fw-bold text-dark mb-1">Financial Settlements & Payouts</h2>
+            <p class="text-muted small mb-0">Track gross booking revenue vs settled bank payouts without confusing active bookings with actual remittances.</p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'lot_owner_panel:download_statement' %}" class="btn btn-outline-secondary btn-sm">
+                Download Statement
+            </a>
+            <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#discrepancyModal">
+                Report Settlement Discrepancy
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-6 col-lg-3">
+            <div class="owner-card-metric">
+                <span class="metric-title">Gross Booking Revenue</span>
+                <div class="metric-value">₹{{ earnings_summary.gross|default:"34,200" }}</div>
+                <p class="metric-subtitle">Total customer booking charges</p>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="owner-card-metric">
+                <span class="metric-title">Platform Commission</span>
+                <div class="metric-value text-danger">-₹{{ earnings_summary.commission|default:"5,130" }}</div>
+                <p class="metric-subtitle">15% fee retained by ParkEase</p>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="owner-card-metric">
+                <span class="metric-title">Refunds & Adjustments</span>
+                <div class="metric-value text-secondary">-₹{{ earnings_summary.refunds|default:"450" }}</div>
+                <p class="metric-subtitle">Authorized fines or cancelled bookings</p>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="owner-card-metric" style="border: 2px solid var(--owner-primary, #0f2942) !important;">
+                <span class="metric-title text-success">Net Payable / Settled</span>
+                <div class="metric-value text-success">₹{{ earnings_summary.net|default:"28,620" }}</div>
+                <p class="metric-subtitle">Direct deposit to verified bank</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="owner-card mb-4 p-3 bg-light d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="px-3 py-2 bg-white rounded border fw-bold text-dark small">
+                BANK
+            </div>
+            <div>
+                <span class="badge bg-success-subtle text-success fw-bold mb-1">Direct Deposit Account Active</span>
+                <div class="fw-bold text-dark">{{ bank_profile.bank_name|default:"State Bank of India" }} •••• {{ bank_profile.last_digits|default:"8741" }}</div>
+                <div class="text-muted small">IFSC: {{ bank_profile.ifsc|default:"SBIHR656565" }} · Account Holder: {{ bank_profile.holder|default:request.user.get_full_name|default:request.user.username }}</div>
+            </div>
+        </div>
+        <div>
+            <a href="{% url 'lot_owner_panel:profile_settings' %}#bankDetailsSection" class="btn btn-outline-dark btn-sm fw-semibold">
+                Update Bank Details
+            </a>
+        </div>
+    </div>
+
+    <div class="owner-card p-0">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+            <h3 class="fw-bold fs-6 text-dark mb-0">Payout Settlement History</h3>
+        </div>
+
+        <div class="table-responsive">
+            <table class="owner-table">
+                <thead>
+                    <tr>
+                        <th>Payout Reference</th>
+                        <th>Billing Cycle / Period</th>
+                        <th>Gross Revenue</th>
+                        <th>Platform Commission</th>
+                        <th>Refunds / Adjustments</th>
+                        <th>Net Payable</th>
+                        <th>Payout Status</th>
+                        <th>Settlement Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in payouts %}
+                        <tr>
+                            <td>
+                                <strong class="font-monospace text-dark">{{ p.reference }}</strong>
+                            </td>
+                            <td>
+                                <span class="text-dark small">{{ p.period }}</span>
+                            </td>
+                            <td>
+                                <span class="text-dark">₹{{ p.gross_revenue }}</span>
+                            </td>
+                            <td>
+                                <span class="text-danger">-₹{{ p.commission }}</span>
+                            </td>
+                            <td>
+                                <span class="text-muted">-₹{{ p.refunds }}</span>
+                            </td>
+                            <td>
+                                <strong class="text-success fs-6">₹{{ p.net_payable }}</strong>
+                            </td>
+                            <td>
+                                {% if p.status == 'Paid' %}
+                                    <span class="badge bg-success-subtle text-success fw-bold px-2 py-1">
+                                        Paid
+                                    </span>
+                                {% elif p.status == 'Processing' %}
+                                    <span class="badge bg-warning-subtle text-dark fw-bold px-2 py-1">
+                                        Processing
+                                    </span>
+                                {% elif p.status == 'Pending' %}
+                                    <span class="badge bg-secondary-subtle text-secondary fw-bold px-2 py-1">
+                                        Pending Cycle
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger-subtle text-danger fw-bold px-2 py-1">
+                                        Failed
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="text-muted small">{{ p.payout_date|default:"28 Oct 2026" }}</span>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td><strong class="font-monospace text-dark">UTR9847291847192</strong></td>
+                            <td><span class="text-dark small">15 Oct – 22 Oct 2026</span></td>
+                            <td>₹14,500.00</td>
+                            <td class="text-danger">-₹2,175.00</td>
+                            <td class="text-muted">-₹0.00</td>
+                            <td><strong class="text-success fs-6">₹12,325.00</strong></td>
+                            <td><span class="badge bg-success-subtle text-success fw-bold px-2 py-1">Paid</span></td>
+                            <td><span class="text-muted small">23 Oct 2026</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong class="font-monospace text-dark">UTR9834110948215</strong></td>
+                            <td><span class="text-dark small">08 Oct – 15 Oct 2026</span></td>
+                            <td>₹19,700.00</td>
+                            <td class="text-danger">-₹2,955.00</td>
+                            <td class="text-muted">-₹450.00</td>
+                            <td><strong class="text-success fs-6">₹16,295.00</strong></td>
+                            <td><span class="badge bg-success-subtle text-success fw-bold px-2 py-1">Paid</span></td>
+                            <td><span class="text-muted small">16 Oct 2026</span></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="discrepancyModal" tabindex="-1" aria-labelledby="discrepancyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{% url 'lot_owner_panel:support' %}">
+                {% csrf_token %}
+                <input type="hidden" name="category" value="Settlement / Payout Discrepancy">
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-bold fs-6 text-dark" id="discrepancyModalLabel">Report Settlement Discrepancy</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Payout UTR or Reference Number</label>
+                        <input type="text" name="booking_ref" class="form-control font-monospace" placeholder="e.g. UTR9847291847192" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Subject</label>
+                        <input type="text" name="subject" class="form-control" value="Settlement Discrepancy Notice" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Explain Discrepancy</label>
+                        <textarea name="description" rows="3" class="form-control" placeholder="Specify disputed booking fee, missing settlement, or extra deduction..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-owner-dark btn-sm">Submit to Financial Audit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,936 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet" />
+
+<style>
+    .jp-search-wrapper {
+        background-color: #ffffff;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .jp-top-controls {
+        background: #ffffff;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 0.75rem 1.25rem;
+        position: sticky;
+        top: 0;
+        z-index: 1020;
+    }
+
+    .jp-control-box {
+        background: #ffffff;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 10px;
+        padding: 0.35rem 0.85rem;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
+    }
+
+    .jp-control-box:focus-within {
+        border-color: #0284c7;
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+    }
+
+    .jp-control-label {
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: capitalize;
+        display: block;
+        margin-bottom: 2px;
+        line-height: 1;
+    }
+
+    .jp-control-input {
+        border: none;
+        outline: none;
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: #0f172a;
+        width: 100%;
+        background: transparent;
+        padding: 0;
+    }
+
+    .jp-control-select {
+        border: none;
+        outline: none;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #0f172a;
+        width: 100%;
+        background: transparent;
+        padding: 0;
+        cursor: pointer;
+    }
+
+    /* Vehicle Tooltip Banner (as in JustPark screenshot) */
+    .vehicle-prompt-pill {
+        background: #1e293b;
+        color: #ffffff;
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 0.45rem 0.85rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+    }
+
+    .jp-tabs-bar {
+        background: #ffffff;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 0 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .jp-filter-tab {
+        background: none;
+        border: none;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #64748b;
+        padding: 0.85rem 1.25rem;
+        position: relative;
+        cursor: pointer;
+        transition: color 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .jp-filter-tab:hover {
+        color: #0f172a;
+    }
+
+    .jp-filter-tab.active {
+        color: #00875a; /* JustPark active emerald green */
+        font-weight: 700;
+    }
+
+    .jp-filter-tab.active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background-color: #00875a;
+        border-radius: 3px 3px 0 0;
+    }
+
+    .jp-split-container {
+        display: flex;
+        height: calc(100vh - 145px);
+        min-height: 600px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .jp-results-pane {
+        width: 480px;
+        flex-shrink: 0;
+        overflow-y: auto;
+        background-color: #ffffff;
+        border-right: 1px solid #e2e8f0;
+        padding: 1.5rem;
+        position: relative;
+    }
+
+    .jp-map-pane {
+        flex-grow: 1;
+        height: 100%;
+        position: relative;
+        background-color: #e2e8f0;
+    }
+
+    #parkingMap {
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        background: #f8fafc;
+    }
+
+    .parking-result-card {
+        border: 1.5px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        background: #ffffff;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        position: relative;
+    }
+
+    .parking-result-card:hover,
+    .parking-result-card.highlighted {
+        border-color: #0284c7;
+        box-shadow: 0 8px 24px rgba(2, 132, 199, 0.12);
+        transform: translateY(-2px);
+    }
+
+    .parking-result-card.selected {
+        border-color: #0B3B60;
+        background-color: #f8fafc;
+        box-shadow: 0 0 0 2px #0B3B60;
+    }
+
+    .price-tag-badge {
+        background-color: #0B3B60;
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 1rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 8px;
+        display: inline-block;
+        text-align: right;
+    }
+
+    .leaflet-price-pin {
+        background: #0B3B60;
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 0.82rem;
+        padding: 5px 10px;
+        border-radius: 16px;
+        border: 2px solid #ffffff;
+        box-shadow: 0 4px 12px rgba(11, 59, 96, 0.4);
+        cursor: pointer;
+        white-space: nowrap;
+        text-align: center;
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        user-select: none;
+    }
+
+    .leaflet-price-pin::after {
+        content: '';
+        position: absolute;
+        bottom: -6px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid #0B3B60;
+    }
+
+    .leaflet-price-pin:hover,
+    .leaflet-price-pin.active-pin {
+        background: #0284c7;
+        transform: scale(1.18);
+        box-shadow: 0 6px 18px rgba(2, 132, 199, 0.55);
+        z-index: 9999 !important;
+    }
+
+    .leaflet-price-pin.active-pin::after,
+    .leaflet-price-pin:hover::after {
+        border-top-color: #0284c7;
+    }
+
+    .leaflet-destination-pin {
+        width: 28px;
+        height: 38px;
+        background: #4f46e5;
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        position: relative;
+        box-shadow: 0 6px 14px rgba(79, 70, 229, 0.4);
+        cursor: pointer;
+    }
+
+    .leaflet-destination-pin::after {
+        content: '';
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: #ffffff;
+        border-radius: 50%;
+        top: 8px;
+        left: 8px;
+    }
+
+    .no-match-box {
+        text-align: center;
+        padding: 3rem 1.5rem;
+    }
+
+    .no-match-graphic {
+        width: 72px;
+        height: 72px;
+        background-color: #f1f5f9;
+        border: 2px dashed #cbd5e1;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        margin-bottom: 1.25rem;
+    }
+
+    @media (min-width: 768px) and (max-width: 1023.98px) {
+        .jp-split-container {
+            display: flex !important;
+            height: calc(100vh - 145px) !important;
+            min-height: 540px !important;
+        }
+        .jp-results-pane {
+            width: 44% !important;
+            flex-shrink: 0 !important;
+            padding: 1.25rem 1rem !important;
+            overflow-y: auto !important;
+        }
+        .jp-map-pane {
+            width: 56% !important;
+            flex-grow: 1 !important;
+            height: 100% !important;
+            display: block !important;
+        }
+        .jp-top-controls {
+            padding: 0.65rem 1rem !important;
+        }
+        .jp-control-box {
+            min-width: 130px !important;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .jp-split-container {
+            display: block !important;
+            height: calc(100vh - 175px) !important;
+            min-height: 480px !important;
+            position: relative !important;
+        }
+        .jp-results-pane {
+            width: 100% !important;
+            height: 100% !important;
+            max-height: 100% !important;
+            border-right: none !important;
+            padding: 0.85rem !important;
+            display: block;
+            overflow-y: auto !important;
+        }
+        .jp-map-pane {
+            width: 100% !important;
+            height: 100% !important;
+            display: none;
+        }
+        .jp-split-container.show-map .jp-results-pane {
+            display: none !important;
+        }
+        .jp-split-container.show-map .jp-map-pane {
+            display: block !important;
+        }
+        .jp-mobile-view-toggle {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1040;
+        }
+        .jp-mobile-view-toggle .btn {
+            background-color: #0f2942;
+            color: #ffffff;
+            border: 2px solid #38bdf8;
+            font-size: 0.88rem;
+            box-shadow: 0 8px 24px rgba(15, 41, 66, 0.45);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.35rem;
+        }
+        .jp-top-controls {
+            padding: 0.65rem 0.75rem !important;
+        }
+        .jp-control-box {
+            min-width: 100% !important;
+            width: 100% !important;
+            padding: 0.45rem 0.75rem !important;
+        }
+        .jp-search-submit-btn-responsive {
+            width: 100% !important;
+            margin-top: 0.25rem;
+        }
+        .jp-tabs-bar {
+            overflow-x: auto !important;
+            white-space: nowrap !important;
+            padding: 0 0.75rem !important;
+            -webkit-overflow-scrolling: touch;
+        }
+        .jp-filter-tab {
+            padding: 0.65rem 0.85rem !important;
+            font-size: 0.85rem !important;
+        }
+    }
+
+    .nominatim-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        z-index: 1060;
+        max-height: 260px;
+        overflow-y: auto;
+        margin-top: 4px;
+    }
+    .nominatim-item {
+        padding: 0.65rem 0.9rem;
+        font-size: 0.82rem;
+        cursor: pointer;
+        border-bottom: 1px solid #f1f5f9;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        transition: background 0.15s ease;
+    }
+    .nominatim-item:last-child {
+        border-bottom: none;
+    }
+    .nominatim-item:hover {
+        background-color: #f0f7ff;
+        color: #0284c7;
+    }
+
+    .osrm-route-banner {
+        position: absolute;
+        top: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #ffffff;
+        border: 1.5px solid #0284c7;
+        border-radius: 9999px;
+        padding: 0.45rem 1.15rem;
+        box-shadow: 0 6px 18px rgba(2, 132, 199, 0.22);
+        z-index: 1000;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        white-space: nowrap;
+        animation: fadeInDown 0.3s ease;
+    }
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translate(-50%, -10px); }
+        to { opacity: 1; transform: translate(-50%, 0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="jp-search-wrapper">
+
+    <div class="jp-top-controls">
+        <form id="searchControlsForm" method="GET" action="{% url 'parking:search' %}">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+
+                <div class="jp-control-box flex-grow-1 position-relative" style="min-width: 280px;">
+                    <label for="qInput" class="jp-control-label">Park at</label>
+                    <input
+                        type="text"
+                        id="qInput"
+                        name="q"
+                        class="jp-control-input"
+                        value="{{ query }}"
+                        placeholder="Enter location, address or landmark"
+                        autocomplete="off">
+                    <div id="nominatimSuggestions" class="nominatim-dropdown d-none"></div>
+                </div>
+
+                <div class="jp-control-box" style="min-width: 180px;">
+                    <label for="fromTimeInput" class="jp-control-label">From</label>
+                    <div class="d-flex align-items-center gap-1">
+                        <input
+                            type="date"
+                            name="from_date"
+                            class="jp-control-select"
+                            value="{{ from_date }}"
+                            style="font-size: 0.8rem; width: 110px;">
+                        <input
+                            type="time"
+                            id="fromTimeInput"
+                            name="from_time"
+                            class="jp-control-select"
+                            value="{{ from_time }}"
+                            style="font-size: 0.8rem; width: 75px;">
+                    </div>
+                </div>
+
+                <div class="jp-control-box" style="min-width: 180px;">
+                    <label for="untilTimeInput" class="jp-control-label">Until</label>
+                    <div class="d-flex align-items-center gap-1">
+                        <input
+                            type="date"
+                            name="until_date"
+                            class="jp-control-select"
+                            value="{{ until_date }}"
+                            style="font-size: 0.8rem; width: 110px;">
+                        <input
+                            type="time"
+                            id="untilTimeInput"
+                            name="until_time"
+                            class="jp-control-select"
+                            value="{{ until_time }}"
+                            style="font-size: 0.8rem; width: 75px;">
+                    </div>
+                </div>
+
+                <div class="jp-control-box" style="min-width: 170px;">
+                    <label for="vehicleSelect" class="jp-control-label">Vehicle</label>
+                    <select id="vehicleSelect" name="vehicle_type" class="jp-control-select">
+                        {% if user_vehicles %}
+                            {% for v in user_vehicles %}
+                                <option value="{{ v.vehicle_type }}" {% if forloop.first %}selected{% endif %}>
+                                    {{ v.registration_number }} ({{ v.make|default:v.get_vehicle_type_display }})
+                                </option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="car" {% if vehicle_type == 'car' %}selected{% endif %}>Car (Hatchback/Sedan)</option>
+                            <option value="two_wheeler" {% if vehicle_type == 'two_wheeler' %}selected{% endif %}>Two-wheeler (Bike)</option>
+                            <option value="suv" {% if vehicle_type == 'suv' %}selected{% endif %}>SUV</option>
+                            <option value="ev" {% if vehicle_type == 'ev' %}selected{% endif %}>Electric Vehicle</option>
+                        {% endif %}
+                    </select>
+                </div>
+
+                <input type="hidden" name="sort" id="sortInput" value="{{ sort_by }}">
+                <input type="hidden" name="filter_ev" id="filterEvInput" value="{% if filter_ev %}1{% else %}0{% endif %}">
+
+                <button type="submit" class="btn btn-theme-primary px-3 py-2 fw-bold rounded-3" style="height: 48px;">
+                    Search
+                </button>
+
+                {% if not user_vehicles %}
+                    <div class="vehicle-prompt-pill d-none d-xl-flex" id="vehiclePrompt">
+                        <span>Add your vehicle to see spaces that fit.</span>
+                        <a href="{% url 'accounts:vehicles' %}" class="text-white text-decoration-underline ms-1">Add</a>
+                        <button type="button" class="btn-close btn-close-white p-0 ms-2" style="font-size: 0.65rem;" onclick="document.getElementById('vehiclePrompt').remove();"></button>
+                    </div>
+                {% endif %}
+
+            </div>
+        </form>
+    </div>
+
+    <div class="jp-tabs-bar">
+        <div class="d-flex align-items-center">
+            <a href="?q={{ query }}&from_date={{ from_date }}&from_time={{ from_time }}&until_date={{ until_date }}&until_time={{ until_time }}&vehicle_type={{ vehicle_type }}&sort=closest&filter_ev={% if filter_ev %}1{% else %}0{% endif %}"
+               class="jp-filter-tab {% if sort_by == 'closest' %}active{% endif %}">
+                Closest
+            </a>
+            <a href="?q={{ query }}&from_date={{ from_date }}&from_time={{ from_time }}&until_date={{ until_date }}&until_time={{ until_time }}&vehicle_type={{ vehicle_type }}&sort=recommended&filter_ev={% if filter_ev %}1{% else %}0{% endif %}"
+               class="jp-filter-tab {% if sort_by == 'recommended' %}active{% endif %}">
+                Recommended
+            </a>
+            <a href="?q={{ query }}&from_date={{ from_date }}&from_time={{ from_time }}&until_date={{ until_date }}&until_time={{ until_time }}&vehicle_type={{ vehicle_type }}&sort=cheapest&filter_ev={% if filter_ev %}1{% else %}0{% endif %}"
+               class="jp-filter-tab {% if sort_by == 'cheapest' %}active{% endif %}">
+                Cheapest
+            </a>
+        </div>
+
+        <div class="d-flex align-items-center gap-3 py-2">
+            <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" role="switch" id="evOnlySwitch" {% if filter_ev %}checked{% endif %} onchange="toggleEvFilter(this.checked)">
+                <label class="form-check-label small text-muted fw-semibold" for="evOnlySwitch">
+                    EV Charging Only
+                </label>
+            </div>
+            <span class="text-muted small fw-semibold">
+                {{ active_lots|length }} space{{ active_lots|length|pluralize }} available
+            </span>
+        </div>
+    </div>
+
+    <div class="jp-split-container" id="jpSplitContainer">
+
+        <div class="jp-results-pane" id="resultsPane">
+
+            {% if query and not exact_matches %}
+                <div class="no-match-box">
+                    <div class="no-match-graphic">
+                        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </div>
+                    <h3 class="h4 fw-bold text-dark mb-2">No exact matches</h3>
+                    <p class="text-muted small mb-4 mx-auto" style="max-width: 380px; line-height: 1.5;">
+                        Your search did not return any nearby results. Either all spaces are booked for your search times and filter selection or there are no ParkEase spaces in this area yet.
+                    </p>
+                    <a href="{% url 'parking:search' %}" class="btn btn-outline-primary btn-sm fw-bold px-3 py-2 rounded-2">
+                        Show All Available Spaces
+                    </a>
+                </div>
+
+                {% if nearby_lots %}
+                    <div class="pt-3 border-top mt-2">
+                        <h6 class="fw-bold text-dark mb-3">Available Spaces Nearby in Gujarat & India</h6>
+                        {% for lot in nearby_lots %}
+                            {% include "parking/_search_card.html" with lot=lot is_nearby=True %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+            {% else %}
+                {% for lot in active_lots %}
+                    {% include "parking/_search_card.html" with lot=lot %}
+                {% empty %}
+                    <div class="text-center py-5">
+                        <h5 class="fw-bold text-dark">No Parking Spaces Found</h5>
+                        <p class="text-muted small">Please adjust your search criteria or dates.</p>
+                        <a href="{% url 'parking:search' %}" class="btn btn-theme-primary btn-sm fw-bold px-3">
+                            Reset All Filters
+                        </a>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+        </div>
+
+        <div class="jp-map-pane position-relative">
+            <div id="parkingMap"></div>
+            <div id="osrmRouteBanner" class="osrm-route-banner d-none">
+                <i class="bi bi-compass text-primary"></i>
+                <span id="osrmRouteText">Calculating route...</span>
+                <button type="button" class="btn-close btn-close-sm ms-1" style="font-size: 0.65rem;" onclick="clearOsrmRoute()"></button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="jp-mobile-view-toggle d-md-none" id="mobileViewToggleContainer">
+        <button type="button" class="btn btn-dark rounded-pill shadow-lg px-4 py-2 fw-bold" id="btnToggleMobileView">
+            <i class="bi bi-map-fill me-2"></i>Map View
+        </button>
+    </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"></script>
+
+<script>
+
+    // Mobile Map/List View Toggle Logic
+    const toggleBtn = document.getElementById('btnToggleMobileView');
+    const splitContainer = document.getElementById('jpSplitContainer');
+    if (toggleBtn && splitContainer) {
+        let isMapActive = false;
+        toggleBtn.addEventListener('click', function() {
+            isMapActive = !isMapActive;
+            if (isMapActive) {
+                splitContainer.classList.add('show-map');
+                toggleBtn.innerHTML = '<i class="bi bi-list-ul me-2"></i>List View';
+                setTimeout(function() {
+                    if (typeof map !== 'undefined' && map) {
+                        map.invalidateSize();
+                    }
+                }, 150);
+            } else {
+                splitContainer.classList.remove('show-map');
+                toggleBtn.innerHTML = '<i class="bi bi-map-fill me-2"></i>Map View';
+            }
+        });
+    }
+
+    const markersData = {{ map_markers_json|safe }};
+    const centerLat = {{ center_lat }};
+    const centerLng = {{ center_lng }};
+    const hasSearchQuery = {% if query %}true{% else %}false{% endif %};
+    const destinationQuery = "{{ destination_name|escapejs }}";
+
+    const map = L.map('parkingMap', {
+        zoomControl: true,
+        scrollWheelZoom: true,
+        attributionControl: false
+    }).setView([centerLat, centerLng], 14);
+
+    const OPENFREEMAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
+    if (typeof L.maplibreGL !== 'undefined') {
+        try {
+            L.maplibreGL({
+                style: OPENFREEMAP_STYLE,
+                attribution: '&copy; OpenFreeMap &copy; OpenStreetMap'
+            }).addTo(map);
+        } catch (err) {
+            console.warn('MapLibre GL init fallback to CartoDB Voyager:', err);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                maxZoom: 20,
+                subdomains: 'abcd',
+                attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+            }).addTo(map);
+        }
+    } else {
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            maxZoom: 20,
+            subdomains: 'abcd',
+            attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+        }).addTo(map);
+    }
+
+    let destMarker = null;
+    if (hasSearchQuery) {
+        const destIcon = L.divIcon({
+            className: 'custom-destination-wrapper',
+            html: '<div class="leaflet-destination-pin" title="' + destinationQuery + '"></div>',
+            iconSize: [28, 38],
+            iconAnchor: [14, 38],
+            popupAnchor: [0, -36]
+        });
+
+        destMarker = L.marker([centerLat, centerLng], { icon: destIcon }).addTo(map);
+        destMarker.bindPopup(`
+            <div style="font-family: inherit; font-size: 0.85rem; padding: 4px;">
+                <div style="font-weight: 700; color: #4f46e5; margin-bottom: 2px;">Search Location</div>
+                <div style="color: #1e293b; font-weight: 600;">${destinationQuery}</div>
+            </div>
+        `);
+    }
+
+    const lotMarkers = {};
+
+    markersData.forEach(lot => {
+        const priceHtml = `
+            <div class="leaflet-price-pin" id="pin-${lot.id}">
+                ${lot.hourly_rate}/hr
+            </div>
+        `;
+
+        const priceIcon = L.divIcon({
+            className: 'custom-price-pin-wrapper',
+            html: priceHtml,
+            iconSize: [64, 30],
+            iconAnchor: [32, 30],
+            popupAnchor: [0, -32]
+        });
+
+        const marker = L.marker([lot.lat, lot.lng], { icon: priceIcon }).addTo(map);
+        lotMarkers[lot.id] = marker;
+
+        const popupContent = `
+            <div style="font-family: inherit; width: 230px; padding: 2px;">
+                <div style="font-weight: 800; font-size: 0.95rem; color: #0f172a; margin-bottom: 2px;">${lot.name}</div>
+                <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 8px;">${lot.street}, ${lot.area}</div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-top: 6px; border-top: 1px solid #e2e8f0;">
+                    <div>
+                        <span style="font-size: 0.7rem; color: #64748b; display: block;">Final Total</span>
+                        <strong style="color: #0B3B60; font-size: 1.05rem;">${lot.total_price}</strong>
+                    </div>
+                    <span style="background-color: #e0f2fe; color: #0284c7; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px;">
+                        ${lot.available_slots} bays free
+                    </span>
+                </div>
+
+                ${lot.has_ev ? '<div style="font-size: 0.72rem; color: #16a34a; font-weight: 700; margin-bottom: 8px;">⚡ EV Charging Available</div>' : ''}
+
+                <div class="d-flex gap-1 mt-2">
+                    <a href="/lot/${lot.id}/?from_date={{ from_date }}&from_time={{ from_time }}&until_date={{ until_date }}&until_time={{ until_time }}&vehicle_type={{ vehicle_type }}"
+                       style="flex: 1; text-align: center; background-color: #f1f5f9; color: #334155; text-decoration: none; font-weight: 700; font-size: 0.76rem; padding: 6px 8px; border-radius: 6px; border: 1px solid #cbd5e1;">
+                        Details
+                    </a>
+                    <a href="/lot/${lot.id}/book/?from_date={{ from_date }}&from_time={{ from_time }}&until_date={{ until_date }}&until_time={{ until_time }}&vehicle_type={{ vehicle_type }}"
+                       style="flex: 2; text-align: center; background-color: #0B3B60; color: #ffffff; text-decoration: none; font-weight: 700; font-size: 0.76rem; padding: 6px 8px; border-radius: 6px;">
+                        Book Space
+                    </a>
+                </div>
+
+                <button type="button"
+                        onclick="drawOsrmRoute(${centerLat}, ${centerLng}, ${lot.lat}, ${lot.lng}, '${lot.name.replace(/'/g, "\\'")}')"
+                        style="width: 100%; margin-top: 6px; background: none; border: 1px solid #0284c7; color: #0284c7; border-radius: 6px; font-weight: 700; font-size: 0.74rem; padding: 5px 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                    <i class="bi bi-compass"></i> Show Driving Route
+                </button>
+            </div>
+        `;
+        marker.bindPopup(popupContent);
+
+        marker.on('click', () => {
+            highlightCard(lot.id);
+            drawOsrmRoute(centerLat, centerLng, lot.lat, lot.lng, lot.name);
+        });
+    });
+
+    const OSRM_BASE = 'https://router.project-osrm.org/route/v1/driving';
+    let activeRouteLayer = null;
+
+    async function drawOsrmRoute(originLat, originLng, destLat, destLng, lotName) {
+        const url = `${OSRM_BASE}/${originLng},${originLat};${destLng},${destLat}?overview=full&geometries=geojson`;
+        const banner = document.getElementById('osrmRouteBanner');
+        const bannerText = document.getElementById('osrmRouteText');
+
+        if (banner) {
+            banner.classList.remove('d-none');
+            bannerText.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" style="width: 0.85rem; height: 0.85rem;"></span> Calculating road path to ${lotName}...`;
+        }
+
+        try {
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error('OSRM routing request failed');
+            const data = await resp.json();
+
+            if (data.routes && data.routes.length > 0) {
+                const route = data.routes[0];
+                const distanceKm = (route.distance / 1000).toFixed(1);
+                const durationMin = Math.round(route.duration / 60);
+
+                if (activeRouteLayer) {
+                    map.removeLayer(activeRouteLayer);
+                }
+
+                activeRouteLayer = L.geoJSON(route.geometry, {
+                    style: {
+                        color: '#0284c7',
+                        weight: 5,
+                        opacity: 0.85,
+                        lineCap: 'round',
+                        lineJoin: 'round'
+                    }
+                }).addTo(map);
+
+                if (banner && bannerText) {
+                    bannerText.innerHTML = `<i class="bi bi-car-front-fill text-primary"></i> <strong>${distanceKm} km</strong> · approx. <strong>${durationMin} min drive</strong> to ${lotName}`;
+                }
+
+                map.fitBounds(activeRouteLayer.getBounds().pad(0.2));
+            }
+        } catch (err) {
+            console.warn('OSRM network fallback to straight line:', err);
+            if (activeRouteLayer) {
+                map.removeLayer(activeRouteLayer);
+            }
+            activeRouteLayer = L.polyline([[originLat, originLng], [destLat, destLng]], {
+                color: '#0284c7',
+                dashArray: '6, 8',
+                weight: 4,
+                opacity: 0.8
+            }).addTo(map);
+
+            if (banner && bannerText) {
+                bannerText.innerHTML = `<i class="bi bi-geo-alt-fill text-primary"></i> Direct path to ${lotName}`;
+            }
+        }
+    }
+
+    function clearOsrmRoute() {
+        if (activeRouteLayer) {
+            map.removeLayer(activeRouteLayer);
+            activeRouteLayer = null;
+        }
+        const banner = document.getElementById('osrmRouteBanner');
+        if (banner) {
+            banner.classList.add('d-none');
+        }
+    }
+
+    const NOMINATIM_SEARCH = 'https://nominatim.openstreetmap.org/search';
+    const qInput = document.getElementById('qInput');
+    const suggestionsBox = document.getElementById('nominatimSuggestions');
+    let debounceTimer = null;
+
+    if (qInput && suggestionsBox) {
+        qInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            const val = this.value.trim();
+            if (val.length < 3) {
+                suggestionsBox.classList.add('d-none');
+                suggestionsBox.innerHTML = '';
+                return;
+            }
+
+            debounceTimer = setTimeout(() => {
+                fetch(`${NOMINATIM_SEARCH}?format=json&q=${encodeURIComponent(val)}&countrycodes=in&limit=5`, {
+                    headers: { 'User-Agent': 'ParkEaseApp/1.0' }
+                })
+                .then(r => r.json())
+                .then(items => {
+                    if (!items || items.length === 0) {
+                        suggestionsBox.classList.add('d-none');
+                        return;
+                    }
+                    suggestionsBox.innerHTML = '';
+                    items.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'nominatim-item';
+                        div.innerHTML = `<i class="bi bi-geo-alt-fill text-primary"></i> <span>${item.display_name}</span>`;
+                        div.addEventListener('click', () => {
+                            qInput.value = item.display_name.split(',').slice(0, 3).join(',').trim();
+                            suggestionsBox.classList.add('d-none');
+                            document.getElementById('searchControlsForm').submit();
+                        });
+                        suggestionsBox.appendChild(div);
+                    });
+                    suggestionsBox.classList.remove('d-none');
+                })
+                .catch(() => {
+                    suggestionsBox.classList.add('d-none');
+                });
+            }, 350);
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!qInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+                suggestionsBox.classList.add('d-none');
+            }
+        });
+    }
+
+    function highlightCard(lotId) {
+        document.querySelectorAll('.parking-result-card').forEach(c => c.classList.remove('selected'));
+        const targetCard = document.getElementById(`card-${lotId}`);
+        if (targetCard) {
+            targetCard.classList.add('selected');
+            targetCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    function selectParkingLot(lotId) {
+        const marker = lotMarkers[lotId];
+        if (marker) {
+            map.flyTo(marker.getLatLng(), 15, { duration: 0.8 });
+            marker.openPopup();
+            highlightCard(lotId);
+            const lot = markersData.find(l => l.id === lotId);
+            if (lot) {
+                drawOsrmRoute(centerLat, centerLng, lot.lat, lot.lng, lot.name);
+            }
+        }
+    }
+
+    function toggleEvFilter(isChecked) {
+        document.getElementById('filterEvInput').value = isChecked ? '1' : '0';
+        document.getElementById('searchControlsForm').submit();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            map.invalidateSize();
+            if (Object.keys(lotMarkers).length > 0) {
+                const group = L.featureGroup(Object.values(lotMarkers));
+                if (destMarker) {
+                    group.addLayer(destMarker);
+                }
+                map.fitBounds(group.getBounds().pad(0.18));
+            }
+        }, 200);
+    });
+</script>
+{% endblock %}

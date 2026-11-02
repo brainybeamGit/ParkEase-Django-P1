@@ -1,0 +1,425 @@
+{% extends 'lot_owner_panel/base_owner.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Space Owner Studio - ParkEase{% endblock %}
+{% block page_heading %}Space Owner Studio Overview{% endblock %}
+
+{% block owner_content %}
+<div class="container-fluid px-0">
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="owner-card-metric">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="metric-title">Today's Revenue</span>
+                    <span class="badge bg-light text-dark border small fw-bold">12.4%</span>
+                </div>
+                <div class="metric-value">₹{{ today_revenue|default:"18,450" }}</div>
+                <p class="metric-subtitle">Gross turnover from today's bookings</p>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="owner-card-metric">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="metric-title">Today's Bookings</span>
+                    <span class="badge bg-light text-dark border small fw-bold">Active</span>
+                </div>
+                <div class="metric-value">{{ today_bookings_count|default:"24" }}</div>
+                <p class="metric-subtitle">8 awaiting driver check-in</p>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="owner-card-metric">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="metric-title">Total Spaces</span>
+                    <span class="badge bg-light text-dark border small fw-bold">Approved</span>
+                </div>
+                <div class="metric-value">{{ total_spaces|default:"86" }}</div>
+                <p class="metric-subtitle">7 running low on capacity</p>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="owner-card-metric">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="metric-title">Available Balance</span>
+                    <span class="badge bg-light text-dark border small fw-bold">Settled</span>
+                </div>
+                <div class="metric-value">₹42,680</div>
+                <p class="metric-subtitle">Next direct payout: <strong>10 Nov</strong></p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="owner-card mb-4">
+        <h2 class="action-center-header">Owner Action Center</h2>
+
+        <div class="action-item-row">
+            <div>
+                <div class="action-item-title">
+                    7 parking bays are running near peak capacity
+                </div>
+                <p class="action-item-sub">Review basement inventory and real-time slot occupancy levels</p>
+            </div>
+            <a href="{% url 'lot_owner_panel:slots' %}" class="btn-owner-action-outline">View</a>
+        </div>
+
+        <div class="action-item-row">
+            <div>
+                <div class="action-item-title">
+                    8 driver bookings need to be checked in today
+                </div>
+                <p class="action-item-sub">Verify arrivals and scan QR passes before 6:00 PM</p>
+            </div>
+            <a href="{% url 'lot_owner_panel:bookings' %}" class="btn-owner-action-outline">View</a>
+        </div>
+
+        <div class="action-item-row">
+            <div>
+                <div class="action-item-title">
+                    3 new customer reviews
+                </div>
+                <p class="action-item-sub">See verified driver feedback & submit official owner replies</p>
+            </div>
+            <a href="{% url 'lot_owner_panel:reviews' %}" class="btn-owner-action-outline">View</a>
+        </div>
+
+        <div class="action-item-row">
+            <div>
+                <div class="action-item-title">
+                    ₹18,450 parking revenue recorded today
+                </div>
+                <p class="action-item-sub">View daily turnover, platform settlements & net owner payouts</p>
+            </div>
+            <a href="{% url 'lot_owner_panel:earnings' %}" class="btn-owner-action-outline">View</a>
+        </div>
+    </div>
+
+    <div class="owner-card mb-4">
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+            <div>
+                <h2 class="fw-bold fs-5 text-dark mb-1">
+                    Parking Revenue & Bookings Performance
+                </h2>
+                <p class="text-muted small mb-0" id="chartSubtitle">Daily gross parking turnover & bay reservations (Last 7 Days)</p>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center gap-2 w-100 w-sm-auto justify-content-between justify-content-sm-end">
+                <div class="btn-group btn-group-sm flex-wrap" role="group">
+                    <button type="button" class="btn btn-dark active fw-semibold" id="btnMetricRevenue" style="background-color: var(--owner-primary); border-color: var(--owner-primary);">
+                        Revenue (₹)
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary fw-semibold" id="btnMetricOrders">
+                        Bookings
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary fw-semibold" id="btnMetricUnits">
+                        Hours Parked
+                    </button>
+                </div>
+
+                <select class="form-select form-select-sm" id="timePeriodSelect" style="width: auto; min-width: 105px;">
+                    <option value="7d" selected>7 Days</option>
+                    <option value="30d">30 Days</option>
+                    <option value="quarter">Last Quarter</option>
+                    <option value="1y">1 Year</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="position: relative; height: 320px; width: 100%;">
+            <canvas id="salesChart"></canvas>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('salesChart');
+    if (!ctx) return;
+
+    const chartSubtitle = document.getElementById('chartSubtitle');
+    const timePeriodSelect = document.getElementById('timePeriodSelect');
+    const btnRev = document.getElementById('btnMetricRevenue');
+    const btnOrd = document.getElementById('btnMetricOrders');
+    const btnUni = document.getElementById('btnMetricUnits');
+
+    const perfMatrix = {
+        '7d': {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            subtitle: 'Daily gross parking turnover & bay reservations (Last 7 Days)',
+            Revenue: {
+                label: 'Gross Parking Revenue (₹)',
+                data: [12600, 14200, 15800, 14900, 16800, 17800, 18450],
+                min: 10000,
+                max: 20000,
+                stepSize: 2000,
+                formatter: val => '₹' + val.toLocaleString('en-IN'),
+                tooltipFormatter: val => ' Gross Revenue: ₹' + val.toLocaleString('en-IN')
+            },
+            Orders: {
+                label: 'Bookings Count',
+                data: [16, 20, 24, 21, 26, 28, 24],
+                min: 0,
+                max: 35,
+                stepSize: 5,
+                formatter: val => val + ' bookings',
+                tooltipFormatter: val => ' Bookings: ' + val + ' reservations'
+            },
+            Units: {
+                label: 'Hours Parked',
+                data: [54, 68, 76, 70, 84, 92, 80],
+                min: 0,
+                max: 100,
+                stepSize: 20,
+                formatter: val => val + ' hrs',
+                tooltipFormatter: val => ' Total Hours: ' + val + ' hrs parked'
+            }
+        },
+        '30d': {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            subtitle: 'Weekly gross parking turnover & bay reservations (Last 30 Days)',
+            Revenue: {
+                label: 'Gross Parking Revenue (₹)',
+                data: [98500, 104200, 112600, 118400],
+                min: 80000,
+                max: 130000,
+                stepSize: 10000,
+                formatter: val => '₹' + val.toLocaleString('en-IN'),
+                tooltipFormatter: val => ' Gross Revenue: ₹' + val.toLocaleString('en-IN')
+            },
+            Orders: {
+                label: 'Bookings Count',
+                data: [142, 158, 174, 182],
+                min: 100,
+                max: 200,
+                stepSize: 20,
+                formatter: val => val + ' bookings',
+                tooltipFormatter: val => ' Bookings: ' + val + ' reservations'
+            },
+            Units: {
+                label: 'Hours Parked',
+                data: [490, 530, 580, 610],
+                min: 400,
+                max: 700,
+                stepSize: 50,
+                formatter: val => val + ' hrs',
+                tooltipFormatter: val => ' Total Hours: ' + val + ' hrs parked'
+            }
+        },
+        'quarter': {
+            labels: ['July', 'August', 'September', 'October'],
+            subtitle: 'Monthly gross parking turnover & bay reservations (Last 4 Months / Last Quarter)',
+            Revenue: {
+                label: 'Gross Parking Revenue (₹)',
+                data: [420000, 445000, 468000, 482500],
+                min: 350000,
+                max: 550000,
+                stepSize: 50000,
+                formatter: val => '₹' + val.toLocaleString('en-IN'),
+                tooltipFormatter: val => ' Gross Revenue: ₹' + val.toLocaleString('en-IN')
+            },
+            Orders: {
+                label: 'Bookings Count',
+                data: [610, 650, 680, 715],
+                min: 500,
+                max: 800,
+                stepSize: 50,
+                formatter: val => val + ' bookings',
+                tooltipFormatter: val => ' Bookings: ' + val + ' reservations'
+            },
+            Units: {
+                label: 'Hours Parked',
+                data: [2100, 2250, 2380, 2460],
+                min: 1800,
+                max: 2700,
+                stepSize: 150,
+                formatter: val => val + ' hrs',
+                tooltipFormatter: val => ' Total Hours: ' + val + ' hrs parked'
+            }
+        },
+        '1y': {
+            labels: ['Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+            subtitle: 'Month-wise gross parking turnover & bay reservations (Past 12 Months)',
+            Revenue: {
+                label: 'Gross Parking Revenue (₹)',
+                data: [310000, 345000, 360000, 380000, 395000, 410000, 430000, 445000, 420000, 445000, 468000, 482500],
+                min: 250000,
+                max: 550000,
+                stepSize: 50000,
+                formatter: val => '₹' + val.toLocaleString('en-IN'),
+                tooltipFormatter: val => ' Gross Revenue: ₹' + val.toLocaleString('en-IN')
+            },
+            Orders: {
+                label: 'Bookings Count',
+                data: [450, 500, 520, 550, 580, 600, 625, 640, 610, 650, 680, 715],
+                min: 400,
+                max: 800,
+                stepSize: 100,
+                formatter: val => val + ' bookings',
+                tooltipFormatter: val => ' Bookings: ' + val + ' reservations'
+            },
+            Units: {
+                label: 'Hours Parked',
+                data: [1550, 1720, 1800, 1910, 2020, 2090, 2180, 2240, 2100, 2250, 2380, 2460],
+                min: 1400,
+                max: 2700,
+                stepSize: 200,
+                formatter: val => val + ' hrs',
+                tooltipFormatter: val => ' Total Hours: ' + val + ' hrs parked'
+            }
+        }
+    };
+
+    let currentPeriod = '7d';
+    let currentMetric = 'Revenue';
+
+    const chartContext = ctx.getContext('2d');
+    const gradient = chartContext.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(2, 132, 199, 0.20)');
+    gradient.addColorStop(1, 'rgba(2, 132, 199, 0.00)');
+
+    const initialPeriod = perfMatrix[currentPeriod];
+    const initialMetric = initialPeriod[currentMetric];
+
+    const salesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: initialPeriod.labels,
+            datasets: [{
+                label: initialMetric.label,
+                data: initialMetric.data,
+                borderColor: '#0284c7',
+                backgroundColor: gradient,
+                borderWidth: 2.5,
+                fill: true,
+                tension: 0.38,
+                pointBackgroundColor: '#0284c7',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2,
+                pointRadius: 4.5,
+                pointHoverRadius: 6.5,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: '#0f172a',
+                    titleFont: { size: 12, weight: 'bold', family: 'Plus Jakarta Sans' },
+                    bodyFont: { size: 12, family: 'Plus Jakarta Sans' },
+                    padding: 10,
+                    cornerRadius: 6,
+                    callbacks: {
+                        label: function(context) {
+                            const pData = perfMatrix[currentPeriod] || perfMatrix['7d'];
+                            const mData = pData[currentMetric];
+                            if (mData && mData.tooltipFormatter) {
+                                return mData.tooltipFormatter(context.parsed.y);
+                            }
+                            return ' ' + context.parsed.y;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: '#64748b',
+                        font: { size: 12, family: 'Plus Jakarta Sans' }
+                    }
+                },
+                y: {
+                    min: initialMetric.min,
+                    max: initialMetric.max,
+                    grid: {
+                        color: '#f1f5f9',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: '#64748b',
+                        font: { size: 12, family: 'Plus Jakarta Sans' },
+                        stepSize: initialMetric.stepSize,
+                        callback: initialMetric.formatter
+                    }
+                }
+            }
+        }
+    });
+
+    function updateChart() {
+        const periodData = perfMatrix[currentPeriod] || perfMatrix['7d'];
+        const metricData = periodData[currentMetric];
+
+        if (chartSubtitle) {
+            chartSubtitle.textContent = periodData.subtitle;
+        }
+
+        salesChart.data.labels = periodData.labels;
+        salesChart.data.datasets[0].label = metricData.label;
+        salesChart.data.datasets[0].data = metricData.data;
+
+        salesChart.options.scales.y.min = metricData.min;
+        salesChart.options.scales.y.max = metricData.max;
+        salesChart.options.scales.y.ticks.stepSize = metricData.stepSize;
+        salesChart.options.scales.y.ticks.callback = metricData.formatter;
+
+        salesChart.update();
+    }
+
+    function setActiveBtn(activeBtn) {
+        [btnRev, btnOrd, btnUni].forEach(b => {
+            b.classList.remove('btn-dark', 'active');
+            b.classList.add('btn-outline-secondary');
+            b.style.backgroundColor = '';
+            b.style.borderColor = '';
+            b.style.color = '';
+        });
+        activeBtn.classList.remove('btn-outline-secondary');
+        activeBtn.classList.add('btn-dark', 'active');
+        activeBtn.style.backgroundColor = '#0f2942';
+        activeBtn.style.borderColor = '#0f2942';
+    }
+
+    btnRev.addEventListener('click', function() {
+        currentMetric = 'Revenue';
+        setActiveBtn(btnRev);
+        updateChart();
+    });
+
+    btnOrd.addEventListener('click', function() {
+        currentMetric = 'Orders';
+        setActiveBtn(btnOrd);
+        updateChart();
+    });
+
+    btnUni.addEventListener('click', function() {
+        currentMetric = 'Units';
+        setActiveBtn(btnUni);
+        updateChart();
+    });
+
+    if (timePeriodSelect) {
+        timePeriodSelect.addEventListener('change', function() {
+            currentPeriod = this.value;
+            updateChart();
+        });
+    }
+});
+</script>
+{% endblock %}

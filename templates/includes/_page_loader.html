@@ -1,0 +1,147 @@
+{% load static %}
+<div id="parkeaseGlobalLoader" class="parkease-global-loader">
+    <div class="loader-content-box">
+        <img src="{% static 'images/loader-logo-colored.png' %}"
+             onerror="this.onerror=null; this.src='https://res.cloudinary.com/doexdsxo/image/upload/e_trim/v1793319662/LogoIMG2.png';"
+             alt="ParkEase Logo"
+             class="loader-logo-img">
+
+        <h1 class="loader-brand-title">ParkEase</h1>
+
+        <p class="loader-brand-subtitle">Smart Parking Slot Booking</p>
+
+        <div class="loader-progress-track" role="progressbar" aria-label="Loading Page Progress">
+            <div class="loader-progress-bar"></div>
+        </div>
+
+        <div class="loader-status-hint">Opening ParkEase...</div>
+    </div>
+</div>
+
+<style>
+.parkease-global-loader {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #ffffff;
+    z-index: 99999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.45s ease;
+}
+
+.parkease-global-loader.loader-hidden {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+.loader-content-box {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    max-width: 480px;
+    animation: loaderContentFade 0.4s ease-out;
+}
+
+@keyframes loaderContentFade {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.loader-logo-img {
+    height: 80px;
+    width: auto;
+    max-width: 260px;
+    object-fit: contain;
+    margin-bottom: 1.35rem;
+    display: block;
+    filter: drop-shadow(0 4px 14px rgba(15, 23, 42, 0.08));
+}
+
+.loader-brand-title {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 2.15rem;
+    font-weight: 800;
+    color: #0f2942;
+    letter-spacing: -0.5px;
+    margin: 0 0 0.3rem 0;
+    line-height: 1.15;
+}
+
+.loader-brand-subtitle {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #0284c7;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin: 0 0 1.6rem 0;
+}
+
+.loader-progress-track {
+    width: 220px;
+    height: 3.5px;
+    background: #e2e8f0;
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 0.75rem;
+}
+
+.loader-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #0284c7 0%, #0ea5e9 60%, #0f2942 100%);
+    border-radius: 999px;
+    animation: progressFillAnimation 1.4s cubic-bezier(0.2, 0.65, 0.35, 1) forwards;
+}
+
+@keyframes progressFillAnimation {
+    0% { width: 0%; }
+    25% { width: 40%; }
+    60% { width: 75%; }
+    90% { width: 92%; }
+    100% { width: 100%; }
+}
+
+.loader-status-hint {
+    font-size: 0.76rem;
+    color: #94a3b8;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+}
+
+@media print {
+    .parkease-global-loader {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+}
+</style>
+
+<script>
+(function() {
+    function dismissParkeaseLoader() {
+        var loader = document.getElementById('parkeaseGlobalLoader');
+        if (loader && !loader.classList.contains('loader-hidden')) {
+            loader.classList.add('loader-hidden');
+            setTimeout(function() {
+                if (loader && loader.parentNode) {
+                    loader.style.display = 'none';
+                    loader.style.pointerEvents = 'none';
+                }
+            }, 500);
+        }
+    }
+    setTimeout(dismissParkeaseLoader, 1500);
+})();
+</script>

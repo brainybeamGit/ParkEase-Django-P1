@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}FAQs & Support - Quick Answers to Common Questions | ParkEase{% endblock %}
+
+{% block content %}
+
+<section class="py-5" style="background: linear-gradient(135deg, #0a192f 0%, #0f2942 50%, #0369a1 100%); color: #ffffff;">
+    <div class="container py-4 text-center">
+        <span class="badge px-3 py-2 rounded-pill fw-semibold mb-3" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
+            HELP & COMMON INQUIRIES
+        </span>
+        <h1 class="display-4 fw-extrabold text-white mb-3" style="letter-spacing: -1px; font-weight: 800;">
+            Frequently Asked <span style="color: #38bdf8;">Questions & Support</span>
+        </h1>
+        <p class="lead text-white-50 mb-0 mx-auto" style="max-width: 650px; font-size: 1.15rem;">
+            Find clear, straightforward answers about booking spaces, gate verification, cancellations, space owner payouts, and EV charging.
+        </p>
+    </div>
+</section>
+
+<style>
+.faq-filter-btn {
+    border-radius: 24px !important;
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 0.5rem 1.25rem !important;
+    border: 1px solid #bae6fd !important;
+    color: #0369a1 !important;
+    background: #f0f9ff !important;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    box-shadow: none;
+}
+.faq-filter-btn:hover {
+    background: #e0f2fe !important;
+    color: #0284c7 !important;
+    border-color: #0284c7 !important;
+    transform: translateY(-1px);
+}
+.faq-filter-btn.active {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 40%, #0f2942 100%) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35) !important;
+    transform: translateY(0);
+}
+</style>
+
+<section class="py-5 bg-white">
+    <div class="container py-3" style="max-width: 900px;">
+
+        <div class="d-flex flex-wrap justify-content-center gap-2 mb-5">
+            <button class="btn faq-filter-btn active" data-category="all">
+                All Questions
+            </button>
+            <button class="btn faq-filter-btn" data-category="drivers">
+                Drivers & Bookings
+            </button>
+            <button class="btn faq-filter-btn" data-category="refunds">
+                Cancellations & Refunds
+            </button>
+            <button class="btn faq-filter-btn" data-category="owners">
+                Space Owners & Payouts
+            </button>
+            <button class="btn faq-filter-btn" data-category="ev">
+                EV Fast Charging
+            </button>
+        </div>
+
+        <div class="accordion accordion-flush shadow-sm border rounded-4 overflow-hidden mb-5" id="faqAccordion">
+
+            <div class="accordion-item faq-item" data-category="drivers">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button fw-bold text-dark fs-6 py-3 px-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        How does booking a parking space on ParkEase work?
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body px-4 pb-4 pt-1 text-secondary" style="line-height: 1.7;">
+                        Enter your destination (locality, landmark, or airport), choose your arrival date and time, and select from available guaranteed spaces. Complete your payment securely via Cashfree (UPI, Credit/Debit card, or NetBanking). You will instantly receive a digital booking pass with exact directions, space instructions, and an entry QR token.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item faq-item" data-category="drivers">
+                <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button collapsed fw-bold text-dark fs-6 py-3 px-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Do I need to display a physical paper ticket in my vehicle?
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body px-4 pb-4 pt-1 text-secondary" style="line-height: 1.7;">
+                        No! ParkEase is 100% digital and paperless. Your vehicle registration number is recorded in our system and synced with barrier ANPR scanners or space owner verification devices. You don’t need to display any physical paper permit.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item faq-item" data-category="drivers">
+                <h2 class="accordion-header" id="headingThree">
+                    <button class="accordion-button collapsed fw-bold text-dark fs-6 py-3 px-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        Can I extend my parking session if I am running late?
+                    </button>
+                </h2>
+                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body px-4 pb-4 pt-1 text-secondary" style="line-height: 1.7;">
+                        Yes. As long as the bay is not booked immediately afterwards by another driver, you can easily extend your session directly from your ParkEase user portal or mobile device with a few taps.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item faq-item" data-category="refunds">
+                <h2 class="accordion-header" id="headingFour">
+                    <button class="accordion-button collapsed fw-bold text-dark fs-6 py-3 px-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                        What is ParkEase's cancellation and refund policy?
+                    </button>
+                </h2>
+                <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body px-4 pb-4 pt-1 text-secondary" style="line-height: 1.7;">
+                        For hourly and daily reservations, you can cancel up to 2 hours before your scheduled arrival time for a full 100% refund. Once approved, the refund is initiated directly back to your original payment method via Cashfree.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item faq-item" data-category="refunds">
+                <h2 class="accordion-header" id="headingFive">
+                    <button class="accordion-button collapsed fw-bold text-dark fs-6 py-3 px-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                        How long does it take for my refund to appear in my account?
+                    </button>
+                </h2>
+                <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body px-4 pb-4 pt-1 text-secondary" style="line-height: 1.7;">
+                        Refunds processed via Cashfree typically credit instantly for UPI transactions, and within 2 to 4 business days for credit/debit cards or NetBanking, depending on your issuing bank.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item faq-item" data-category="refunds">
+                <h2 class="accordion-header" id="headingSix">
+                    <button class="accordion-button collapsed fw-bold text-dark fs-6 py-3 px-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                        What happens if my assigned parking bay is obstructed or occupied?
+                    </button>
+                </h2>
+                <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body px-4 pb-4 pt-1 text-secondary" style="line-height: 1.7;">
+                        In the rare event that another motorist has parked in your reserved bay, tap "Report an Issue" in your booking screen or call our 24/7 hotline (1800-PARKEASE). We will immediately reassign you to an adjacent space or issue a full refund plus a travel voucher.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item faq-item" data-category="owners">
+                <h2 class="accordion-header" id="headingSeven">
+                    <button class="accordion-button collapsed fw-bold text-dark fs-6 py-3 px-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven" aria-expanded="false" aria-controls="collapseSeven">
+                        How much money can I earn by renting out my space?
+                    </button>
+                </h2>
+                <div id="collapseSeven" class="accordion-collapse collapse" aria-labelledby="headingSeven" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body px-4 pb-4 pt-1 text-secondary" style="line-height: 1.7;">
+                        Earnings vary depending on your location, city, and proximity to transit hubs, stadiums, and office parks. Prime spaces in metropolitan centres earn between ₹8,000 to ₹18,000 per month, while airport commuter spaces can earn over ₹25,000 per month.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item faq-item" data-category="owners">
+                <h2 class="accordion-header" id="headingEight">
+                    <button class="accordion-button collapsed fw-bold text-dark fs-6 py-3 px-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEight" aria-expanded="false" aria-controls="collapseEight">
+                        How and when do space owners get paid?
+                    </button>
+                </h2>
+                <div id="collapseEight" class="accordion-collapse collapse" aria-labelledby="headingEight" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body px-4 pb-4 pt-1 text-secondary" style="line-height: 1.7;">
+                        Earnings are automatically calculated in your Space Owner Studio. Payouts are dispatched directly to your verified bank account via automated weekly direct deposit cycles. You can download official PDF statements anytime.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item faq-item" data-category="owners">
+                <h2 class="accordion-header" id="headingNine">
+                    <button class="accordion-button collapsed fw-bold text-dark fs-6 py-3 px-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNine" aria-expanded="false" aria-controls="collapseNine">
+                        Can I block out times when I need the driveway for myself?
+                    </button>
+                </h2>
+                <div id="collapseNine" class="accordion-collapse collapse" aria-labelledby="headingNine" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body px-4 pb-4 pt-1 text-secondary" style="line-height: 1.7;">
+                        Absolutely. You maintain 100% calendar control. You can pause availability, block specific dates or holidays, or limit reservations exclusively to business hours (e.g. 9:00 AM to 6:00 PM Monday through Friday).
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item faq-item" data-category="ev">
+                <h2 class="accordion-header" id="headingTen">
+                    <button class="accordion-button collapsed fw-bold text-dark fs-6 py-3 px-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTen" aria-expanded="false" aria-controls="collapseTen">
+                        What EV charging connectors are available on ParkEase?
+                    </button>
+                </h2>
+                <div id="collapseTen" class="accordion-collapse collapse" aria-labelledby="headingTen" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body px-4 pb-4 pt-1 text-secondary" style="line-height: 1.7;">
+                        Our network supports CCS2 DC fast chargers (up to 60 kW and 120 kW), Type 2 AC chargers (7.4 kW and 22 kW), and GB/T connectors for compatible electric fleets. Connector types are clearly labeled on every listing page.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item faq-item" data-category="ev">
+                <h2 class="accordion-header" id="headingEleven">
+                    <button class="accordion-button collapsed fw-bold text-dark fs-6 py-3 px-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEleven" aria-expanded="false" aria-controls="collapseEleven">
+                        How is electricity consumption calculated and billed?
+                    </button>
+                </h2>
+                <div id="collapseEleven" class="accordion-collapse collapse" aria-labelledby="headingEleven" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body px-4 pb-4 pt-1 text-secondary" style="line-height: 1.7;">
+                        Energy consumption is monitored via real-time OCPP smart meters. You pay a combined fee covering the parking bay reservation and the actual kilowatt hours (kWh) dispensed, ensuring complete transparency with zero hidden surcharges.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="p-4 p-md-5 rounded-4 border bg-light text-center shadow-sm">
+            <h3 class="fw-bold text-dark mb-2">Can't find what you are looking for?</h3>
+            <p class="text-muted mb-4 mx-auto" style="max-width: 550px;">
+                Our customer assistance team is available 24 hours a day, 7 days a week to help with bookings, payments, and account inquiries.
+            </p>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                <a href="tel:1800PARKEASE" class="btn btn-theme-primary px-4 py-2">
+                    Call: 1800-PARKEASE
+                </a>
+                <a href="mailto:support@parkease.com" class="btn btn-outline-secondary px-4 py-2 bg-white">
+                    Email: support@parkease.com
+                </a>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterButtons = document.querySelectorAll('.faq-filter-btn');
+    const faqItems = document.querySelectorAll('.faq-item');
+
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            filterButtons.forEach(b => {
+                b.classList.remove('active');
+            });
+            this.classList.add('active');
+
+            const category = this.getAttribute('data-category');
+            faqItems.forEach(item => {
+                if (category === 'all' || item.getAttribute('data-category') === category) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

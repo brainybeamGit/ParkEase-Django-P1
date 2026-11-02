@@ -1,0 +1,259 @@
+{% extends 'lot_owner_panel/base_owner.html' %}
+{% load static %}
+
+{% block title %}Pricing & Offers - Space Owner Studio - ParkEase{% endblock %}
+{% block page_heading %}Pricing & Offers Configuration{% endblock %}
+
+{% block owner_content %}
+<div class="container-fluid px-0">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h5 fw-bold text-dark mb-1">Tariffs, Passes & Platform Settlement</h2>
+            <p class="text-muted small mb-0">Define category-based tariffs, surge rules, monthly passes, and calculate net owner settlement.</p>
+        </div>
+        <div class="small text-muted">
+            Effective From: <strong>01 Nov 2026</strong>
+        </div>
+    </div>
+
+    <div class="owner-card mb-4 bg-light">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="fw-bold fs-6 text-dark mb-0">Platform Fee & Owner Net Settlement Structure</h3>
+            <span class="badge bg-success-subtle text-success fw-bold">Transparent 15% Platform Split</span>
+        </div>
+
+        <p class="text-secondary small mb-3">
+            ParkEase operates on a transparent revenue share model. Below is the exact breakdown between the price motorists pay and the direct net deposit you receive after platform service fees and GST.
+        </p>
+
+        <div class="row g-3">
+            <div class="col-12 col-md-3">
+                <div class="p-3 bg-white rounded-3 border text-center shadow-sm">
+                    <span class="text-muted small d-block">Customer Pays (Gross)</span>
+                    <span class="fs-4 fw-bold text-dark">₹100.00</span>
+                    <span class="small text-muted d-block">Published Tariff</span>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="p-3 bg-white rounded-3 border text-center shadow-sm">
+                    <span class="text-muted small d-block">ParkEase Platform Fee (15%)</span>
+                    <span class="fs-4 fw-bold text-danger">-₹15.00</span>
+                    <span class="small text-muted d-block">App & Payment Gateway</span>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="p-3 bg-white rounded-3 border text-center shadow-sm">
+                    <span class="text-muted small d-block">GST on Platform Fee</span>
+                    <span class="fs-4 fw-bold text-secondary">-₹2.70</span>
+                    <span class="small text-muted d-block">18% GST on Fee</span>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="p-3 bg-white rounded-3 border text-center shadow-sm">
+                    <span class="text-muted small d-block">Your Net Settlement</span>
+                    <span class="fs-4 fw-bold text-success">₹82.30</span>
+                    <span class="small text-success fw-bold d-block">Direct Bank Deposit (82.3%)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" action="{% url 'lot_owner_panel:pricing' %}">
+        {% csrf_token %}
+
+        <div class="row g-4">
+
+            <div class="col-12 col-lg-7">
+
+                <div class="owner-card mb-4">
+                    <h3 class="fw-bold fs-6 text-dark mb-3">Standard Duration Rates</h3>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-dark">Hourly Base Rate (₹)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">₹</span>
+                                <input type="number" step="0.5" name="hourly_rate" class="form-control" value="{{ lot.hourly_rate|default:50.00 }}" required>
+                            </div>
+                            <small class="text-muted">Standard rate applied per hour</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-dark">Daily Maximum Cap (₹)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">₹</span>
+                                <input type="number" step="1.0" name="daily_rate" class="form-control" value="{{ lot.daily_rate|default:300.00 }}" required>
+                            </div>
+                            <small class="text-muted">Max charge for full 24-hr day</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-dark">Overnight Parking Rate (₹)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">₹</span>
+                                <input type="number" step="1.0" name="overnight_rate" class="form-control" value="{{ lot.overnight_rate|default:500.00 }}">
+                            </div>
+                            <small class="text-muted">Valid 10:00 PM to 08:00 AM</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-dark">Monthly Pass Subscription (₹)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">₹</span>
+                                <input type="number" step="10.0" name="monthly_rate" class="form-control" value="{{ lot.monthly_rate|default:4500.00 }}" required>
+                            </div>
+                            <small class="text-muted">30-day recurring reserved pass</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="owner-card mb-4">
+                    <h3 class="fw-bold fs-6 text-dark mb-3">Tariffs by Vehicle Category</h3>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-dark">
+                                Two-Wheelers (Bikes)
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" step="1" name="bike_rate" class="form-control" value="{{ lot.bike_rate|default:20.00 }}">
+                                <span class="input-group-text">/hr</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-dark">
+                                Cars (Hatchback & Sedan)
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" step="1" name="car_rate" class="form-control" value="{{ lot.car_rate|default:50.00 }}">
+                                <span class="input-group-text">/hr</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-dark">
+                                SUVs & Large MUVs
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" step="1" name="suv_rate" class="form-control" value="{{ lot.suv_rate|default:70.00 }}">
+                                <span class="input-group-text">/hr</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-dark">
+                                Electric Vehicles (EV Bays)
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" step="1" name="ev_rate" class="form-control" value="{{ lot.ev_rate|default:60.00 }}">
+                                <span class="input-group-text">/hr</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="owner-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="fw-bold fs-6 text-dark mb-0">Active Promotional Offers & Discounts</h3>
+                        <span class="badge bg-light text-dark border">Owner Sponsored</span>
+                    </div>
+
+                    <div class="p-3 bg-light rounded-2 border mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div>
+                                <span class="badge bg-dark font-monospace me-2">FIRSTPARK20</span>
+                                <span class="fw-bold text-dark small">20% Off for First-Time Motorists</span>
+                            </div>
+                            <span class="badge bg-success-subtle text-success">Active</span>
+                        </div>
+                        <div class="text-muted small">Max discount ₹50 · Applicable on advance bookings above ₹150.</div>
+                    </div>
+
+                    <div class="p-3 bg-light rounded-2 border">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div>
+                                <span class="badge bg-dark font-monospace me-2">WEEKEND50</span>
+                                <span class="fw-bold text-dark small">Flat ₹50 Off Weekend Full-Day Passes</span>
+                            </div>
+                            <span class="badge bg-success-subtle text-success">Active</span>
+                        </div>
+                        <div class="text-muted small">Applicable on Saturdays & Sundays only.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-12 col-lg-5">
+
+                <div class="owner-card mb-4">
+                    <h3 class="fw-bold fs-6 text-dark mb-3">Peak-Hour & Weekend Pricing</h3>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="peakSurgeSwitch" checked>
+                        <label class="form-check-label fw-bold text-dark small" for="peakSurgeSwitch">
+                            Enable Peak-Hour Surge Pricing
+                        </label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Surge Percentage</label>
+                        <div class="input-group input-group-sm">
+                            <input type="number" name="peak_hour_surge_pct" class="form-control" value="{{ lot.peak_hour_surge_pct|default:20 }}">
+                            <span class="input-group-text">%</span>
+                        </div>
+                        <small class="text-muted">Auto-applied during 5:00 PM – 9:00 PM peak periods</small>
+                    </div>
+
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="weekendSurgeSwitch" checked>
+                        <label class="form-check-label text-dark small" for="weekendSurgeSwitch">
+                            Weekend Tariff (+10% on Sat-Sun)
+                        </label>
+                    </div>
+                </div>
+
+                <div class="owner-card mb-4">
+                    <h3 class="fw-bold fs-6 text-dark mb-3">Booking Duration Limits</h3>
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            <label class="form-label small text-muted">Minimum Duration</label>
+                            <select name="min_duration_hours" class="form-select form-select-sm">
+                                <option value="1" selected>1 Hour</option>
+                                <option value="2">2 Hours</option>
+                                <option value="4">4 Hours</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small text-muted">Maximum Advance</label>
+                            <select name="max_duration_days" class="form-select form-select-sm">
+                                <option value="7" selected>7 Days</option>
+                                <option value="14">14 Days</option>
+                                <option value="30">30 Days</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="owner-card mb-4">
+                    <h3 class="fw-bold fs-6 text-dark mb-3">Monthly Pass Capacity & Renewal</h3>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Max Monthly Passes Allowed</label>
+                        <input type="number" name="monthly_pass_capacity" class="form-control form-control-sm" value="{{ lot.monthly_pass_capacity|default:10 }}">
+                        <small class="text-muted">Prevents over-allocation of spaces to subscription drivers</small>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="monthly_pass_auto_renew" id="autoRenewCheck" {% if lot.monthly_pass_auto_renew|default:True %}checked{% endif %}>
+                        <label class="form-check-label text-dark small" for="autoRenewCheck">
+                            Allow 30-day auto-renewal with 48h advance motorist notice
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-owner-dark w-100 py-3 fw-bold fs-6 shadow-sm">
+                    Save Pricing & Tariff Settings
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+{% endblock %}

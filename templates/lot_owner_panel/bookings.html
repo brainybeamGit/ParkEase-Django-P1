@@ -1,0 +1,207 @@
+{% extends 'lot_owner_panel/base_owner.html' %}
+{% load static %}
+
+{% block title %}Bookings - Space Owner Studio - ParkEase{% endblock %}
+{% block page_heading %}Driver Bookings & Check-ins{% endblock %}
+
+{% block owner_content %}
+<div class="container-fluid px-0">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h2 class="h5 fw-bold text-dark mb-1">Bookings & Gate Verification</h2>
+            <p class="text-muted small mb-0">Monitor motorist reservations, scan entry QR passes, and record exits in real time.</p>
+        </div>
+
+        <form method="GET" action="" class="d-flex align-items-center gap-2">
+            <div class="input-group input-group-sm" style="width: 260px;">
+                <input type="text" name="q" value="{{ search_query|default:'' }}" class="form-control" placeholder="Search by Booking / Plate...">
+                <button type="submit" class="btn btn-dark btn-sm">Search</button>
+            </div>
+            <a href="{% url 'lot_owner_panel:bookings' %}" class="btn btn-outline-secondary btn-sm fw-semibold">
+                Refresh
+            </a>
+        </form>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="owner-card-metric h-100">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="metric-title">Today's Bookings</span>
+                    <span class="badge bg-light text-dark border small">Total</span>
+                </div>
+                <div class="metric-value text-dark">{{ total_bookings_count|default:"4" }}</div>
+                <p class="metric-subtitle">Across all active bays</p>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="owner-card-metric h-100">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="metric-title">Currently Parked</span>
+                    <span class="badge bg-light text-dark border small">Occupied</span>
+                </div>
+                <div class="metric-value text-dark">{{ parked_count|default:"2" }}</div>
+                <p class="metric-subtitle">Vehicles inside premises</p>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="owner-card-metric h-100">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="metric-title">Awaiting Arrival</span>
+                    <span class="badge bg-light text-dark border small">Upcoming</span>
+                </div>
+                <div class="metric-value text-dark">{{ awaiting_count|default:"1" }}</div>
+                <p class="metric-subtitle">Scheduled arrivals today</p>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="owner-card-metric h-100">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="metric-title">Completed Today</span>
+                    <span class="badge bg-light text-dark border small">Finished</span>
+                </div>
+                <div class="metric-value text-dark">{{ completed_count|default:"1" }}</div>
+                <p class="metric-subtitle">Exited & settled</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="owner-card p-0">
+
+        <div class="p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <a href="?filter=all" class="owner-filter-tab {% if current_filter == 'all' or not current_filter %}active{% endif %}">
+                    All Bookings ({{ total_bookings_count|default:"4" }})
+                </a>
+                <a href="?filter=active" class="owner-filter-tab {% if current_filter == 'active' %}active{% endif %}">
+                    Currently Parked ({{ parked_count|default:"2" }})
+                </a>
+                <a href="?filter=upcoming" class="owner-filter-tab {% if current_filter == 'upcoming' %}active{% endif %}">
+                    Upcoming ({{ awaiting_count|default:"1" }})
+                </a>
+                <a href="?filter=completed" class="owner-filter-tab {% if current_filter == 'completed' %}active{% endif %}">
+                    Completed ({{ completed_count|default:"1" }})
+                </a>
+            </div>
+            <span class="text-muted small">Showing {{ bookings|length }} reservations</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="owner-table">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Motorist / Contact</th>
+                        <th>Vehicle Details</th>
+                        <th>Facility & Bay</th>
+                        <th>Date</th>
+                        <th>Scheduled Time</th>
+                        <th>Fee Paid</th>
+                        <th>Status</th>
+                        <th class="text-end">Gate Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in bookings %}
+                        <tr>
+                            <td>
+                                <strong class="text-dark font-monospace">#BK-{{ b.id }}</strong>
+                                <span class="d-block text-muted" style="font-size: 0.72rem;">{{ b.type_label|default:"Advance Reservation" }}</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-dark d-block">{{ b.driver_name }}</span>
+                                <span class="text-muted small">{{ b.driver_phone }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border font-monospace">{{ b.vehicle_plate }}</span>
+                                <span class="d-block text-muted" style="font-size: 0.75rem;">{{ b.vehicle_type }}</span>
+                            </td>
+                            <td>
+                                <span class="fw-semibold text-dark">{{ b.lot_name }}</span>
+                                <span class="d-block text-dark small fw-bold">{{ b.slot_bay }}</span>
+                            </td>
+                            <td>
+                                <strong class="text-dark">{{ b.date|default:"29 Oct 2026" }}</strong>
+                            </td>
+                            <td>
+                                <span class="text-dark small">{{ b.time_slot|default:"02:00 PM – 05:00 PM" }}</span>
+                            </td>
+                            <td>
+                                <strong class="text-dark">₹{{ b.amount }}</strong>
+                                {% if b.is_monthly %}
+                                    <div class="text-muted small" style="font-size: 0.75rem;">(Monthly)</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if b.overstay_fine > 0 and not b.overstay_paid %}
+                                    <span class="badge bg-danger text-white border fw-semibold mb-1 d-block">Overstay ₹{{ b.overstay_fine }}</span>
+                                {% endif %}
+                                {% if b.status == 'Parked' or b.status == 'Active' %}
+                                    <span class="badge bg-info text-dark border fw-semibold">Parked Inside</span>
+                                {% elif b.status == 'Confirmed' %}
+                                    <span class="badge bg-light text-dark border fw-semibold">Confirmed</span>
+                                {% elif b.status == 'Done' or b.status == 'Completed' %}
+                                    <span class="badge bg-light text-muted border fw-semibold">Completed</span>
+                                {% else %}
+                                    <span class="badge bg-light text-danger border fw-semibold">Cancelled</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                {% if b.status == 'Confirmed' %}
+                                    <a href="{% url 'lot_owner_panel:verify_entry' b.id %}" class="btn btn-sm btn-outline-success py-1 px-2 fw-bold" style="font-size: 0.75rem;">
+                                        Check In
+                                    </a>
+                                {% elif b.status == 'Parked' or b.status == 'Active' %}
+                                    <a href="{% url 'lot_owner_panel:verify_exit' b.id %}" class="btn btn-sm btn-outline-primary py-1 px-2 fw-bold" style="font-size: 0.75rem;">
+                                        Check Out
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted small">Closed</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center py-4 text-muted">
+                                No bookings found for this filter.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<style>
+.owner-filter-tab {
+    display: inline-block;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--owner-text-muted, #64748b);
+    text-decoration: none;
+    background: transparent;
+    border: 1px solid var(--owner-border, #e2e8f0);
+    border-radius: 6px;
+    transition: all 0.15s ease-in-out;
+}
+.owner-filter-tab:hover {
+    color: var(--owner-text-dark, #0f172a);
+    border-color: #cbd5e1;
+    background: transparent;
+}
+.owner-filter-tab.active {
+    color: var(--owner-text-dark, #0f172a);
+    font-weight: 700;
+    border-color: var(--owner-primary, #0f2942);
+    background: transparent;
+    box-shadow: inset 0 -2px 0 var(--owner-primary, #0f2942);
+}
+</style>
+{% endblock %}

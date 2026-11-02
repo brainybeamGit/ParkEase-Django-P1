@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Privacy Policy & Overstay Policy - ParkEase Legal{% endblock %}
+
+{% block content %}
+<div class="policies-page py-5" style="background: #ffffff; min-height: 85vh;">
+    <div class="container" style="max-width: 960px;">
+
+        <div class="text-center mb-4">
+            <h1 class="browse-page-title mb-2">
+                ParkEase <span class="highlight-blue">Policies & Legal Terms</span>
+            </h1>
+            <p class="browse-page-subtitle mb-3">
+                Official Privacy Policy and Overstay Tariff & Enforcement Rules for Drivers and Space Owners.
+            </p>
+            <div class="text-muted small">
+                Last updated: October 2026 &bull; Effective for all pre-booked and drive-up parking reservations
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center mb-5">
+            <div class="p-1 bg-light rounded-pill border d-inline-flex gap-1" role="tablist">
+                <button type="button"
+                        class="btn rounded-pill px-4 py-2 fw-bold text-nowrap policy-tab-btn active"
+                        id="tabBtnPrivacy"
+                        onclick="switchPolicyTab('privacy')">
+                    Privacy Policy
+                </button>
+                <button type="button"
+                        class="btn rounded-pill px-4 py-2 fw-bold text-nowrap policy-tab-btn"
+                        id="tabBtnOverstay"
+                        onclick="switchPolicyTab('overstay')">
+                    Overstay Policy & Rules
+                </button>
+            </div>
+        </div>
+
+        <div id="privacySection" class="policy-section mb-5">
+            <div class="card border border-light-subtle shadow-sm rounded-4 overflow-hidden mb-4">
+
+                <div class="p-4 border-bottom text-white" style="background: linear-gradient(135deg, #0f2942 0%, #183d63 100%);">
+                    <div class="small text-info text-uppercase fw-bold mb-1" style="letter-spacing: 1px;">Legal Document &bull; Section 1</div>
+                    <h2 class="h3 fw-bold text-white mb-0" id="privacy-policy">Privacy Policy</h2>
+                </div>
+
+                <div class="card-body p-4 p-md-5" style="font-size: 0.96rem; line-height: 1.7; color: #334155;">
+
+                    <h4 class="fw-bold text-dark mt-2 mb-3">1. Introduction & Scope</h4>
+                    <p>
+                        Welcome to ParkEase ("we", "our", or "us"). We are committed to protecting your personal data, privacy, and vehicle details when you use our web platform, parking pre-booking systems, gate barrier passes, and owner services. This Privacy Policy outlines what information we collect, how it is processed, and your privacy choices under applicable data protection regulations.
+                    </p>
+
+                    <h4 class="fw-bold text-dark mt-4 mb-3">2. Information We Collect</h4>
+                    <p>When you register, search, or book parking spaces on ParkEase, we collect the following categories of information:</p>
+                    <ul class="mb-3">
+                        <li><strong>Account Details:</strong> Full name, verified email address, mobile telephone number, and encrypted password credentials.</li>
+                        <li><strong>Vehicle Registration Information:</strong> Vehicle license registration number (e.g. DL 01 AB 1234), vehicle category (two-wheeler, hatchback, sedan, SUV, electric vehicle), make, and model.</li>
+                        <li><strong>Reservation & Gate Pass Logs:</strong> Parking lot location, slot assignments, entry/exit scheduled timestamps, digital QR pass authentication tokens, and gate scanner verification events.</li>
+                        <li><strong>Location Data:</strong> Search queries (cities, areas, airport codes) and optional browser geolocation used exclusively to compute distances and show nearby parking lots.</li>
+                        <li><strong>Payment Identifiers:</strong> Cashfree transaction IDs, payment status, invoice numbers, and tariff breakdown. We do not store raw credit/debit card numbers or net-banking passwords.</li>
+                    </ul>
+
+                    <h4 class="fw-bold text-dark mt-4 mb-3">3. How We Use Your Information</h4>
+                    <p>We process your data exclusively for legitimate operational purposes:</p>
+                    <ul class="mb-3">
+                        <li>Securing guaranteed parking bay reservations and generating verifiable digital QR passes.</li>
+                        <li>Facilitating instant entry and exit authentication at parking lot gate barriers.</li>
+                        <li>Computing transparent hourly, daily, and monthly tariffs and calculating overstay settlements when applicable.</li>
+                        <li>Delivering real-time booking confirmation emails, digital ticket passes, and SMS receipts.</li>
+                        <li>Enabling parking lot owners to manage space occupancy and track parking earnings.</li>
+                    </ul>
+
+                    <h4 class="fw-bold text-dark mt-4 mb-3">4. Vehicle Data & License Plate Recognition</h4>
+                    <p>
+                        Your vehicle registration number is utilized solely to confirm authorization at the lot barrier. We never sell, rent, or trade driver vehicle records to third-party data brokers or marketing networks.
+                    </p>
+
+                    <h4 class="fw-bold text-dark mt-4 mb-3">5. Payment Security</h4>
+                    <p>
+                        All financial transactions on ParkEase are encrypted and handled through PCI-DSS Level 1 compliant payment gateways (Cashfree). Sensitive card credentials are tokenized directly with the gateway; ParkEase servers never hold or log your confidential payment card information.
+                    </p>
+
+                    <h4 class="fw-bold text-dark mt-4 mb-3">6. Cookies & Local Session Storage</h4>
+                    <p>
+                        We use essential session cookies and local storage tokens solely to maintain your signed-in state, remember active filter preferences (such as EV charging filters or chosen search duration), and keep your digital pass accessible across browser reloads.
+                    </p>
+
+                    <h4 class="fw-bold text-dark mt-4 mb-3">7. Your Rights & Data Management</h4>
+                    <p>
+                        You have complete control over your information. From your <strong>Profile</strong> and <strong>My Vehicles</strong> dashboards, you can add, update, or remove registered vehicles at any time. You may also contact us to request full account closure and personal data erasure.
+                    </p>
+
+                    <div class="p-3 bg-light rounded-3 mt-4">
+                        <strong class="text-dark">Privacy Inquiries:</strong> If you have questions regarding this Privacy Policy or your data protection rights, reach our Data Privacy desk at <a href="mailto:privacy@parkease.com" class="fw-bold" style="color: #0284c7;">privacy@parkease.com</a>.
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="overstaySection" class="policy-section mb-5">
+            <div class="card border border-light-subtle shadow-sm rounded-4 overflow-hidden mb-4">
+
+                <div class="p-4 border-bottom text-white" style="background: linear-gradient(135deg, #0f2942 0%, #0369a1 100%);">
+                    <div class="small text-info text-uppercase fw-bold mb-1" style="letter-spacing: 1px;">Legal Document &bull; Section 2</div>
+                    <h2 class="h3 fw-bold text-white mb-0" id="overstay-policy">Overstay Policy & Tariff Rules</h2>
+                </div>
+
+                <div class="card-body p-4 p-md-5" style="font-size: 0.96rem; line-height: 1.7; color: #334155;">
+
+                    <h4 class="fw-bold text-dark mt-2 mb-3">1. Purpose & Fair Space Allocation</h4>
+                    <p>
+                        ParkEase operates on a guaranteed slot reservation model. When you reserve a parking slot for a specific time window, that bay is held exclusively for your vehicle. Our Overstay Policy ensures that drivers exit in a timely manner so the next scheduled driver can park without delay or obstruction.
+                    </p>
+
+                    <h4 class="fw-bold text-dark mt-4 mb-3">2. 15-Minute Grace Period</h4>
+                    <p>
+                        We recognize that traffic, elevator wait times, or last-minute delays happen. ParkEase provides a complimentary <strong>15-minute grace period</strong> immediately following your scheduled booking end time. If your vehicle exits the barrier within this 15-minute window, no extra tariff or overstay charge is assessed.
+                    </p>
+
+                    <h4 class="fw-bold text-dark mt-4 mb-3">3. Overstay Tariff Calculation</h4>
+                    <p>
+                        If an exit scan occurs after the 15-minute grace period has elapsed, the system calculates the additional tariff from your original booked end time based on the parking lot's approved hourly rate:
+                    </p>
+                    <div class="p-3 bg-light rounded-3 my-3 text-center">
+                        <code class="fs-6 fw-bold text-dark">Overstay Fee = (Elapsed Hours beyond reservation) &times; (Lot Hourly Tariff)</code>
+                    </div>
+                    <p>
+                        Tariffs are computed transparently. For example, if you overstay by 1.5 hours in a lot with a ₹50/hour tariff, your overstay fee is exactly ₹75.00 with zero arbitrary penalties.
+                    </p>
+
+                    <h4 class="fw-bold text-dark mt-4 mb-3">4. Gate Scanner Verification & Barrier Operation</h4>
+                    <p>
+                        When exiting the parking facility, your digital QR pass is scanned at the exit gate:
+                    </p>
+                    <ul class="mb-3">
+                        <li><strong>On-Time Exit:</strong> The gate terminal confirms valid status, records departure timestamp, and lifts the exit barrier automatically.</li>
+                        <li><strong>Overstay Detected:</strong> The terminal highlights the elapsed overstay minutes, displays the calculated extra tariff, and presents an instant Cashfree settlement link. The exit barrier remains down until settlement is completed.</li>
+                    </ul>
+
+                    <h4 class="fw-bold text-dark mt-4 mb-3">5. Instant Settlement & Immediate Barrier Release</h4>
+                    <p>
+                        Drivers can settle overstay dues in seconds using UPI, cards, or digital wallets via the prompt on their digital ticket or the gate terminal. Once settlement is confirmed, the exit barrier opens immediately.
+                    </p>
+
+                    <h4 class="fw-bold text-dark mt-4 mb-3">6. Vehicle Breakdown & Emergency Overrides</h4>
+                    <p>
+                        If your vehicle suffers a mechanical breakdown, flat tire, or you experience an emergency, notify the on-duty lot gate operator or parking lot owner immediately. On-site staff have authorization to manually override barriers or pause billing upon verifying emergency circumstances.
+                    </p>
+
+                    <h4 class="fw-bold text-dark mt-4 mb-3">7. Dispute Resolution & Refunds</h4>
+                    <p>
+                        If you believe an overstay charge was incorrectly calculated (for example, due to an exit gate bottleneck or scanner connectivity delay), you may submit an appeal through the <strong>Help Center</strong> with your Booking ID. Verified discrepancies are credited back within 3 to 5 business days.
+                    </p>
+
+                    <div class="p-3 bg-light rounded-3 mt-4">
+                        <strong class="text-dark">Overstay Support:</strong> Have a question about an active ticket or overstay fee? Visit our <a href="{% url 'parking:help_center' %}" class="fw-bold" style="color: #0284c7;">Help Center</a> or email <a href="mailto:support@parkease.com" class="fw-bold" style="color: #0284c7;">support@parkease.com</a>.
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+.policy-tab-btn {
+    color: #475569;
+    background-color: transparent;
+    border: none;
+    font-size: 0.92rem;
+    transition: all 0.2s ease;
+}
+
+.policy-tab-btn.active {
+    background-color: #0284c7 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+}
+
+.policy-tab-btn:hover:not(.active) {
+    background-color: #e2e8f0;
+    color: #0f2942;
+}
+
+.policy-section {
+    scroll-margin-top: 100px;
+}
+</style>
+
+<script>
+function switchPolicyTab(mode) {
+    const privacySec = document.getElementById('privacySection');
+    const overstaySec = document.getElementById('overstaySection');
+    const btnPrivacy = document.getElementById('tabBtnPrivacy');
+    const btnOverstay = document.getElementById('tabBtnOverstay');
+
+    [btnPrivacy, btnOverstay].forEach(b => { if (b) b.classList.remove('active'); });
+
+    if (mode === 'overstay') {
+        if (btnOverstay) btnOverstay.classList.add('active');
+        privacySec.style.display = 'none';
+        overstaySec.style.display = 'block';
+        history.replaceState(null, null, '?tab=overstay#overstay-policy');
+    } else {
+        if (btnPrivacy) btnPrivacy.classList.add('active');
+        privacySec.style.display = 'block';
+        overstaySec.style.display = 'none';
+        history.replaceState(null, null, '?tab=privacy#privacy-policy');
+    }
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    const hash = window.location.hash;
+
+    if (tabParam === 'overstay' || hash === '#overstay-policy') {
+        switchPolicyTab('overstay');
+        const overstayTarget = document.getElementById('overstay-policy');
+        if (overstayTarget) {
+            setTimeout(() => {
+                overstayTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 250);
+        }
+    } else {
+        switchPolicyTab('privacy');
+        if (hash === '#privacy-policy') {
+            const privacyTarget = document.getElementById('privacy-policy');
+            if (privacyTarget) {
+                setTimeout(() => {
+                    privacyTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 250);
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Browse All Cities - Find Verified Parking in India | ParkEase{% endblock %}
+
+{% block content %}
+<div class="browse-cities-page py-5" style="background: #ffffff; min-height: 85vh;">
+    <div class="container">
+
+        <div class="text-center mb-5">
+            <h1 class="browse-page-title">
+                Browse <span class="highlight-blue">Parking Spaces</span> by City
+            </h1>
+            <p class="browse-page-subtitle">
+                Pre-book guaranteed, verified parking spaces across India's top metropolitan business districts, commercial towers, transit centers, and airports.
+            </p>
+        </div>
+
+        <div class="row g-4 mb-5">
+            {% for city in cities %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden city-directory-card" style="transition: transform 0.25s ease, box-shadow 0.25s ease; background: #ffffff;">
+
+                    <div class="p-4 border-bottom" style="background: linear-gradient(135deg, #0f2942 0%, #183d63 100%); color: #ffffff;">
+                        <h3 class="fw-bold fs-4 mb-1 text-white">{{ city.name }}</h3>
+                        <div class="small text-white-50">{{ city.tagline }}</div>
+                    </div>
+
+                    <div class="card-body p-4 d-flex flex-column">
+                        <p class="text-muted small mb-3" style="line-height: 1.6;">
+                            {{ city.description }}
+                        </p>
+
+                        <div class="row g-2 py-2 mb-3 bg-light rounded-3 text-center">
+                            <div class="col-4 border-end">
+                                <div class="fw-extrabold text-dark fs-5">{{ city.lot_count }}</div>
+                                <div class="text-muted" style="font-size: 0.72rem;">Verified Lots</div>
+                            </div>
+                            <div class="col-4 border-end">
+                                <div class="fw-extrabold text-success fs-5">{{ city.total_capacity }}+</div>
+                                <div class="text-muted" style="font-size: 0.72rem;">Total Bays</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="fw-extrabold text-primary fs-5">₹{{ city.min_rate }}/h</div>
+                                <div class="text-muted" style="font-size: 0.72rem;">Starting Rate</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="text-uppercase text-muted fw-bold mb-2" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+                                Popular Hubs & Transit:
+                            </div>
+                            <div class="d-flex flex-wrap gap-1">
+                                {% for area in city.popular_areas %}
+                                <a href="{% url 'parking:search' %}?q={{ area }}" class="badge bg-light text-dark text-decoration-none border px-2 py-1 small" style="font-size: 0.75rem;">
+                                    {{ area }}
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mt-auto">
+                            <a href="{% url 'parking:search' %}?q={{ city.query }}" class="btn btn-primary fw-bold py-2.5 rounded-3 text-white w-100 text-center" style="background-color: #0284c7; border-color: #0284c7;">
+                                Search {{ city.name }} Parking
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="p-4 p-md-5 rounded-4 text-white position-relative overflow-hidden shadow-lg" style="background: linear-gradient(135deg, #0f2942 0%, #0369a1 100%);">
+            <div class="row align-items-center position-relative" style="z-index: 2;">
+                <div class="col-lg-8 mb-3 mb-lg-0">
+                    <h3 class="fw-bold text-white mb-2">Can't find your city or area?</h3>
+                    <p class="text-white-50 mb-0" style="font-size: 0.95rem;">
+                        Our parking network expands daily. Use our interactive map to search any locality or pin code, or rent out your own vacant space.
+                    </p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <a href="{% url 'parking:home' %}#searchSection" class="btn btn-light fw-bold px-4 py-2 text-dark rounded-pill me-2">
+                        Open Search Card
+                    </a>
+                    <a href="{% url 'parking:rent_out_your_space' %}" class="btn btn-outline-light fw-bold px-4 py-2 rounded-pill">
+                        List Your Space
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+.city-directory-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12) !important;
+}
+</style>
+{% endblock %}

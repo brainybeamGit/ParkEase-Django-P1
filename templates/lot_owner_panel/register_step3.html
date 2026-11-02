@@ -1,0 +1,393 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Owner Registration - Step 3: Review & Policy Agreement - ParkEase{% endblock %}
+
+{% block content %}
+<section class="owner-register-section">
+    <div class="container" style="max-width: 960px;">
+
+        <div class="owner-stepper-card">
+            <h1 class="owner-stepper-title">ParkEase Space Owner Registration</h1>
+            <p class="owner-stepper-subtitle">
+                Review your application details and accept space owner agreements before final submission.
+            </p>
+
+            <div class="stepper-nav">
+                <div class="stepper-connector-line">
+                    <div class="stepper-connector-fill" style="width: 100%;"></div>
+                </div>
+
+                <a href="{% url 'lot_owner_panel:register_step1' %}" class="stepper-step-item completed text-decoration-none">
+                    <div class="stepper-circle">✓</div>
+                    <span class="stepper-label">Personal & ID Details</span>
+                </a>
+
+                <a href="{% url 'lot_owner_panel:register_step2' %}" class="stepper-step-item completed text-decoration-none">
+                    <div class="stepper-circle">✓</div>
+                    <span class="stepper-label">Parking Details</span>
+                </a>
+
+                <div class="stepper-step-item active">
+                    <div class="stepper-circle">3</div>
+                    <span class="stepper-label">Policy & Agreement</span>
+                </div>
+            </div>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" action="{% url 'lot_owner_panel:register_step3' %}" novalidate>
+            {% csrf_token %}
+
+            <div class="owner-single-form-card">
+
+                <h3 class="owner-form-section-title">1. Review Your Application</h3>
+                <p class="text-secondary small mb-4">
+                    Please review all submitted information from Step 1 and Step 2 before submitting.
+                </p>
+
+                <div class="review-summary-card mb-4">
+                    <div class="review-title">
+                        <span>Personal & Account Details</span>
+                        <a href="{% url 'lot_owner_panel:register_step1' %}" class="btn btn-sm btn-outline-primary fw-bold px-3">
+                            Edit
+                        </a>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="review-row">
+                                <span class="review-label">Owner Name:</span>
+                                <span class="review-val">{{ step1.full_name }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Email Address:</span>
+                                <span class="review-val">{{ step1.email }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Mobile Number:</span>
+                                <span class="review-val">{{ step1.mobile_number }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="review-row">
+                                <span class="review-label">Owner Category:</span>
+                                <span class="review-val text-capitalize">{{ step1.owner_type }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Communication City:</span>
+                                <span class="review-val">{{ step1.city }}, {{ step1.state }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Identity Document:</span>
+                                <span class="review-val text-uppercase">{{ step1.id_type }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 pt-3 border-top d-flex flex-wrap justify-content-between align-items-center bg-white p-2 px-3 rounded-2 border">
+                        <div>
+                            <span class="small fw-bold text-dark">Masked ID Number:</span>
+                            <span class="font-monospace fw-bold text-dark ms-2">{{ masked_id }}</span>
+                        </div>
+                        <span class="small text-muted">ID Proof Attached</span>
+                    </div>
+                </div>
+
+                <div class="review-summary-card mb-4">
+                    <div class="review-title">
+                        <span>Parking Space Details</span>
+                        <a href="{% url 'lot_owner_panel:register_step2' %}" class="btn btn-sm btn-outline-primary fw-bold px-3">
+                            Edit
+                        </a>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="review-row">
+                                <span class="review-label">Parking Lot Name:</span>
+                                <span class="review-val">{{ step2.parking_lot_name }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Space Type:</span>
+                                <span class="review-val text-capitalize">{{ step2.space_type }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Total Capacity:</span>
+                                <span class="review-val fw-bold text-dark">
+                                    {{ step2.total_capacity }} Vehicles
+                                </span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Operating Schedule:</span>
+                                <span class="review-val">{{ step2.operating_hours }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="review-row">
+                                <span class="review-label">Address:</span>
+                                <span class="review-val text-end" style="max-width: 260px;">
+                                    {% if step2.building_name %}{{ step2.building_name }}, {% endif %}{{ step2.street_address }}, {{ step2.area }}, {{ step2.city }} - {{ step2.pin_code }}
+                                </span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Hourly Rate:</span>
+                                <span class="review-val text-dark fw-bold">₹ {{ step2.hourly_rate }} / hr</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Arrangement:</span>
+                                <span class="review-val text-capitalize">{{ step2.parking_arrangement }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 pt-3 border-top">
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <span class="small fw-bold text-secondary me-2">Supported Vehicles:</span>
+                            {% for veh in step2.supported_vehicles %}
+                                <span class="badge bg-light text-dark border px-2 py-1 small">
+                                    {{ veh }}
+                                </span>
+                            {% empty %}
+                                <span class="small text-muted">All standard vehicles</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    {% if step2.available_services %}
+                        <div class="mt-2 pt-2 border-top">
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <span class="small fw-bold text-secondary me-2">Amenities & Security:</span>
+                                {% for srv in step2.available_services %}
+                                    <span class="badge bg-light text-secondary border px-2 py-1 small">
+                                        {{ srv }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="review-summary-card mb-4">
+                    <div class="review-title">
+                        <span>Bank & Settlement Account Details</span>
+                        <a href="{% url 'lot_owner_panel:register_step2' %}" class="btn btn-sm btn-outline-primary fw-bold px-3">
+                            Edit
+                        </a>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="review-row">
+                                <span class="review-label">Account Holder:</span>
+                                <span class="review-val">{{ step2.bank_account_holder|default:'-' }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Bank Name:</span>
+                                <span class="review-val">{{ step2.bank_name|default:'-' }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Branch / Location:</span>
+                                <span class="review-val">{{ step2.bank_branch|default:'Not specified' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="review-row">
+                                <span class="review-label">Account Type:</span>
+                                <span class="review-val">{{ step2.bank_account_type|default:'Current Account / Business' }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">IFSC Code:</span>
+                                <span class="review-val font-monospace text-uppercase">{{ step2.bank_ifsc_code|default:'-' }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Account Number:</span>
+                                <span class="review-val font-monospace">{{ masked_bank_account|default:step2.bank_account_number }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="owner-form-section-title">2. Space Owner Terms & Conditions</h3>
+                <p class="text-secondary small mb-3">
+                    Before listing your space on ParkEase, please review your core responsibilities as an authorized parking space owner:
+                </p>
+
+                <div class="p-3 bg-light rounded-3 border mb-3">
+                    <ul class="mb-0 ps-3 d-flex flex-column gap-2 small text-dark">
+                        <li><strong>Authorization:</strong> You have the legal right or authorization to offer the parking space for rental.</li>
+                        <li><strong>Accuracy:</strong> You will maintain accurate availability, pricing, operating hours, and clear entrance guidelines.</li>
+                        <li><strong>Honoring Bookings:</strong> You will honor confirmed bookings and follow ParkEase standard host cancellation policies.</li>
+                        <li><strong>Financial Transparency:</strong> You agree to the disclosed platform fees and payment settlement schedule.</li>
+                        <li><strong>Safety & Upkeep:</strong> You will maintain the parking area in a safe condition and report any safety or maintenance issues promptly.</li>
+                    </ul>
+                </div>
+
+                <div class="mb-3">
+                    <a href="javascript:void(0);" class="text-decoration-none fw-bold text-primary small" data-bs-toggle="modal" data-bs-target="#termsModal">
+                        Read full Terms & Conditions
+                    </a>
+                </div>
+
+                <div class="form-check pt-2 border-top mb-4">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        name="agree_terms"
+                        id="id_agree_terms"
+                        style="width: 1.25rem; height: 1.25rem; cursor: pointer;"
+                        required>
+                    <label class="form-check-label fw-bold text-dark ms-2 pt-1" for="id_agree_terms" style="cursor: pointer;">
+                        I have read and agree to the Space Owner Terms & Conditions. <span class="text-danger">*</span>
+                    </label>
+                </div>
+
+                <h3 class="owner-form-section-title">3. Privacy Policy</h3>
+                <p class="text-secondary small mb-3">
+                    ParkEase collects your personal and property information to verify your legal identity as an authorized owner, process booking payouts securely into your account, coordinate arrival instructions with visiting drivers, and maintain platform security.
+                </p>
+                <p class="text-secondary small mb-3">
+                    Your sensitive identity proof documents and numbers are securely encrypted in our database, are never exposed publicly to drivers, and are retained strictly in compliance with applicable data protection standards.
+                </p>
+
+                <div class="mb-3">
+                    <a href="javascript:void(0);" class="text-decoration-none fw-bold text-primary small" data-bs-toggle="modal" data-bs-target="#privacyModal">
+                        Read Privacy Policy
+                    </a>
+                </div>
+
+                <div class="form-check pt-2 border-top mb-4">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        name="agree_privacy"
+                        id="id_agree_privacy"
+                        style="width: 1.25rem; height: 1.25rem; cursor: pointer;"
+                        required>
+                    <label class="form-check-label fw-bold text-dark ms-2 pt-1" for="id_agree_privacy" style="cursor: pointer;">
+                        I acknowledge that I have read the ParkEase Privacy Policy. <span class="text-danger">*</span>
+                    </label>
+                </div>
+
+                <h3 class="owner-form-section-title">4. Owner Declaration</h3>
+                <div class="p-3 bg-light rounded-3 border mb-3">
+                    <div class="form-check">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="confirm_declaration"
+                            id="id_confirm_declaration"
+                            style="width: 1.25rem; height: 1.25rem; cursor: pointer;"
+                            required>
+                        <label class="form-check-label fw-bold text-dark ms-2 pt-1" for="id_confirm_declaration" style="cursor: pointer;">
+                            I confirm that the information and documents I have provided are accurate and that I am authorized to list this parking space. <span class="text-danger">*</span>
+                        </label>
+                    </div>
+                </div>
+                <small class="text-muted d-block mb-4">
+                    Submitting false or unauthorized property details is a violation of our Terms of Service and may result in immediate suspension and forfeiture of earnings.
+                </small>
+
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                    <a href="{% url 'lot_owner_panel:register_step2' %}" class="btn btn-outline-secondary px-4 py-2 fw-semibold">
+                        Previous
+                    </a>
+                    <button type="submit" class="btn btn-theme-primary px-5 py-3 fw-bold fs-6 shadow">
+                        Submit Application
+                    </button>
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+</section>
+
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #071e33 0%, #0f2942 100%); color: #fff;">
+                <h5 class="modal-title fw-bold" id="termsModalLabel">
+                    ParkEase Space Owner Terms & Conditions
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-dark" style="line-height: 1.7; font-size: 0.95rem;">
+                <h6 class="fw-bold text-dark mb-2">1. Listing Eligibility & Property Authority</h6>
+                <p class="text-secondary small mb-3">
+                    By registering as a Space Owner on ParkEase, you warrant that you are the legal owner, designated property manager, or lawful tenant authorized in writing by the property owner to sublet or license vehicular parking at the designated location.
+                </p>
+
+                <h6 class="fw-bold text-dark mb-2">2. Operating Hours & Real-Time Availability</h6>
+                <p class="text-secondary small mb-3">
+                    You agree to keep your operating schedule, gate access instructions, and bay availability up to date. If your space becomes temporarily unavailable due to private events or maintenance, you must update your calendar promptly to prevent unfulfillable bookings.
+                </p>
+
+                <h6 class="fw-bold text-dark mb-2">3. Booking Fulfillment & Cancellation</h6>
+                <p class="text-secondary small mb-3">
+                    Space Owners must honor all confirmed bookings accepted through the platform. Unwarranted cancellations or turning away drivers with valid digital parking passes undermines platform integrity and will incur penalty charges or lead to account de-listing.
+                </p>
+
+                <h6 class="fw-bold text-dark mb-2">4. Fee Schedule & Payout Settlement</h6>
+                <p class="text-secondary small mb-3">
+                    ParkEase charges a transparent service commission on each completed reservation. Host payouts are disbursed on a scheduled cycle directly to the registered bank account after booking completion, net of applicable fees and taxes.
+                </p>
+
+                <h6 class="fw-bold text-dark mb-2">5. Maintenance, Safety & Liability</h6>
+                <p class="text-secondary small mb-0">
+                    You are responsible for maintaining the physical accessibility and baseline safety of the parking space. Any hazardous conditions or property changes must be reported immediately to ParkEase Support.
+                </p>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-theme-primary px-4" data-bs-dismiss="modal">I Understand</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #071e33 0%, #0f2942 100%); color: #fff;">
+                <h5 class="modal-title fw-bold" id="privacyModalLabel">
+                    ParkEase Space Owner Privacy Policy
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-dark" style="line-height: 1.7; font-size: 0.95rem;">
+                <h6 class="fw-bold text-dark mb-2">1. Information We Collect</h6>
+                <p class="text-secondary small mb-3">
+                    We collect your full legal name, contact email, mobile phone number, residential or business address, and government-issued identity documents (such as Aadhaar, PAN, Passport, Driving Licence, or Voter ID) along with physical photos of your parking bay.
+                </p>
+
+                <h6 class="fw-bold text-dark mb-2">2. Why We Collect This Data</h6>
+                <p class="text-secondary small mb-3">
+                    Identity verification is legally mandated to protect both homeowners and drivers against fraud, verify property rights, comply with local municipal security norms, and enable automated direct payout settlements.
+                </p>
+
+                <h6 class="fw-bold text-dark mb-2">3. Storage & Encryption</h6>
+                <p class="text-secondary small mb-3">
+                    All sensitive documents and identity credentials are stored on secure, encrypted servers. Drivers only see your space address, landmark, and entrance instructions once their reservation is confirmed; they never see your private ID credentials.
+                </p>
+
+                <h6 class="fw-bold text-dark mb-2">4. Data Sharing & Retention</h6>
+                <p class="text-secondary small mb-0">
+                    We do not sell your personal information. Information is retained only as long as your account remains active and as required by tax and accounting legislation. You may request account closure or data erasure in accordance with applicable laws.
+                </p>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-theme-primary px-4" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

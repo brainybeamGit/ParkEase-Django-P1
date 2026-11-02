@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Application Submitted - Under Admin Review - ParkEase Space Owner{% endblock %}
+
+{% block content %}
+<section class="owner-register-section py-5">
+    <div class="container" style="max-width: 860px;">
+
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="text-center py-5 px-4 text-white" style="background: linear-gradient(135deg, #071e33 0%, #0f2942 100%);">
+                <div class="mb-3">
+                    <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success text-white shadow-lg fw-bold" style="width: 76px; height: 76px; font-size: 2.2rem;">
+                        ✓
+                    </span>
+                </div>
+                <h1 class="h2 fw-bold mb-2">Application Submitted Successfully!</h1>
+                <p class="text-white-50 mb-0 fs-6">
+                    Thank you for partnering with ParkEase. Your space registration is now under review.
+                </p>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+
+                <div class="alert alert-warning border-2 border-warning p-4 rounded-3 mb-4" role="alert" style="background-color: #fefce8;">
+                    <h5 class="fw-bold text-dark mb-1">Admin Approval Required</h5>
+                    <p class="mb-0 text-dark small">
+                        Your parking lot will be reviewed by our compliance team before it is listed publicly for driver bookings. Most listings are approved within <strong>24 to 48 hours</strong>.
+                    </p>
+                </div>
+
+                {% if parking_lot %}
+                <div class="p-4 rounded-3 bg-light border mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                        <h5 class="fw-bold text-dark mb-0">
+                            Application Summary
+                        </h5>
+                        <span class="badge bg-warning text-dark px-3 py-2 fw-bold">
+                            Pending Admin Approval
+                        </span>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="review-row">
+                                <span class="review-label">Space / Lot Name:</span>
+                                <span class="review-val">{{ parking_lot.name }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Space Type:</span>
+                                <span class="review-val text-capitalize">{{ parking_lot.space_type }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Total Vehicle Capacity:</span>
+                                <span class="review-val">{{ parking_lot.total_capacity }} Spaces</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="review-row">
+                                <span class="review-label">Location:</span>
+                                <span class="review-val">{{ parking_lot.street_address }}, {{ parking_lot.city }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Hourly Rate:</span>
+                                <span class="review-val text-success">₹ {{ parking_lot.hourly_rate }} / hr</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Submitted On:</span>
+                                <span class="review-val">{{ parking_lot.created_at|date:"M d, Y, h:i A" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="mb-4">
+                    <h5 class="fw-bold text-dark mb-3">What happens next?</h5>
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="p-4 bg-white border rounded-3 h-100 shadow-sm">
+                                <h6 class="fw-bold text-dark mb-2">1. ID Verification</h6>
+                                <p class="text-secondary small mb-0">Our team verifies your submitted government ID and property documents.</p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="p-4 bg-white border rounded-3 h-100 shadow-sm">
+                                <h6 class="fw-bold text-dark mb-2">2. Safety Review</h6>
+                                <p class="text-secondary small mb-0">Verification of entrance guidelines, map pins, and vehicle capacity.</p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="p-4 bg-white border rounded-3 h-100 shadow-sm">
+                                <h6 class="fw-bold text-dark mb-2">3. Listing Live!</h6>
+                                <p class="text-secondary small mb-0">Your lot appears on the driver booking map and starts generating revenue.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap justify-content-center align-items-center gap-3 pt-3">
+                    <a href="{% url 'lot_owner_panel:dashboard' %}" class="btn btn-theme-primary px-5 py-3 fw-bold fs-6 shadow-sm">
+                        Go to Space Owner Studio
+                    </a>
+                    <a href="{% url 'parking:home' %}" class="btn btn-outline-secondary px-4 py-3 fw-semibold">
+                        Return to Home
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Help Center - Knowledge Base & Customer Support | ParkEase{% endblock %}
+
+{% block content %}
+
+<section class="py-5" style="background: linear-gradient(135deg, #0a192f 0%, #0f2942 50%, #0369a1 100%); color: #ffffff;">
+    <div class="container py-4 text-center">
+        <span class="badge px-3 py-2 rounded-pill fw-semibold mb-3" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
+            PARKEASE HELP CENTRE
+        </span>
+        <h1 class="display-4 fw-extrabold text-white mb-3" style="letter-spacing: -1px; font-weight: 800;">
+            How can we <span style="color: #38bdf8;">help you today?</span>
+        </h1>
+        <p class="lead text-white-50 mb-4 mx-auto" style="max-width: 620px; font-size: 1.15rem;">
+            Find instant answers to questions regarding booking spaces, cancellations, refunds, space owner payouts, and EV charging.
+        </p>
+
+        <div class="mx-auto" style="max-width: 600px;">
+            <div class="shadow-lg" style="border-radius: 12px; overflow: hidden;">
+                <input
+                    type="text"
+                    class="form-control form-control-lg border-0 py-3 px-4"
+                    id="helpSearchInput"
+                    placeholder="Search help topics (e.g., refund, monthly pass, cancel, EV charger)..."
+                    aria-label="Search Help Center">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-white">
+    <div class="container py-3">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold fs-2 text-dark">Explore by Topic</h2>
+            <p class="text-muted small">Choose a category below to find step-by-step guides and instructions.</p>
+        </div>
+
+        <div class="row g-4 mb-5" id="helpCategoriesRow">
+
+            <div class="col-md-6 col-lg-4 help-topic-card">
+                <div class="p-4 rounded-4 border bg-light h-100 shadow-sm transition-hover">
+                    <h5 class="fw-bold text-dark mb-2">Motorists & Bookings</h5>
+                    <ul class="list-unstyled mb-0 small d-flex flex-column gap-2 text-secondary">
+                        <li><a href="{% url 'parking:faqs_support' %}#faqDriver" class="text-decoration-none text-muted">How to reserve a space in advance &rarr;</a></li>
+                        <li><a href="{% url 'parking:faqs_support' %}#faqDriver" class="text-decoration-none text-muted">Extending an active parking reservation &rarr;</a></li>
+                        <li><a href="{% url 'parking:faqs_support' %}#faqDriver" class="text-decoration-none text-muted">Parking hours and overnight rules &rarr;</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4 help-topic-card">
+                <div class="p-4 rounded-4 border bg-light h-100 shadow-sm transition-hover">
+                    <h5 class="fw-bold text-dark mb-2">Cancellations & Refunds</h5>
+                    <ul class="list-unstyled mb-0 small d-flex flex-column gap-2 text-secondary">
+                        <li><a href="{% url 'parking:faqs_support' %}#faqRefund" class="text-decoration-none text-muted">Understanding our cancellation policy &rarr;</a></li>
+                        <li><a href="{% url 'parking:faqs_support' %}#faqRefund" class="text-decoration-none text-muted">How long does a Cashfree refund take? &rarr;</a></li>
+                        <li><a href="{% url 'parking:faqs_support' %}#faqRefund" class="text-decoration-none text-muted">Disputing an accidental overstay charge &rarr;</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4 help-topic-card">
+                <div class="p-4 rounded-4 border bg-light h-100 shadow-sm transition-hover">
+                    <h5 class="fw-bold text-dark mb-2">Space Owners & Payouts</h5>
+                    <ul class="list-unstyled mb-0 small d-flex flex-column gap-2 text-secondary">
+                        <li><a href="{% url 'parking:faqs_support' %}#faqOwner" class="text-decoration-none text-muted">Listing a residential driveway or facility &rarr;</a></li>
+                        <li><a href="{% url 'parking:faqs_support' %}#faqOwner" class="text-decoration-none text-muted">Weekly bank remittance and settlement cycle &rarr;</a></li>
+                        <li><a href="{% url 'parking:faqs_support' %}#faqOwner" class="text-decoration-none text-muted">Updating bank account & KYC documents &rarr;</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4 help-topic-card">
+                <div class="p-4 rounded-4 border bg-light h-100 shadow-sm transition-hover">
+                    <h5 class="fw-bold text-dark mb-2">EV Charging Guide</h5>
+                    <ul class="list-unstyled mb-0 small d-flex flex-column gap-2 text-secondary">
+                        <li><a href="{% url 'parking:faqs_support' %}#faqEV" class="text-decoration-none text-muted">How EV bay reservations work &rarr;</a></li>
+                        <li><a href="{% url 'parking:faqs_support' %}#faqEV" class="text-decoration-none text-muted">Supported connector types (CCS2, Type 2, GB/T) &rarr;</a></li>
+                        <li><a href="{% url 'parking:faqs_support' %}#faqEV" class="text-decoration-none text-muted">Tariffs and kWh electricity billing &rarr;</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4 help-topic-card">
+                <div class="p-4 rounded-4 border bg-light h-100 shadow-sm transition-hover">
+                    <h5 class="fw-bold text-dark mb-2">Account & Invoices</h5>
+                    <ul class="list-unstyled mb-0 small d-flex flex-column gap-2 text-secondary">
+                        <li><a href="{% url 'parking:faqs_support' %}" class="text-decoration-none text-muted">Downloading GST tax invoices & receipts &rarr;</a></li>
+                        <li><a href="{% url 'parking:faqs_support' %}" class="text-decoration-none text-muted">Managing saved vehicle registration plates &rarr;</a></li>
+                        <li><a href="{% url 'accounts:forgot_password' %}" class="text-decoration-none text-muted">Resetting your account password &rarr;</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4 help-topic-card">
+                <div class="p-4 rounded-4 border bg-light h-100 shadow-sm transition-hover">
+                    <h5 class="fw-bold text-dark mb-2">Access & Gate Verification</h5>
+                    <ul class="list-unstyled mb-0 small d-flex flex-column gap-2 text-secondary">
+                        <li><a href="{% url 'parking:faqs_support' %}" class="text-decoration-none text-muted">Entering a facility using your QR digital pass &rarr;</a></li>
+                        <li><a href="{% url 'parking:faqs_support' %}" class="text-decoration-none text-muted">What to do if an automated barrier doesn't open &rarr;</a></li>
+                        <li><a href="{% url 'parking:faqs_support' %}" class="text-decoration-none text-muted">Drive-up on-arrival booking instructions &rarr;</a></li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="p-4 p-md-5 rounded-4 border shadow-sm" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-8">
+                    <span class="badge bg-primary px-3 py-1 mb-2">24/7 CUSTOMER CARE</span>
+                    <h3 class="fw-bold text-dark mb-2">Still need help? Our support team is here for you.</h3>
+                    <p class="text-muted mb-0">
+                        Our customer service desk handles inquiries 24 hours a day, 7 days a week. Connect with a live agent or request emergency incident support.
+                    </p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <div class="d-flex flex-column gap-2 align-items-lg-end">
+                        <a href="tel:1800PARKEASE" class="btn btn-theme-primary px-4 py-2">
+                            Call: 1800-PARKEASE
+                        </a>
+                        <a href="{% url 'parking:faqs_support' %}" class="btn btn-outline-secondary px-4 py-2 bg-white">
+                            Browse All FAQs
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('helpSearchInput');
+    const cards = document.querySelectorAll('.help-topic-card');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

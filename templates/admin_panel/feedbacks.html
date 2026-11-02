@@ -1,0 +1,136 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load static %}
+
+{% block title %}Direct User Feedbacks - Admin Studio{% endblock %}
+{% block page_heading %}Direct User Feedbacks{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid px-0">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h5 fw-bold text-dark mb-1">Direct Motorist & Platform Feedbacks</h2>
+            <p class="text-muted small mb-0">Review incoming direct feedback messages and ratings submitted by users from the platform feedback card.</p>
+        </div>
+        <div>
+            <span class="badge bg-primary px-3 py-2 fs-6 rounded-pill">
+                {{ total_feedbacks }} Total Feedbacks Received
+            </span>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                <span class="text-muted small fw-semibold">Total Submissions</span>
+                <h3 class="fw-bold text-dark mb-0 mt-1">{{ total_feedbacks }}</h3>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                <span class="text-muted small fw-semibold">Pending Review</span>
+                <h3 class="fw-bold text-warning mb-0 mt-1">{{ pending_count }}</h3>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                <span class="text-muted small fw-semibold">Reviewed & Acknowledged</span>
+                <h3 class="fw-bold text-success mb-0 mt-1">{{ reviewed_count }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+        <div class="table-responsive">
+            <table class="table align-middle table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Submitter</th>
+                        <th>Category</th>
+                        <th>Rating</th>
+                        <th>Feedback Message</th>
+                        <th>Date Received</th>
+                        <th class="pe-4 text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fb in feedbacks %}
+                        <tr>
+                            <td class="ps-4">
+                                <strong class="text-dark d-block">{{ fb.name }}</strong>
+                                <small class="text-muted">{{ fb.email }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    {{ fb.get_category_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="text-warning fw-bold">
+                                    {{ fb.rating }} ★
+                                </span>
+                            </td>
+                            <td style="max-width: 320px;">
+                                <p class="small text-secondary mb-0 text-truncate" title="{{ fb.message }}">
+                                    "{{ fb.message }}"
+                                </p>
+                            </td>
+                            <td class="text-muted small">
+                                {{ fb.created_at|date:"d M Y, h:i A" }}
+                            </td>
+                            <td class="pe-4 text-end">
+                                <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#feedbackModal{{ fb.id }}">
+                                    View Full Message
+                                </button>
+                            </td>
+                        </tr>
+
+                        <div class="modal fade" id="feedbackModal{{ fb.id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content rounded-4 border-0 shadow">
+                                    <div class="modal-header border-bottom px-4 pt-4 pb-3">
+                                        <div>
+                                            <h5 class="modal-title fw-bold text-dark">Direct Feedback #FB-{{ fb.id }}</h5>
+                                            <small class="text-muted">From {{ fb.name }} ({{ fb.email }})</small>
+                                        </div>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body p-4">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-1">
+                                                {{ fb.get_category_display }}
+                                            </span>
+                                            <span class="text-warning fw-bold fs-6">
+                                                Rating: {{ fb.rating }} / 5 Stars
+                                            </span>
+                                        </div>
+                                        <div class="p-3 bg-light rounded-3 border mb-3">
+                                            <label class="small text-muted fw-bold d-block mb-1">Message:</label>
+                                            <p class="text-dark mb-0">{{ fb.message }}</p>
+                                        </div>
+                                        <div class="text-muted small">
+                                            <i class="bi bi-clock me-1"></i> Received at {{ fb.created_at|date:"d M Y, h:i A" }}
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer px-4 pb-4 pt-2 border-0">
+                                        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>
+                                No direct feedback submissions received yet.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

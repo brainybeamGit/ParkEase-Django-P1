@@ -1,0 +1,157 @@
+{% extends 'lot_owner_panel/base_owner.html' %}
+{% load static %}
+
+{% block title %}Reviews & Ratings - Space Owner Studio{% endblock %}
+{% block page_heading %}Customer Reviews & Ratings{% endblock %}
+
+{% block owner_content %}
+<div class="container-fluid px-0">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h5 fw-bold text-dark mb-1">Driver Feedback & Service Ratings</h2>
+            <p class="text-muted small mb-0">Read verified driver reviews, submit official owner responses, and flag inappropriate feedback.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-success-subtle text-success fs-6 fw-bold px-3 py-2">
+                ★ {{ avg_rating|default:"5.0" }} / 5.0 Overall Rating
+            </span>
+        </div>
+    </div>
+
+    <div class="owner-card mb-4">
+        <div class="row g-4 align-items-center">
+            <div class="col-12 col-md-4 text-center border-end">
+                <div class="display-4 fw-bold text-dark">{{ avg_rating|default:"5.0" }}</div>
+                <div class="text-warning fs-5 mb-1">
+                    ★★★★★
+                </div>
+                <div class="text-muted small">Based on {{ total_reviews|default:"0" }} verified driver ratings</div>
+            </div>
+
+            <div class="col-12 col-md-8">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <span class="small fw-semibold text-muted" style="width: 50px;">5 Stars</span>
+                    <div class="progress flex-grow-1" style="height: 8px;">
+                        <div class="progress-bar bg-success" style="width: {{ pct_5|default:100 }}%;"></div>
+                    </div>
+                    <span class="small text-muted" style="width: 40px;">{{ pct_5|default:100 }}%</span>
+                </div>
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <span class="small fw-semibold text-muted" style="width: 50px;">4 Stars</span>
+                    <div class="progress flex-grow-1" style="height: 8px;">
+                        <div class="progress-bar bg-primary" style="width: {{ pct_4|default:0 }}%;"></div>
+                    </div>
+                    <span class="small text-muted" style="width: 40px;">{{ pct_4|default:0 }}%</span>
+                </div>
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <span class="small fw-semibold text-muted" style="width: 50px;">3 Stars</span>
+                    <div class="progress flex-grow-1" style="height: 8px;">
+                        <div class="progress-bar bg-warning" style="width: {{ pct_3|default:0 }}%;"></div>
+                    </div>
+                    <span class="small text-muted" style="width: 40px;">{{ pct_3|default:0 }}%</span>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="small fw-semibold text-muted" style="width: 50px;">1-2 Stars</span>
+                    <div class="progress flex-grow-1" style="height: 8px;">
+                        <div class="progress-bar bg-danger" style="width: {{ pct_2_1|default:0 }}%;"></div>
+                    </div>
+                    <span class="small text-muted" style="width: 40px;">{{ pct_2_1|default:0 }}%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for rev in reviews %}
+            <div class="col-12">
+                <div class="owner-card mb-0">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="fw-bold text-dark fs-6">{{ rev.driver_name }}</span>
+                                <span class="badge bg-light text-muted border font-monospace">Booking #{{ rev.booking_ref }}</span>
+                                <span class="text-warning">
+                                    {% if rev.rating == 5 %}★★★★★{% elif rev.rating == 4 %}★★★★☆{% else %}★★★☆☆{% endif %}
+                                </span>
+                            </div>
+                            <span class="text-muted small">{{ rev.created_at|date:"d M Y, h:i A" }} · Verified Stay</span>
+                        </div>
+
+                        <div>
+                            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#reportReviewModal{{ rev.id }}">
+                                Report
+                            </button>
+                        </div>
+                    </div>
+
+                    <p class="text-secondary small mb-3">
+                        "{{ rev.comment }}"
+                    </p>
+
+                    {% if rev.owner_reply %}
+                        <div class="p-3 bg-light rounded-2 border ms-md-4 mb-2">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="badge bg-dark">Owner Response</span>
+                                <span class="small text-muted">Posted recently</span>
+                            </div>
+                            <p class="small text-dark mb-0">{{ rev.owner_reply }}</p>
+                        </div>
+                    {% else %}
+
+                        <div class="ms-md-4">
+                            <form method="POST" action="{% url 'lot_owner_panel:reply_review' rev.id %}">
+                                {% csrf_token %}
+                                <div class="input-group input-group-sm">
+                                    <input type="text" name="owner_reply" class="form-control" placeholder="Write a professional response to this driver..." required>
+                                    <button type="submit" class="btn btn-owner-dark">
+                                        Post Response
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    {% endif %}
+
+                </div>
+            </div>
+
+            <div class="modal fade" id="reportReviewModal{{ rev.id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="POST" action="{% url 'lot_owner_panel:report_review' rev.id %}">
+                            {% csrf_token %}
+                            <div class="modal-header border-bottom">
+                                <h5 class="modal-title fw-bold fs-6 text-danger">Report Inappropriate Review</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="small text-muted mb-3">Flag reviews containing abusive language, spam, or false claims for admin moderation review.</p>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-dark">Reason for Report</label>
+                                    <select name="report_reason" class="form-select form-select-sm">
+                                        <option value="abusive">Abusive / Inappropriate Language</option>
+                                        <option value="spam">Spam or Fake Review</option>
+                                        <option value="defamation">Unverified / Untrue factual claim</option>
+                                        <option value="privacy">Contains personally identifiable information</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer border-top">
+                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger btn-sm fw-bold">Submit Flag</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="owner-card text-center py-4">
+                    <p class="text-muted small mb-0">No reviews received yet. Motorists will be invited to rate your space after parking check-out.</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

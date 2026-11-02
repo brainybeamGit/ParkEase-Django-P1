@@ -1,0 +1,261 @@
+{% extends 'lot_owner_panel/base_owner.html' %}
+{% load static %}
+
+{% block title %}{{ lot.name }} - Details - Space Owner Studio{% endblock %}
+{% block page_heading %}{{ lot.name }}{% endblock %}
+
+{% block owner_content %}
+<div class="container-fluid px-0">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a href="{% url 'lot_owner_panel:parking_lots' %}" class="small text-decoration-none text-muted mb-2 d-inline-block">
+                ← Back to My Parking Lots
+            </a>
+            <h2 class="h5 fw-bold text-dark mb-0">{{ lot.name }}</h2>
+            <div class="text-secondary small">{{ lot.street_address }}, {{ lot.area }}, {{ lot.city }} - {{ lot.pin_code }}</div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            {% if lot.status == 'approved' %}
+                <span class="badge bg-success-subtle text-success fs-6 fw-bold px-3 py-2">Approved & Live</span>
+            {% elif lot.status == 'pending' %}
+                <span class="badge bg-warning-subtle text-dark fs-6 fw-bold px-3 py-2">Pending Admin Approval</span>
+            {% else %}
+                <span class="badge bg-danger-subtle text-danger fs-6 fw-bold px-3 py-2">Rejected</span>
+            {% endif %}
+
+            <form method="POST" action="{% url 'lot_owner_panel:toggle_pause_lot' lot.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-secondary btn-sm fw-semibold">
+                    {% if lot.is_paused %}Resume Bookings{% else %}Pause Bookings{% endif %}
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {% if lot.admin_notes %}
+        <div class="alert alert-info border shadow-sm rounded-3 p-3 mb-4">
+            <span class="fw-bold small d-block mb-1">Admin Approval Feedback:</span>
+            <p class="small mb-0">{{ lot.admin_notes }}</p>
+        </div>
+    {% endif %}
+
+    <div class="row g-4">
+
+        <div class="col-12 col-lg-8">
+
+            <div class="owner-card mb-4">
+                <div class="row g-4 align-items-center">
+                    <div class="col-md-5">
+                        <img src="{% if lot.space_photo %}{{ lot.space_photo.url }}{% else %}https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=600&auto=format&fit=crop&q=80{% endif %}"
+                             alt="{{ lot.name }}"
+                             class="rounded-3 border w-100"
+                             style="height: 220px; object-fit: cover;"
+                             onerror="this.src='https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=600&auto=format&fit=crop&q=80';">
+                    </div>
+                    <div class="col-md-7">
+                        <h3 class="fw-bold fs-5 text-dark mb-2">{{ lot.name }}</h3>
+                        <p class="text-secondary small mb-3">
+                            {% if lot.building_name %}{{ lot.building_name }}, {% endif %}{{ lot.street_address }}, {{ lot.area }}, {{ lot.city }}, {{ lot.state }} ({{ lot.pin_code }})
+                        </p>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <div class="p-2 bg-light rounded border text-center">
+                                    <span class="text-muted small d-block">Total Capacity</span>
+                                    <strong class="text-dark fs-6">{{ lot.total_capacity }} Spaces</strong>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-2 bg-light rounded border text-center">
+                                    <span class="text-muted small d-block">Current Occupancy</span>
+                                    <strong class="text-dark fs-6">{{ current_occupied|default:22 }} Occupied</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="small text-muted">
+                            <strong>Map Coordinates:</strong> {{ lot.map_location|default:"23.0225° N, 72.5714° E (Ahmedabad Pin)" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="owner-card mb-4">
+                <h3 class="fw-bold fs-6 text-dark mb-3">Vehicle Capacity & Approved Parking Rates</h3>
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle small mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Vehicle Category</th>
+                                <th>Allocated Capacity</th>
+                                <th>Hourly Rate</th>
+                                <th>Daily Cap</th>
+                                <th>Monthly Pass</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Cars / Sedans</strong></td>
+                                <td>{{ car_capacity|default:30 }} Spaces</td>
+                                <td>₹{{ lot.car_rate|default:lot.hourly_rate }} / hr</td>
+                                <td>₹{{ lot.daily_rate }} / day</td>
+                                <td>₹{{ lot.monthly_rate }} / mo</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Two-Wheelers / Bikes</strong></td>
+                                <td>{{ bike_capacity|default:15 }} Spaces</td>
+                                <td>₹{{ lot.bike_rate|default:20.00 }} / hr</td>
+                                <td>₹150.00 / day</td>
+                                <td>₹1,800.00 / mo</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SUVs / MUVs</strong></td>
+                                <td>{{ suv_capacity|default:5 }} Spaces</td>
+                                <td>₹{{ lot.suv_rate|default:70.00 }} / hr</td>
+                                <td>₹400.00 / day</td>
+                                <td>₹5,500.00 / mo</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Electric Vehicles (EV)</strong></td>
+                                <td>{{ ev_capacity|default:3 }} Dedicated Bays</td>
+                                <td>₹{{ lot.ev_rate|default:60.00 }} / hr</td>
+                                <td>₹450.00 / day</td>
+                                <td>₹6,000.00 / mo</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="owner-card mb-4">
+                <h3 class="fw-bold fs-6 text-dark mb-3">Operating Hours & Access Rules</h3>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-2 border">
+                            <span class="text-muted small d-block">Facility Operating Hours</span>
+                            <span class="fw-bold text-dark fs-6">{{ lot.operating_hours }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-2 border">
+                            <span class="text-muted small d-block">Parking Arrangement</span>
+                            <span class="fw-bold text-dark fs-6 text-capitalize">{{ lot.parking_arrangement|title }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <span class="text-muted small d-block mb-1">Access Instructions & Height Limit</span>
+                    <div class="p-3 bg-light rounded-2 border small text-dark">
+                        {{ lot.access_instructions|default:"Main barrier gate equipped with optical license plate scanner and QR reader. Height clearance limit 2.2 meters. Show digital booking confirmation to guard on arrival." }}
+                    </div>
+                </div>
+
+                <div>
+                    <span class="text-muted small d-block mb-2">Available Facilities & Amenities</span>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for svc in lot.available_services %}
+                            <span class="badge bg-light text-dark border px-3 py-2 small fw-semibold">
+                                {{ svc }}
+                            </span>
+                        {% empty %}
+                            <span class="badge bg-light text-dark border px-3 py-2 small">CCTV Surveillance</span>
+                            <span class="badge bg-light text-dark border px-3 py-2 small">Security Guard</span>
+                            <span class="badge bg-light text-dark border px-3 py-2 small">Night Lighting</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="owner-card" id="editSection">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="fw-bold fs-6 text-dark mb-0">Update Lot Information</h3>
+                    <span class="badge bg-warning-subtle text-dark small">Critical edits require admin reapproval</span>
+                </div>
+
+                <form method="POST" action="{% url 'lot_owner_panel:lot_detail' lot.id %}">
+                    {% csrf_token %}
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-dark">Operating Hours</label>
+                            <input type="text" name="operating_hours" class="form-control form-control-sm" value="{{ lot.operating_hours }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-dark">Standard Hourly Rate (₹)</label>
+                            <input type="number" step="0.5" name="hourly_rate" class="form-control form-control-sm" value="{{ lot.hourly_rate }}">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Access Instructions (Ordinary Edit)</label>
+                        <textarea name="access_instructions" rows="2" class="form-control form-control-sm">{{ lot.access_instructions }}</textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-owner-dark btn-sm">
+                        Save Changes
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+        <div class="col-12 col-lg-4">
+
+            <div class="owner-card mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="fw-bold fs-6 text-dark mb-0">EV Charging Infrastructure</h4>
+                    <span class="badge bg-warning-subtle text-dark small fw-bold">Active</span>
+                </div>
+                <div class="p-3 bg-light rounded-2 border mb-3">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="px-2 py-1 bg-white rounded border fw-bold text-dark small">EV</div>
+                        <div>
+                            <div class="fw-bold small text-dark">2x Dual-Gun Chargers</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">CCS2 (50 kW) & Type 2 AC (22 kW)</div>
+                        </div>
+                    </div>
+                    <div class="small text-secondary">Tariff: <strong>₹15.00 / kWh</strong> + Standard Parking Fee</div>
+                </div>
+                <a href="{% url 'lot_owner_panel:ev_charging' %}" class="btn btn-outline-dark btn-sm w-100 fw-semibold">
+                    Manage EV Chargers
+                </a>
+            </div>
+
+            <div class="owner-card">
+                <h4 class="fw-bold fs-6 text-dark mb-3">Approval & Audit History</h4>
+
+                <div class="mb-3 pb-3 border-bottom">
+                    <span class="text-muted small d-block">Listing Status</span>
+                    <span class="fw-bold text-success small">Approved & Verified</span>
+                </div>
+
+                <div class="mb-3 pb-3 border-bottom">
+                    <span class="text-muted small d-block">Registered Date</span>
+                    <span class="text-dark small">{{ lot.created_at|date:"d M Y, h:i A" }}</span>
+                </div>
+
+                <div class="mb-3 pb-3 border-bottom">
+                    <span class="text-muted small d-block">Last Updated</span>
+                    <span class="text-dark small">{{ lot.updated_at|date:"d M Y, h:i A" }}</span>
+                </div>
+
+                <div>
+                    <span class="text-muted small d-block mb-1">Audit Log</span>
+                    <div class="small text-secondary" style="font-size: 0.8rem;">
+                        • Initial application submitted by owner<br>
+                        • Identity proof & title documents verified<br>
+                        • Admin approval granted by ParkEase Verification Team<br>
+                        • Listing published to driver search network
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

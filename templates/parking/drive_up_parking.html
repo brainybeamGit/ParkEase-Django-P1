@@ -1,0 +1,382 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Park and Pay - Quick, Convenient & Cashless Drive-up Parking | ParkEase{% endblock %}
+
+{% block content %}
+
+<section class="driveup-hero-section">
+    <div class="container pt-1 pb-4">
+        <div class="row align-items-stretch g-4 g-lg-5">
+
+            <div class="col-lg-6 d-flex flex-column">
+                <h1 class="driveup-hero-title text-white">
+                    Park and Pay: <span class="highlight-blue">Quick, Convenient & Cashless</span>
+                </h1>
+                <p class="driveup-hero-subtitle text-white-50">
+                    No time to pre-book? Look for a ParkEase sign near your space to simply drive up and pay through our app or mobile web portal.
+                </p>
+
+                <div class="driveup-quickpay-card">
+                    <h3 class="driveup-card-title mb-3">Pay on Arrival</h3>
+
+                    <form id="driveUpPayForm" onsubmit="event.preventDefault(); showDriveUpBookingModal();">
+
+                        <div class="jp-input-group mb-3">
+                            <label for="locationCodeInput" class="jp-input-label">Location ID or Street</label>
+                            <div class="jp-search-field">
+                                <input type="text" id="locationCodeInput" class="jp-search-input" placeholder="Enter 5-digit code on the sign (e.g. 58204)" required autocomplete="off">
+                                <i class="bi bi-hash jp-search-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <div class="jp-input-group">
+                                    <label for="vehicleRegInput" class="jp-input-label">Vehicle Registration</label>
+                                    <div class="jp-search-field">
+                                        <input type="text" id="vehicleRegInput" class="jp-search-input text-uppercase" placeholder="DL 01 AB 1234" required autocomplete="off">
+                                        <i class="bi bi-car-front-fill jp-search-icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="jp-input-group">
+                                    <label for="parkingDurationSelect" class="jp-input-label">Expected Stay</label>
+                                    <div class="jp-search-field">
+                                        <select id="parkingDurationSelect" class="jp-search-input" style="padding-right: 1rem;">
+                                            <option value="1 Hour" selected>1 Hour (₹ 40.00)</option>
+                                            <option value="2 Hours">2 Hours (₹ 75.00)</option>
+                                            <option value="3 Hours">3 Hours (₹ 110.00)</option>
+                                            <option value="All Day">All Day (₹ 220.00)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-jp-search-submit w-100">
+                            Pay for parking
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-6 d-flex">
+                <div class="reserve-hero-img-wrapper w-100">
+                    <img src="{% static 'images/drive-up-hero.jpg' %}" alt="Street parking sign and pay bay" class="reserve-hero-img shadow-lg">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<section class="section-padding" style="background-color: var(--bg-page);">
+    <div class="container">
+
+        <div class="mb-5">
+            <h2 class="section-title text-start">
+                How <span class="highlight-blue">Park and Pay</span> works
+            </h2>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-4 col-md-6">
+                <div class="work-step-card">
+
+                    <div class="phone-mockup-frame">
+                        <div class="phone-mockup-screen">
+                            <div class="mockup-header-bar">
+                                <span class="mockup-time">09:41</span>
+                                <div class="mockup-notch"></div>
+                                <span class="mockup-battery"><i class="bi bi-battery-full"></i></span>
+                            </div>
+                            <div class="mockup-content text-center p-3">
+                                <div class="sign-mockup-badge mb-2">
+                                    <div class="sign-p-icon">P</div>
+                                    <div class="sign-number-text">LOCATION #58204</div>
+                                </div>
+                                <div class="mockup-search-preview">
+                                    <i class="bi bi-search text-muted me-2"></i>
+                                    <span class="text-dark small fw-bold">58204 - Oxford Street Bay</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="work-step-body">
+                        <h3 class="work-step-title">Look for the sign</h3>
+                        <p class="work-step-desc">
+                            Next to your space, there will be a ParkEase sign with all the information you need to book.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="work-step-card">
+
+                    <div class="phone-mockup-frame">
+                        <div class="phone-mockup-screen">
+                            <div class="mockup-header-bar">
+                                <span class="mockup-time">09:42</span>
+                                <div class="mockup-notch"></div>
+                                <span class="mockup-battery"><i class="bi bi-battery-full"></i></span>
+                            </div>
+                            <div class="mockup-content p-3 text-center">
+                                <div class="mockup-pay-preview mb-2">
+                                    <span class="text-secondary small fw-semibold">Session Total</span>
+                                    <h4 class="fw-bold text-dark mb-0">₹ 75.00</h4>
+                                </div>
+                                <div class="mockup-btn-fake">
+                                    <i class="bi bi-shield-lock-fill me-1"></i> Pay with Apple Pay / UPI
+                                </div>
+                                <span class="badge bg-success bg-opacity-10 text-success small mt-2">
+                                    Instant Registration Active
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="work-step-body">
+                        <h3 class="work-step-title">Book and relax</h3>
+                        <p class="work-step-desc">
+                            Follow the instructions and pay. The space is now yours for as long as you booked it.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="work-step-card">
+
+                    <div class="phone-mockup-frame">
+                        <div class="phone-mockup-screen">
+                            <div class="mockup-header-bar">
+                                <span class="mockup-time">10:15</span>
+                                <div class="mockup-notch"></div>
+                                <span class="mockup-battery"><i class="bi bi-battery-full"></i></span>
+                            </div>
+                            <div class="mockup-content p-3 text-center">
+                                <div class="session-timer-circle mb-2">
+                                    <div class="timer-number">45</div>
+                                    <div class="timer-label">mins left</div>
+                                </div>
+                                <div class="mockup-btn-extend">
+                                    <i class="bi bi-plus-circle-fill me-1"></i> Extend Stay (+1 Hr)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="work-step-body">
+                        <h3 class="work-step-title">You're in control</h3>
+                        <p class="work-step-desc">
+                            Use our app to extend your stay if things run late. No more running back to the parking meter.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<section class="section-padding bg-white">
+    <div class="container">
+
+        <div class="mb-5">
+            <h2 class="section-title text-start">
+                Your Complete Guide to <span class="highlight-blue">Park and Pay</span>
+            </h2>
+        </div>
+
+        <div class="row g-4 mb-5">
+
+            <div class="col-lg-6">
+                <div class="guide-wide-card">
+                    <div class="guide-wide-header">
+                        <div class="guide-tag-badge">NPP LOCATIONS</div>
+                        <h3 class="guide-wide-title">National Parking Platform (NPP)</h3>
+                    </div>
+                    <p class="guide-wide-text">
+                        You can use ParkEase to pay for parking at any NPP-enabled location. Simply enter the location number displayed on the signage to start your session. The app handles payment and timing so you don't need to use a machine. It's quick, convenient, and works anywhere NPP is in place.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="guide-wide-card">
+                    <div class="guide-wide-header">
+                        <div class="guide-tag-badge">COUNCIL SPACES</div>
+                        <h3 class="guide-wide-title">Council Run Car Parks</h3>
+                    </div>
+                    <p class="guide-wide-text">
+                        We work closely with local councils to bring seamless digital parking to council-managed car parks. Simply type the location number into the ParkEase app to begin. You can set your parking time and pay instantly on your phone. It's fast, convenient, and widely available across council sites.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="pt-3">
+            <h3 class="section-title text-start fs-3 mb-4">
+                Other Parking Options with <span class="highlight-blue">ParkEase</span>
+            </h3>
+
+            <div class="row g-4">
+
+                <div class="col-md-6">
+                    <div class="other-solution-card">
+                        <div>
+                            <span class="other-solution-tag">PRE-BOOK IN ADVANCE</span>
+                            <h4 class="other-solution-title">Guaranteed Space Reservations</h4>
+                            <p class="other-solution-desc">
+                                Reserve your bay hours or days ahead of time. Arrive knowing a dedicated spot is waiting for you with zero circling.
+                            </p>
+                        </div>
+                        <a href="{% url 'parking:reserve_parking' %}" class="other-solution-link">
+                            Reserve Parking in Advance <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="other-solution-card">
+                        <div>
+                            <span class="other-solution-tag">LONG TERM PARKING</span>
+                            <h4 class="other-solution-title">Monthly Parking Plans</h4>
+                            <p class="other-solution-desc">
+                                Choose between 7-day Every day, Monday to Friday commuting, or Saturday to Sunday weekend coverage with fixed monthly savings.
+                            </p>
+                        </div>
+                        <a href="{% url 'parking:monthly_parking' %}" class="other-solution-link">
+                            Explore Monthly Plans <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section class="section-padding" style="background-color: var(--bg-page);">
+    <div class="container">
+
+        <div class="mb-5">
+            <h2 class="section-title text-start">
+                FAQs on <span class="highlight-blue">Park and Pay</span>
+            </h2>
+        </div>
+
+        <div class="accordion" id="faqParkAndPayAccordion">
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="ppHeadingOne">
+                    <button class="accordion-button faq-accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#ppCollapseOne" aria-expanded="true" aria-controls="ppCollapseOne">
+                        How do I book parking with the ParkEase number displayed?
+                    </button>
+                </h2>
+                <div id="ppCollapseOne" class="accordion-collapse collapse show" aria-labelledby="ppHeadingOne" data-bs-parent="#faqParkAndPayAccordion">
+                    <div class="faq-accordion-body">
+                        Look for the 4 to 6-digit location ID displayed on the ParkEase signage or street meter next to your bay. Enter this number into the ParkEase app or website, choose your expected duration, and complete checkout. Your registration plate is instantly registered with active patrol systems.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="ppHeadingTwo">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ppCollapseTwo" aria-expanded="false" aria-controls="ppCollapseTwo">
+                        Can I extend my booking with ParkEase?
+                    </button>
+                </h2>
+                <div id="ppCollapseTwo" class="accordion-collapse collapse" aria-labelledby="ppHeadingTwo" data-bs-parent="#faqParkAndPayAccordion">
+                    <div class="faq-accordion-body">
+                        Yes! If your meeting or shopping runs longer than expected, you can extend your stay in a single tap from your phone without returning to your car or ticket machine.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="ppHeadingThree">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ppCollapseThree" aria-expanded="false" aria-controls="ppCollapseThree">
+                        Where can I find the ParkEase location code to park?
+                    </button>
+                </h2>
+                <div id="ppCollapseThree" class="accordion-collapse collapse" aria-labelledby="ppHeadingThree" data-bs-parent="#faqParkAndPayAccordion">
+                    <div class="faq-accordion-body">
+                        The location code is clearly printed in bold digits on the ParkEase signs, tariff boards, and sticker labels placed near each parking bay or pay station.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="ppHeadingFour">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ppCollapseFour" aria-expanded="false" aria-controls="ppCollapseFour">
+                        Can I pay for ParkEase parking without downloading the App?
+                    </button>
+                </h2>
+                <div id="ppCollapseFour" class="accordion-collapse collapse" aria-labelledby="ppHeadingFour" data-bs-parent="#faqParkAndPayAccordion">
+                    <div class="faq-accordion-body">
+                        Yes. You can pay directly through our fast mobile web portal (ParkEase Express Pay) by scanning the QR code on the sign or entering the location code directly in your browser.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<script>
+function showDriveUpBookingModal() {
+    const locInput = document.getElementById('locationCodeInput');
+    const regInput = document.getElementById('vehicleRegInput');
+    const durSelect = document.getElementById('parkingDurationSelect');
+
+    const locVal = locInput ? locInput.value.trim() : 'Location #58204';
+    const regVal = regInput ? regInput.value.trim() : 'DL 01 AB 1234';
+    const durVal = durSelect ? durSelect.value : '1 Hour';
+
+    const modalLoc = document.getElementById('modalBookingLocation');
+    const modalSched = document.getElementById('modalBookingSchedule');
+    const modalVeh = document.getElementById('modalBookingVehicle');
+    const modalPrc = document.getElementById('modalBookingPrice');
+    const modalBody = document.getElementById('bookingModalBody');
+
+    if (modalLoc) modalLoc.textContent = `Drive-Up Bay #${locVal}`;
+    if (modalSched) modalSched.textContent = `Active Stay: ${durVal} (Instant Start)`;
+    if (modalVeh) modalVeh.textContent = `Reg: ${regVal.toUpperCase()}`;
+    if (modalPrc) modalPrc.textContent = durSelect ? durSelect.options[durSelect.selectedIndex].text.split('(')[1]?.replace(')', '') || '₹ 75.00' : '₹ 75.00';
+
+    const modalEl = document.getElementById('instantBookingModal');
+    if (modalEl && typeof bootstrap !== 'undefined') {
+        const modalInstance = new bootstrap.Modal(modalEl);
+        modalInstance.show();
+
+        const confirmBtn = document.getElementById('btnConfirmBookingModal');
+        if (confirmBtn) {
+            confirmBtn.onclick = () => {
+                modalBody.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="mb-3 text-success" style="font-size: 3.5rem;">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-2">Parking Session Activated!</h4>
+                        <p class="text-muted mb-4">Your session for <strong>Bay #${locVal}</strong> (${durVal}) with vehicle <strong>${regVal.toUpperCase()}</strong> is live. You can extend your parking anytime directly from your phone.</p>
+                        <button type="button" class="btn btn-primary px-4 fw-bold" data-bs-dismiss="modal" style="background-color: var(--primary-color); border: none; border-radius: 10px;">
+                            Done
+                        </button>
+                    </div>
+                `;
+            };
+        }
+    }
+}
+</script>
+{% endblock %}

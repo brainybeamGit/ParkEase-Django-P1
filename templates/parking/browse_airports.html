@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Browse Airport Parking - Terminals, Long-Term & Valet | ParkEase{% endblock %}
+
+{% block content %}
+<div class="browse-airports-page py-5" style="background: #ffffff; min-height: 85vh;">
+    <div class="container" style="max-width: 960px;">
+
+        <div class="text-center mb-5">
+            <h1 class="browse-page-title">
+                Official & Partner <span class="highlight-blue">Airport Parking</span>
+            </h1>
+            <p class="browse-page-subtitle">
+                Flying out for business or vacation? Select your departure airport from the list below to view terminal bays, valet drop-off details, and reserve guaranteed spaces.
+            </p>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5" style="background: #ffffff;">
+            <div class="p-3 px-md-4 bg-light border-bottom d-flex justify-content-between align-items-center">
+                <span class="fw-bold text-dark small text-uppercase" style="letter-spacing: 0.5px;">All Registered Airports ({{ airports|length }})</span>
+            </div>
+            <div class="list-group list-group-flush airport-list-group">
+                {% for airport in airports %}
+                <button type="button"
+                        class="list-group-item list-group-item-action p-3 p-md-4 d-flex align-items-center justify-content-between airport-list-row border-bottom"
+                        data-bs-toggle="modal"
+                        data-bs-target="#airportModal{{ airport.code }}">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="badge text-white px-2.5 py-1.5 rounded-2 fw-bold" style="background-color: #0284c7; min-width: 52px; font-size: 0.95rem;">
+                            {{ airport.code }}
+                        </span>
+                        <div class="text-start">
+                            <h5 class="fw-bold mb-1 text-dark airport-name-title" style="color: #0f2942;">
+                                {{ airport.name }}
+                            </h5>
+                            <div class="small text-muted">{{ airport.city }}, {{ airport.state }} &bull; {{ airport.terminals }}</div>
+                        </div>
+                    </div>
+                    <div class="text-end d-none d-sm-block">
+                        <div class="small text-muted">Daily from</div>
+                        <div class="fw-bold fs-5" style="color: #0284c7;">₹{{ airport.daily_rate }}/day</div>
+                    </div>
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="p-4 p-md-5 rounded-4 text-white shadow-lg" style="background: linear-gradient(135deg, #0f2942 0%, #1e40af 100%);">
+            <div class="row align-items-center">
+                <div class="col-lg-8 mb-3 mb-lg-0">
+                    <span class="badge bg-warning text-dark fw-bold px-3 py-1 rounded-pill mb-2">
+                        FLIGHT GUARANTEE
+                    </span>
+                    <h3 class="fw-bold text-white mb-2">Never miss a flight circling for parking</h3>
+                    <p class="text-white-50 mb-0" style="font-size: 0.95rem;">
+                        Pre-booked airport spaces include instant gate QR entry pass, 24/7 guarded security, battery jump-start assistance, and direct terminal shuttle access.
+                    </p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <a href="{% url 'parking:home' %}#searchSection" class="btn btn-light fw-bold px-4 py-2.5 text-dark rounded-pill">
+                        Search Airport Spaces
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% for airport in airports %}
+<div class="modal fade" id="airportModal{{ airport.code }}" tabindex="-1" aria-labelledby="airportModalLabel{{ airport.code }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 540px;">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+
+            <div class="modal-header border-bottom p-4" style="background: linear-gradient(135deg, #0f2942 0%, #183d63 100%); color: #ffffff;">
+                <div class="w-100">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="badge text-white px-2.5 py-1 rounded-2 fw-bold small" style="background-color: #0284c7;">
+                            {{ airport.code }}
+                        </span>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <h4 class="modal-title fw-bold text-white fs-5 mt-2" id="airportModalLabel{{ airport.code }}">
+                        {{ airport.name }}
+                    </h4>
+                    <div class="small text-white-50">{{ airport.city }}, {{ airport.state }}</div>
+                </div>
+            </div>
+
+            <div class="modal-body p-4">
+
+                <div class="d-flex justify-content-between align-items-center p-3 mb-3 bg-light rounded-3">
+                    <div>
+                        <div class="small text-muted fw-semibold">Daily Tariff</div>
+                        <div class="fs-4 fw-extrabold" style="color: #0284c7;">
+                            ₹{{ airport.daily_rate }}<span class="fs-6 fw-normal text-muted">/day</span>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <div class="small text-muted fw-semibold">Hourly Tariff</div>
+                        <div class="fs-5 fw-bold text-dark">
+                            ₹{{ airport.hourly_rate }}/h
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="small text-muted mb-1">
+                        <strong class="text-dark">Terminals:</strong> {{ airport.terminals }}
+                    </div>
+                    <div class="small text-muted">
+                        <strong class="text-dark">Access:</strong> {{ airport.distance }}
+                    </div>
+                </div>
+
+                <p class="text-muted small mb-3" style="line-height: 1.6;">
+                    {{ airport.description }}
+                </p>
+
+                <div class="mb-4">
+                    <div class="text-uppercase text-muted fw-bold mb-2" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+                        Included Services & Facilities:
+                    </div>
+                    <div class="d-flex flex-wrap gap-1">
+                        {% for f in airport.features %}
+                        <span class="badge bg-light text-dark border px-2.5 py-1.5 small fw-normal">
+                            {{ f }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <a href="{% url 'parking:search' %}?q={{ airport.name }}&airport={{ airport.code }}&mode=airport"
+                   class="btn btn-primary fw-bold w-100 py-2.5 rounded-3 text-white text-center"
+                   style="background-color: #0284c7; border-color: #0284c7;">
+                    Book {{ airport.code }} Parking
+                </a>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<style>
+.airport-list-row {
+    transition: background-color 0.15s ease, transform 0.15s ease;
+    cursor: pointer;
+}
+
+.airport-list-row:hover {
+    background-color: #f0f7ff !important;
+}
+
+.airport-list-row:hover .airport-name-title {
+    color: #0284c7 !important;
+}
+</style>
+{% endblock %}

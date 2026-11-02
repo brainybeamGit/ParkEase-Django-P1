@@ -1,0 +1,298 @@
+{% extends 'lot_owner_panel/base_owner.html' %}
+{% load static %}
+
+{% block title %}My Parking Lots - Space Owner Studio - ParkEase{% endblock %}
+{% block page_heading %}My Parking Lots{% endblock %}
+
+{% block owner_content %}
+<div class="container-fluid px-0">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h5 fw-bold text-dark mb-1">Registered Parking Properties</h2>
+            <p class="text-muted small mb-0">Manage every parking property associated with your account, availability, and pricing.</p>
+        </div>
+        <button type="button" class="btn-owner-dark" data-bs-toggle="modal" data-bs-target="#addSpaceModal">
+            Add Another Space
+        </button>
+    </div>
+
+    <div class="row g-4">
+        {% for lot in parking_lots %}
+            <div class="col-12 col-xl-6">
+                <div class="owner-card mb-0 h-100 d-flex flex-column justify-content-between">
+                    <div>
+
+                        <div class="d-flex align-items-start gap-3 mb-3">
+                            <img src="{% if lot.space_photo %}{{ lot.space_photo.url }}{% else %}https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=400&auto=format&fit=crop&q=80{% endif %}"
+                                 alt="{{ lot.name }}"
+                                 class="rounded-3 border"
+                                 style="width: 110px; height: 90px; object-fit: cover;"
+                                 onerror="this.src='https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=400&auto=format&fit=crop&q=80';">
+
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <h3 class="fw-bold fs-6 text-dark mb-0">{{ lot.name }}</h3>
+                                    {% if lot.status == 'approved' %}
+                                        <span class="badge bg-light text-dark border small fw-bold">Approved</span>
+                                    {% elif lot.status == 'pending' %}
+                                        <span class="badge bg-light text-dark border small fw-bold">Pending Approval</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark border small fw-bold">Rejected</span>
+                                    {% endif %}
+                                </div>
+                                <div class="text-secondary small mb-1">{{ lot.area }}, {{ lot.city }}</div>
+                                <div class="text-dark small fw-semibold mb-1">
+                                    {{ lot.total_capacity }} Total Spaces · {{ lot.parking_arrangement|title }}
+                                </div>
+                                <div class="text-muted small">
+                                    Status: {% if lot.is_paused %}<span class="text-danger fw-bold">Paused (Bookings closed)</span>{% else %}<span class="text-success fw-bold">Active and bookable</span>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-2 px-3 bg-light rounded-2 border mb-3 small d-flex justify-content-between align-items-center">
+                            <div><span class="text-muted">Rate:</span> <strong class="text-dark">₹{{ lot.hourly_rate }}/hr</strong></div>
+                            <div><span class="text-muted">Hours:</span> <strong class="text-dark">{{ lot.operating_hours }}</strong></div>
+                            <div><span class="text-muted">Type:</span> <strong class="text-dark">{{ lot.get_space_type_display }}</strong></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="fw-bold small text-dark mb-2">Available actions</div>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <a href="{% url 'lot_owner_panel:lot_detail' lot.id %}" class="btn btn-outline-secondary w-100 py-2 small fw-semibold text-center">
+                                    View details
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="{% url 'lot_owner_panel:lot_detail' lot.id %}#editSection" class="btn btn-outline-secondary w-100 py-2 small fw-semibold text-center">
+                                    Edit details
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="{% url 'lot_owner_panel:slots' %}?lot_id={{ lot.id }}" class="btn btn-outline-secondary w-100 py-2 small fw-semibold text-center">
+                                    Manage availability
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <form method="POST" action="{% url 'lot_owner_panel:toggle_pause_lot' lot.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-secondary w-100 py-2 small fw-semibold text-center">
+                                        {% if lot.is_paused %}Resume bookings{% else %}Pause bookings{% endif %}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="owner-card text-center py-5">
+                    <h3 class="fw-bold text-dark fs-5">No Parking Properties Listed Yet</h3>
+                    <p class="text-muted small mb-4">Register your parking lot or residential driveway to start receiving driver bookings.</p>
+                    <button type="button" class="btn-owner-dark" data-bs-toggle="modal" data-bs-target="#addSpaceModal">
+                        Add Another Space
+                    </button>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<div class="modal fade" id="addSpaceModal" tabindex="-1" aria-labelledby="addSpaceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <form method="POST" action="{% url 'lot_owner_panel:parking_lots' %}" enctype="multipart/form-data" class="modal-content shadow-lg">
+            {% csrf_token %}
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold fs-6 text-dark" id="addSpaceModalLabel">Add Parking Space Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4" style="max-height: calc(82vh - 120px); overflow-y: auto;">
+
+                    <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">1. Location & Space Info</h6>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-7">
+                            <label class="form-label small fw-bold text-dark">Parking Lot Name <span class="text-danger">*</span></label>
+                            <input type="text" name="parking_lot_name" class="form-control" placeholder="e.g. Shree Complex Parking" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label small fw-bold text-dark">Space Type <span class="text-danger">*</span></label>
+                            <select name="space_type" class="form-select">
+                                <option value="commercial">Commercial building</option>
+                                <option value="open_plot">Open plot</option>
+                                <option value="covered">Covered parking</option>
+                                <option value="basement">Basement parking</option>
+                                <option value="residential">Residential driveway</option>
+                                <option value="multilevel">Multilevel facility</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Building / Complex Name</label>
+                        <input type="text" name="building_name" class="form-control" placeholder="e.g. Shree Business Hub">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark">Street Address <span class="text-danger">*</span></label>
+                        <input type="text" name="street_address" class="form-control" placeholder="Building, Street, Landmark" required>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-dark">Area / Locality <span class="text-danger">*</span></label>
+                            <input type="text" name="area" class="form-control" placeholder="e.g. Navrangpura" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-dark">City <span class="text-danger">*</span></label>
+                            <input type="text" name="city" class="form-control" placeholder="e.g. Ahmedabad" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-dark">State <span class="text-danger">*</span></label>
+                            <input type="text" name="state" class="form-control" placeholder="e.g. Gujarat" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-dark">PIN Code <span class="text-danger">*</span></label>
+                            <input type="text" name="pin_code" class="form-control" placeholder="e.g. 380009" maxlength="6" required>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">2. Capacity & Vehicles</h6>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-dark">Total Capacity (Vehicles) <span class="text-danger">*</span></label>
+                            <input type="number" name="total_capacity" class="form-control" placeholder="e.g. 50" min="1" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-dark">Parking Arrangement</label>
+                            <select name="parking_arrangement" class="form-select">
+                                <option value="covered">Covered</option>
+                                <option value="open_air">Open-air</option>
+                                <option value="basement">Basement</option>
+                                <option value="multilevel">Multilevel</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-dark d-block mb-2">Supported Vehicle Types <span class="text-danger">*</span></label>
+                        <div class="d-flex flex-wrap gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="supported_vehicles" value="Cars (Hatchback / Sedan)" id="pop_car">
+                                <label class="form-check-label small" for="pop_car">Cars</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="supported_vehicles" value="Two-wheelers (Bikes / Scooters)" id="pop_bike">
+                                <label class="form-check-label small" for="pop_bike">Two-Wheelers</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="supported_vehicles" value="SUVs & MUVs" id="pop_suv">
+                                <label class="form-check-label small" for="pop_suv">SUVs</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="supported_vehicles" value="Electric Vehicles (EVs)" id="pop_ev">
+                                <label class="form-check-label small" for="pop_ev">Electric Vehicles</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">3. Operating Schedule & Rates</h6>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-dark">Standard Hourly Rate (₹)</label>
+                            <input type="number" step="0.5" name="hourly_rate" class="form-control" placeholder="e.g. 50.00" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-dark">Opening Time</label>
+                            <input type="text" name="opening_hour" class="form-control" placeholder="e.g. 06:00 AM">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-dark">Closing Time</label>
+                            <input type="text" name="closing_hour" class="form-control" placeholder="e.g. 10:00 PM">
+                        </div>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="is_24_7" id="pop_is_24_7" value="1">
+                        <label class="form-check-label small fw-bold text-dark" for="pop_is_24_7">
+                            24/7 Access (Round the Clock)
+                        </label>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark d-block mb-2">Available Amenities</label>
+                        <div class="d-flex flex-wrap gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="available_services" value="CCTV Surveillance" id="pop_cctv">
+                                <label class="form-check-label small" for="pop_cctv">CCTV</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="available_services" value="Security Guard" id="pop_guard">
+                                <label class="form-check-label small" for="pop_guard">Security Guard</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="available_services" value="Night Lighting" id="pop_light">
+                                <label class="form-check-label small" for="pop_light">Night Lighting</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="available_services" value="EV Charging Point" id="pop_evchg">
+                                <label class="form-check-label small" for="pop_evchg">EV Charging</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">4. Space Photo & Access Details</h6>
+
+                    <div class="mb-3 p-3 bg-light rounded-3 border">
+                        <label class="form-label small fw-bold text-dark d-flex justify-content-between align-items-center">
+                            <span>Parking Space / Slot Image <span class="text-danger">*</span></span>
+                            <span class="text-muted fw-normal" style="font-size: 0.75rem;">JPG, PNG up to 5MB</span>
+                        </label>
+                        <input type="file" name="space_photo" class="form-control" accept="image/*" id="modalSpacePhotoInput" onchange="previewSpaceImage(this)">
+                        <small class="text-muted d-block mt-1">Upload a clear photograph of your parking bays or entrance layout for motorist booking visibility.</small>
+                        <div id="spacePhotoPreviewBox" class="mt-2 d-none">
+                            <img id="spacePhotoPreviewImg" src="" alt="Preview" class="rounded border" style="max-height: 120px; object-fit: cover;">
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold text-dark">Access Instructions</label>
+                        <textarea name="access_instructions" rows="2" class="form-control" placeholder="Entry instructions for drivers..."></textarea>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer border-top bg-light">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn-owner-dark btn-sm px-4 fw-bold">Add Space</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<script>
+function previewSpaceImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const previewBox = document.getElementById('spacePhotoPreviewBox');
+            const previewImg = document.getElementById('spacePhotoPreviewImg');
+            if (previewBox && previewImg) {
+                previewImg.src = e.target.result;
+                previewBox.classList.remove('d-none');
+            }
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+{% endblock %}

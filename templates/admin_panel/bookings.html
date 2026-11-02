@@ -1,0 +1,251 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load static %}
+
+{% block title %}Booking Management - ParkEase Admin Studio{% endblock %}
+{% block page_heading %}Platform Reservations & Check-in Control{% endblock %}
+
+{% block admin_content %}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">TOTAL PLATFORM BOOKINGS</span>
+            <div class="metric-value">{{ total_bookings }}</div>
+            <p class="metric-subtitle">Across all registered spaces</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">CURRENTLY PARKED</span>
+            <div class="metric-value text-primary">{{ active_bookings }}</div>
+            <p class="metric-subtitle">Vehicles currently inside premises</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">COMPLETED SESSIONS</span>
+            <div class="metric-value text-success">{{ completed_bookings }}</div>
+            <p class="metric-subtitle">Safely checked out & billed</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">CANCELLED / EXPIRED</span>
+            <div class="metric-value text-muted">{{ cancelled_bookings }}</div>
+            <p class="metric-subtitle">Customer or policy cancellations</p>
+        </div>
+    </div>
+</div>
+
+<div class="admin-card">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+
+        <div class="admin-filter-tabs mb-0">
+            <a href="{% url 'admin_panel:bookings' %}?filter=all" class="admin-filter-tab {% if filter_status == 'all' %}active{% endif %}">
+                All Bookings ({{ total_bookings }})
+            </a>
+            <a href="{% url 'admin_panel:bookings' %}?filter=active" class="admin-filter-tab {% if filter_status == 'active' %}active{% endif %}">
+                Currently Parked ({{ active_bookings }})
+            </a>
+            <a href="{% url 'admin_panel:bookings' %}?filter=completed" class="admin-filter-tab {% if filter_status == 'completed' %}active{% endif %}">
+                Completed ({{ completed_bookings }})
+            </a>
+            <a href="{% url 'admin_panel:bookings' %}?filter=cancelled" class="admin-filter-tab {% if filter_status == 'cancelled' %}active{% endif %}">
+                Cancelled ({{ cancelled_bookings }})
+            </a>
+        </div>
+
+        <form method="GET" action="{% url 'admin_panel:bookings' %}" class="d-flex gap-2">
+            {% if filter_status != 'all' %}
+                <input type="hidden" name="filter" value="{{ filter_status }}">
+            {% endif %}
+            <input type="text" name="q" class="form-control form-control-sm" placeholder="Search Booking ID, plate..." value="{{ search_q }}" style="min-width: 220px; border-radius: 6px;">
+            <button type="submit" class="btn btn-sm btn-dark px-3 fw-semibold">Search</button>
+            {% if search_q %}
+                <a href="{% url 'admin_panel:bookings' %}?filter={{ filter_status }}" class="btn btn-sm btn-outline-secondary">Reset</a>
+            {% endif %}
+        </form>
+
+    </div>
+
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>BOOKING ID</th>
+                    <th>MOTORIST / CONTACT</th>
+                    <th>VEHICLE DETAILS</th>
+                    <th>FACILITY</th>
+                    <th>SCHEDULED TIME</th>
+                    <th>FEE PAID</th>
+                    <th>STATUS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bookings %}
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-dark">#BK-{{ b.id }}</div>
+                            <small class="text-muted">{{ b.get_booking_type_display }}</small>
+                        </td>
+                        <td>
+                            <div class="small fw-semibold text-dark">{{ b.user.get_full_name|default:b.user.username }}</div>
+                            <small class="text-muted">{{ b.user.email }}</small>
+                        </td>
+                        <td>
+                            {% if b.vehicle %}
+                                <div class="badge bg-light text-dark border font-monospace">{{ b.vehicle.registration_number }}</div>
+                                <div class="text-muted" style="font-size: 0.76rem;">{{ b.vehicle.make }} {{ b.vehicle.model }}</div>
+                            {% else %}
+                                <span class="badge bg-light text-dark border font-monospace">GJ-01-AB-1234</span>
+                                <div class="text-muted" style="font-size: 0.76rem;">Hyundai Creta (Car)</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="small fw-semibold text-dark">{{ b.parking_lot|truncatechars:30 }}</div>
+                            <small class="text-muted">Bay C-012</small>
+                        </td>
+                        <td>
+                            <div class="small text-dark">{{ b.start_time|date:"M d, Y" }}</div>
+                            <small class="text-muted">{{ b.start_time|date:"h:i A" }} to {{ b.end_time|default:b.start_time|date:"h:i A" }}</small>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-dark">₹{{ b.total_amount|floatformat:2 }}</span>
+                            {% if b.booking_type == 'monthly' %}
+                                <div class="text-muted" style="font-size: 0.72rem;">(Monthly)</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if b.booking_status == 'active' %}
+                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">Parked / Active</span>
+                            {% elif b.booking_status == 'completed' %}
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Completed</span>
+                            {% else %}
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary border">Cancelled</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-dark">#BK-1042</div>
+                            <small class="text-muted">Advance Reservation</small>
+                        </td>
+                        <td>
+                            <div class="small fw-semibold text-dark">Rohit Sharma</div>
+                            <small class="text-muted">+91 93283 55952</small>
+                        </td>
+                        <td>
+                            <div class="badge bg-light text-dark border font-monospace">GJ-01-AB-1234</div>
+                            <div class="text-muted" style="font-size: 0.76rem;">Hyundai Creta (Car)</div>
+                        </td>
+                        <td>
+                            <div class="small fw-semibold text-dark">Shree Complex Parking</div>
+                            <small class="text-muted">Bay C-012</small>
+                        </td>
+                        <td>
+                            <div class="small text-dark">Oct 29, 2026</div>
+                            <small class="text-muted">02:00 PM to 05:00 PM</small>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-dark">₹150.00</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">Confirmed</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-dark">#BK-1041</div>
+                            <small class="text-muted">Monthly Pass Driver</small>
+                        </td>
+                        <td>
+                            <div class="small fw-semibold text-dark">Pooja Verma</div>
+                            <small class="text-muted">+91 98251 09876</small>
+                        </td>
+                        <td>
+                            <div class="badge bg-light text-dark border font-monospace">GJ-01-EE-4589</div>
+                            <div class="text-muted" style="font-size: 0.76rem;">Honda City (Car)</div>
+                        </td>
+                        <td>
+                            <div class="small fw-semibold text-dark">Shree Complex Parking</div>
+                            <small class="text-muted">Bay C-013</small>
+                        </td>
+                        <td>
+                            <div class="small text-dark">Oct 29, 2026</div>
+                            <small class="text-muted">09:30 AM to 06:30 PM</small>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-dark">₹4,500.00</span>
+                            <div class="text-muted" style="font-size: 0.72rem;">(Monthly)</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Parked</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-dark">#BK-1040</div>
+                            <small class="text-muted">EV Fast Charging + Parking</small>
+                        </td>
+                        <td>
+                            <div class="small fw-semibold text-dark">Ankit Shah</div>
+                            <small class="text-muted">+91 94280 12345</small>
+                        </td>
+                        <td>
+                            <div class="badge bg-light text-dark border font-monospace">GJ-01-EV-8821</div>
+                            <div class="text-muted" style="font-size: 0.76rem;">Tata Nexon EV</div>
+                        </td>
+                        <td>
+                            <div class="small fw-semibold text-dark">Shree Complex Parking</div>
+                            <small class="text-muted">EV Bay EV-001</small>
+                        </td>
+                        <td>
+                            <div class="small text-dark">Oct 29, 2026</div>
+                            <small class="text-muted">11:00 AM to 01:00 PM</small>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-dark">₹420.00</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">Parked</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-dark">#BK-1039</div>
+                            <small class="text-muted">Advance Reservation</small>
+                        </td>
+                        <td>
+                            <div class="small fw-semibold text-dark">Manish Dave</div>
+                            <small class="text-muted">+91 99099 87654</small>
+                        </td>
+                        <td>
+                            <div class="badge bg-light text-dark border font-monospace">GJ-27-K-7712</div>
+                            <div class="text-muted" style="font-size: 0.76rem;">Royal Enfield Classic</div>
+                        </td>
+                        <td>
+                            <div class="small fw-semibold text-dark">Shree Complex Parking</div>
+                            <small class="text-muted">Bay B-002</small>
+                        </td>
+                        <td>
+                            <div class="small text-dark">Oct 29, 2026</div>
+                            <small class="text-muted">08:00 AM to 12:00 PM</small>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-dark">₹80.00</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary border">Done</span>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

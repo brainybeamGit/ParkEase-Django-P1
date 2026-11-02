@@ -1,0 +1,92 @@
+{% load static %}
+<section class="py-5 bg-light border-top" id="directAdminFeedbackSection">
+    <div class="container">
+        <div class="row justify-content-end">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                <div class="card border border-light-subtle rounded-4 p-4 shadow-sm bg-white">
+
+                    <h3 class="fw-bold text-dark mb-4" style="letter-spacing: -0.5px;">Help Us Improve ParkEase</h3>
+
+                    <form method="POST" action="{% url 'parking:submit_admin_feedback' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark small mb-1">Your Full Name</label>
+                            <input type="text" name="name" class="form-control rounded-3 py-2" placeholder="e.g. Rohit Sharma" value="{% if user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% endif %}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark small mb-1">Your Email Address</label>
+                            <input type="email" name="email" class="form-control rounded-3 py-2" placeholder="name@example.com" value="{% if user.is_authenticated %}{{ user.email }}{% endif %}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark small mb-1">Feedback Category</label>
+                            <select name="category" class="form-select rounded-3 py-2">
+                                <option value="general" selected>General Platform Feedback</option>
+                                <option value="booking">Booking & Parking Experience</option>
+                                <option value="payments">Payment, Tariff & Refund System</option>
+                                <option value="ui_ux">Website & User Experience</option>
+                                <option value="support">Customer Care & Support</option>
+                                <option value="suggestion">New Feature Suggestion</option>
+                                <option value="other">Other Suggestions</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark small mb-1">Overall Experience / Rating</label>
+                            <div class="star-rating d-inline-flex flex-row-reverse justify-content-end gap-1">
+                                <input type="radio" class="star-radio" name="rating" id="adminRate5" value="5" checked>
+                                <label for="adminRate5" class="star-label" title="5 Stars">&#9733;</label>
+
+                                <input type="radio" class="star-radio" name="rating" id="adminRate4" value="4">
+                                <label for="adminRate4" class="star-label" title="4 Stars">&#9733;</label>
+
+                                <input type="radio" class="star-radio" name="rating" id="adminRate3" value="3">
+                                <label for="adminRate3" class="star-label" title="3 Stars">&#9733;</label>
+
+                                <input type="radio" class="star-radio" name="rating" id="adminRate2" value="2">
+                                <label for="adminRate2" class="star-label" title="2 Stars">&#9733;</label>
+
+                                <input type="radio" class="star-radio" name="rating" id="adminRate1" value="1">
+                                <label for="adminRate1" class="star-label" title="1 Star">&#9733;</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark small mb-1">Your Feedback Message</label>
+                            <textarea name="message" class="form-control rounded-3" rows="3" placeholder="Tell our team what went well or what can be improved..." required></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-end pt-2 border-top">
+                            <button type="submit" class="btn btn-primary fw-bold px-4 py-2 rounded-pill shadow-sm" style="background-color: #0f2942; border: none; font-size: 0.95rem;">
+                                Submit Feedback
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+#directAdminFeedbackSection .star-rating input[type="radio"] {
+    display: none;
+}
+#directAdminFeedbackSection .star-rating .star-label {
+    font-size: 1.9rem;
+    color: #cbd5e1;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.15s ease, transform 0.15s ease;
+}
+#directAdminFeedbackSection .star-rating .star-label:hover,
+#directAdminFeedbackSection .star-rating .star-label:hover ~ .star-label,
+#directAdminFeedbackSection .star-rating input[type="radio"]:checked ~ .star-label {
+    color: #f59e0b;
+}
+#directAdminFeedbackSection .star-rating .star-label:hover {
+    transform: scale(1.15);
+}
+</style>

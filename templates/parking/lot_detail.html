@@ -1,0 +1,525 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet" />
+<style>
+    .lot-detail-wrapper {
+        background-color: #f8fafc;
+        min-height: calc(100vh - 80px);
+        padding-bottom: 3rem;
+    }
+    .lot-header-card {
+        background: #ffffff;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 1.5rem 0;
+        margin-bottom: 2rem;
+    }
+    .badge-verified-lot {
+        background-color: #ecfdf5;
+        color: #059669;
+        font-weight: 700;
+        font-size: 0.75rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 9999px;
+        border: 1px solid #a7f3d0;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+    .lot-image-gallery {
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        background: #0f172a;
+        height: 340px;
+        position: relative;
+    }
+    .lot-main-photo {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .lot-photo-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.8) 100%);
+        padding: 1.25rem;
+        color: #ffffff;
+    }
+    .content-box-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .feature-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.9rem;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #334155;
+    }
+    .step-badge {
+        width: 28px;
+        height: 28px;
+        background: #0B3B60;
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 0.82rem;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .sticky-booking-sidebar {
+        position: sticky;
+        top: 100px;
+    }
+    .booking-summary-card {
+        background: #ffffff;
+        border: 2px solid #0B3B60;
+        border-radius: 14px;
+        padding: 1.75rem;
+        box-shadow: 0 10px 25px rgba(11, 59, 96, 0.08);
+    }
+    .rate-highlight {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #0B3B60;
+        line-height: 1;
+    }
+    #lotMiniMap {
+        height: 240px;
+        width: 100%;
+        border-radius: 10px;
+    }
+
+    /* Tablet Responsiveness (768px - 1023px) */
+    @media (min-width: 768px) and (max-width: 1023.98px) {
+        .sticky-booking-sidebar {
+            position: static !important;
+            margin-top: 1.5rem;
+        }
+        .lot-image-gallery {
+            height: 280px !important;
+        }
+        .rate-highlight {
+            font-size: 1.95rem !important;
+        }
+    }
+
+    /* Smartphone Responsiveness (< 768px) */
+    @media (max-width: 767.98px) {
+        .lot-header-card {
+            padding: 1rem 0 !important;
+            margin-bottom: 1.25rem !important;
+        }
+        .lot-header-card h1 {
+            font-size: 1.35rem !important;
+        }
+        .lot-image-gallery {
+            height: 210px !important;
+            border-radius: 10px !important;
+        }
+        .content-box-card {
+            padding: 1.1rem !important;
+            border-radius: 10px !important;
+        }
+        .booking-summary-card {
+            padding: 1.25rem !important;
+            border-radius: 12px !important;
+        }
+        .rate-highlight {
+            font-size: 1.7rem !important;
+        }
+        .sticky-booking-sidebar {
+            position: static !important;
+            margin-top: 1.25rem;
+        }
+        .lot-header-actions {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .lot-header-actions .btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="lot-detail-wrapper">
+
+    <div class="lot-header-card">
+        <div class="container">
+            <nav aria-label="breadcrumb" class="mb-2">
+                <ol class="breadcrumb mb-0 small">
+                    <li class="breadcrumb-item"><a href="{% url 'parking:home' %}" class="text-decoration-none text-muted">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'parking:search' %}" class="text-decoration-none text-muted">Search Spaces</a></li>
+                    <li class="breadcrumb-item active text-dark fw-bold" aria-current="page">{{ lot.name }}</li>
+                </ol>
+            </nav>
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <h1 class="h3 fw-bold text-dark mb-0">{{ lot.name }}</h1>
+                        <span class="badge-verified-lot">
+                            <i class="bi bi-patch-check-fill"></i> Verified Space
+                        </span>
+                    </div>
+                    <p class="text-muted mb-0 small">
+                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                        {{ lot.street_address }}{% if lot.building_name %}, {{ lot.building_name }}{% endif %}, {{ lot.area }}, {{ lot.city }} - {{ lot.pin_code }}
+                    </p>
+                </div>
+                <div class="d-flex align-items-center gap-2 lot-header-actions">
+                    <a href="{{ google_maps_url }}" target="_blank" class="btn btn-sm btn-outline-secondary fw-semibold">
+                        <i class="bi bi-cursor-fill me-1"></i> Open in Google Maps
+                    </a>
+                    <a href="{% url 'parking:search' %}?q={{ lot.area }}" class="btn btn-sm btn-outline-primary fw-semibold">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Results
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row g-4">
+
+            <div class="col-lg-8">
+
+                <div class="lot-image-gallery mb-4">
+                    {% if lot.space_photo %}
+                        <img src="{{ lot.space_photo.url }}" alt="{{ lot.name }}" class="lot-main-photo">
+                    {% else %}
+                        <img src="https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=1200&q=80" alt="{{ lot.name }}" class="lot-main-photo">
+                    {% endif %}
+                    <div class="lot-photo-overlay d-flex justify-content-between align-items-end">
+                        <div>
+                            <span class="badge bg-primary text-white mb-2">{{ lot.get_space_type_display }}</span>
+                            <h4 class="fw-bold mb-0 text-white">{{ lot.name }}</h4>
+                            <small class="text-white-50">{{ lot.area }}, {{ lot.city }}</small>
+                        </div>
+                        <span class="badge bg-dark bg-opacity-75 text-white px-3 py-2">
+                            <i class="bi bi-shield-lock-fill text-success me-1"></i> ParkEase Protected Bay
+                        </span>
+                    </div>
+                </div>
+
+                <div class="content-box-card">
+                    <h5 class="fw-bold text-dark mb-3">
+                        <i class="bi bi-info-circle-fill text-primary me-2"></i> Space Overview
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-sm-6 col-md-3">
+                            <div class="p-3 bg-light rounded-3 text-center border">
+                                <div class="text-muted small">Total Capacity</div>
+                                <div class="fw-bold fs-5 text-dark mt-1">{{ lot.total_capacity }} Bays</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <div class="p-3 bg-light rounded-3 text-center border">
+                                <div class="text-muted small">Available Now</div>
+                                <div class="fw-bold fs-5 text-success mt-1">{{ available_bays_count }} Free</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <div class="p-3 bg-light rounded-3 text-center border">
+                                <div class="text-muted small">Operating Hours</div>
+                                <div class="fw-bold fs-6 text-dark mt-1">{{ lot.operating_hours|default:"24/7 Access" }}</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <div class="p-3 bg-light rounded-3 text-center border">
+                                <div class="text-muted small">Arrangement</div>
+                                <div class="fw-bold fs-6 text-dark mt-1">{{ lot.parking_arrangement|title|default:"Open Air" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-box-card">
+                    <h5 class="fw-bold text-dark mb-3">
+                        <i class="bi bi-stars text-primary me-2"></i> Facilities & Amenities
+                    </h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% if 'ev_charging' in lot.available_services %}
+                            <span class="feature-pill text-success border-success">
+                                <i class="bi bi-lightning-charge-fill"></i> EV Fast Charging Station
+                            </span>
+                        {% endif %}
+                        {% if 'cctv' in lot.available_services %}
+                            <span class="feature-pill">
+                                <i class="bi bi-camera-video-fill text-primary"></i> 24/7 CCTV Monitored
+                            </span>
+                        {% endif %}
+                        {% if 'security_guard' in lot.available_services or 'security' in lot.available_services %}
+                            <span class="feature-pill">
+                                <i class="bi bi-shield-check text-primary"></i> On-Site Security Guard
+                            </span>
+                        {% endif %}
+                        {% if 'lighting' in lot.available_services %}
+                            <span class="feature-pill">
+                                <i class="bi bi-lightbulb-fill text-warning"></i> Well Lit & Illuminated
+                            </span>
+                        {% endif %}
+                        {% if 'washroom' in lot.available_services %}
+                            <span class="feature-pill">
+                                <i class="bi bi-badge-wc-fill text-info"></i> Driver Restrooms
+                            </span>
+                        {% endif %}
+                        <span class="feature-pill">
+                            <i class="bi bi-qr-code text-primary"></i> Automated Gate Barrier Pass
+                        </span>
+                        <span class="feature-pill">
+                            <i class="bi bi-credit-card-fill text-primary"></i> 100% Cashless Contactless Entry
+                        </span>
+                    </div>
+                </div>
+
+                <div class="content-box-card">
+                    <h5 class="fw-bold text-dark mb-3">
+                        <i class="bi bi-signpost-2-fill text-primary me-2"></i> How to Access & Enter
+                    </h5>
+
+                    <div class="d-flex flex-column gap-3 mb-3">
+                        <div class="d-flex align-items-start gap-3">
+                            <span class="step-badge">1</span>
+                            <div>
+                                <strong class="text-dark d-block">Pre-Book Your Space</strong>
+                                <span class="text-muted small">Reserve your required time window to receive an instant guaranteed digital pass with scannable QR code.</span>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start gap-3">
+                            <span class="step-badge">2</span>
+                            <div>
+                                <strong class="text-dark d-block">Drive Up to Barrier Gate</strong>
+                                <span class="text-muted small">Approach the entrance lane at {{ lot.street_address }}. The ANPR camera will match your registered vehicle plate.</span>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start gap-3">
+                            <span class="step-badge">3</span>
+                            <div>
+                                <strong class="text-dark d-block">Scan QR Pass or Enter Automatically</strong>
+                                <span class="text-muted small">Hold your smartphone QR pass to the optical scanner or let the attendant verify your Booking ID. Gate barrier opens immediately.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if lot.access_instructions %}
+                        <div class="p-3 bg-light rounded-3 border-start border-primary border-4 mt-2">
+                            <strong class="text-dark d-block small mb-1">Owner Entry Note:</strong>
+                            <p class="text-muted small mb-0">{{ lot.access_instructions }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="content-box-card">
+                    <h5 class="fw-bold text-dark mb-3">
+                        <i class="bi bi-shield-check text-primary me-2"></i> Rules & Guarantee Policy
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                                <div>
+                                    <strong class="text-dark small d-block">Free 30-Min Cancellation</strong>
+                                    <span class="text-muted small">Cancel up to 30 minutes before your arrival time for a 100% full instant refund.</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                                <div>
+                                    <strong class="text-dark small d-block">15-Minute Grace Period</strong>
+                                    <span class="text-muted small">Enjoy 15 minutes complementary buffer time before and after your scheduled session.</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                                <div>
+                                    <strong class="text-dark small d-block">Guaranteed Space Lock</strong>
+                                    <span class="text-muted small">Your bay is held strictly for your vehicle plate. No circling or double booking.</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                                <div>
+                                    <strong class="text-dark small d-block">Fair Overstay Tariff</strong>
+                                    <span class="text-muted small">Stay longer if you need; overstay is billed automatically at standard hourly rates.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-box-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold text-dark mb-0">
+                            <i class="bi bi-geo-alt-fill text-primary me-2"></i> Exact Location
+                        </h5>
+                        <a href="{{ google_maps_url }}" target="_blank" class="btn btn-sm btn-outline-primary fw-bold">
+                            <i class="bi bi-arrow-up-right me-1"></i> Get Turn-by-Turn Directions
+                        </a>
+                    </div>
+                    <div id="lotMiniMap"></div>
+                    <div class="mt-2 text-muted small d-flex justify-content-between">
+                        <span>Coordinates: {{ lat }}, {{ lng }}</span>
+                        <span>{{ lot.street_address }}, {{ lot.area }}</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+                <div class="sticky-booking-sidebar">
+                    <div class="booking-summary-card">
+
+                        <div class="d-flex justify-content-between align-items-baseline mb-3">
+                            <div>
+                                <span class="rate-highlight">₹{{ rate|floatformat:0 }}</span>
+                                <span class="text-muted fw-bold">/ hour</span>
+                            </div>
+                            <span class="badge bg-success bg-opacity-10 text-success fw-bold px-2 py-1">
+                                Space Guaranteed
+                            </span>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <div class="mb-3">
+                            <label class="text-muted small fw-bold text-uppercase d-block mb-1">Your Schedule</label>
+                            <div class="p-2 bg-light rounded-3 border small">
+                                <div class="d-flex justify-content-between py-1">
+                                    <span class="text-muted">From:</span>
+                                    <strong class="text-dark">{{ from_date }} at {{ from_time }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between py-1 border-top">
+                                    <span class="text-muted">Until:</span>
+                                    <strong class="text-dark">{{ until_date }} at {{ until_time }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between py-1 border-top">
+                                    <span class="text-muted">Duration:</span>
+                                    <strong class="text-primary">{{ duration_hours }} hour{{ duration_hours|pluralize }}</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="text-muted small fw-bold text-uppercase d-block mb-1">Total Fee Calculation</label>
+                            <div class="d-flex justify-content-between small text-muted mb-1">
+                                <span>Parking Tariff ({{ duration_hours }}h × ₹{{ rate|floatformat:0 }})</span>
+                                <span>₹{{ estimated_total }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted mb-1">
+                                <span>ParkEase Booking Protection</span>
+                                <span class="text-success fw-bold">FREE</span>
+                            </div>
+                            <div class="d-flex justify-content-between fw-bold text-dark fs-5 pt-2 border-top mt-2">
+                                <span>Total Price:</span>
+                                <span class="text-primary">₹{{ estimated_total }}</span>
+                            </div>
+                        </div>
+
+                        <a href="{% url 'parking:book_lot' lot.id %}?from_date={{ from_date }}&from_time={{ from_time }}&until_date={{ until_date }}&until_time={{ until_time }}&vehicle_type={{ vehicle_type }}"
+                           class="btn btn-theme-primary w-100 py-3 fw-bold fs-6 shadow-sm mb-3"
+                           style="background-color: #0B3B60; border: none; border-radius: 10px;">
+                            Proceed to Slot & Booking <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+
+                        <div class="text-center text-muted small">
+                            <i class="bi bi-shield-lock-fill text-success me-1"></i>
+                            Encrypted 256-bit instant space confirmation
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const lotLat = {{ lat }};
+        const lotLng = {{ lng }};
+
+        const miniMap = L.map('lotMiniMap', {
+            zoomControl: true,
+            scrollWheelZoom: false,
+            attributionControl: false
+        }).setView([lotLat, lotLng], 15);
+
+        const OPENFREEMAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
+        if (typeof L.maplibreGL !== 'undefined') {
+            try {
+                L.maplibreGL({
+                    style: OPENFREEMAP_STYLE,
+                    attribution: '&copy; OpenFreeMap &copy; OpenStreetMap'
+                }).addTo(miniMap);
+            } catch (err) {
+                console.warn('MapLibre GL init fallback to CartoDB Voyager:', err);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                    maxZoom: 19,
+                    subdomains: 'abcd',
+                    attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+                }).addTo(miniMap);
+            }
+        } else {
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                maxZoom: 19,
+                subdomains: 'abcd',
+                attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+            }).addTo(miniMap);
+        }
+
+        const pinIcon = L.divIcon({
+            className: 'custom-lot-pin',
+            html: `
+                <div style="background-color: #0B3B60; color: #ffffff; padding: 6px 12px; border-radius: 9999px; font-weight: 800; font-size: 0.85rem; box-shadow: 0 4px 12px rgba(11, 59, 96, 0.4); border: 2px solid #ffffff; white-space: nowrap; transform: translate(-50%, -100%);">
+                    ₹{{ rate|floatformat:0 }}/hr
+                </div>
+            `,
+            iconSize: [0, 0],
+            iconAnchor: [0, 0]
+        });
+
+        L.marker([lotLat, lotLng], { icon: pinIcon }).addTo(miniMap);
+
+        setTimeout(() => {
+            miniMap.invalidateSize();
+        }, 200);
+    });
+</script>
+{% endblock %}

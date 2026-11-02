@@ -1,0 +1,147 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load static %}
+
+{% block title %}Commission & Payout Management - ParkEase Admin Studio{% endblock %}
+{% block page_heading %}Platform Commission & Owner Settlements{% endblock %}
+
+{% block admin_content %}
+
+<div class="row g-3 mb-4">
+
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">GROSS BOOKING REVENUE</span>
+            <div class="metric-value">₹{{ gross_turnover|floatformat:2 }}</div>
+            <p class="metric-subtitle">Total customer booking charges</p>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">PLATFORM COMMISSION</span>
+            <div class="metric-value text-danger">-₹{{ platform_commission|floatformat:2 }}</div>
+            <p class="metric-subtitle">{{ commission_pct }}% fee retained by ParkEase</p>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">REFUNDS & ADJUSTMENTS</span>
+            <div class="metric-value text-danger">-₹450.00</div>
+            <p class="metric-subtitle">Authorized fines or cancelled bookings</p>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">NET PAYABLE / SETTLED</span>
+            <div class="metric-value text-success">₹{{ settled_amount|floatformat:2 }}</div>
+            <p class="metric-subtitle">Direct deposit to verified bank</p>
+        </div>
+    </div>
+
+</div>
+
+<div class="admin-card">
+
+    <div class="d-flex justify-content-between align-items-center pb-3 border-bottom mb-4">
+        <div>
+            <h5 class="fw-bold text-dark mb-1">Payout Settlement History</h5>
+            <p class="text-muted small mb-0">Platform remittances and weekly automated settlement ledger</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'admin_panel:export_reports' %}" class="btn-admin-outline">
+                Download Ledger CSV
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>PAYOUT REFERENCE</th>
+                    <th>BILLING CYCLE / PERIOD</th>
+                    <th>GROSS REVENUE</th>
+                    <th>PLATFORM COMMISSION</th>
+                    <th>REFUNDS / ADJUSTMENTS</th>
+                    <th>NET PAYABLE</th>
+                    <th>PAYOUT STATUS</th>
+                    <th>SETTLEMENT DATE</th>
+                    <th class="text-end">ACTION</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in payouts %}
+                    <tr>
+                        <td>
+                            <code class="text-primary fw-bold">{{ p.reference }}</code>
+                        </td>
+                        <td>
+                            <span class="small fw-semibold text-dark">{{ p.period }}</span>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-dark">₹{{ p.gross_revenue|floatformat:2 }}</span>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-danger">-₹{{ p.commission|floatformat:2 }}</span>
+                        </td>
+                        <td>
+                            <span class="text-danger">-₹{{ p.refunds|floatformat:2 }}</span>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-success fs-6">₹{{ p.net_payable|floatformat:2 }}</span>
+                        </td>
+                        <td>
+                            {% if p.status == 'Paid' %}
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Paid</span>
+                            {% else %}
+                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="small text-muted">{{ p.payout_date|date:"M d, Y" }}</span>
+                        </td>
+                        <td class="text-end">
+                            {% if p.status != 'Paid' %}
+                                <form method="POST" action="{% url 'admin_panel:mark_payout_paid' p.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-success py-1 px-2 fw-semibold" style="font-size: 0.75rem;">Mark Paid</button>
+                                </form>
+                            {% else %}
+                                <span class="text-muted small">Settled</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+
+                    <tr>
+                        <td><code class="text-primary fw-bold">UTR9834110948215</code></td>
+                        <td><span class="small fw-semibold text-dark">08 Oct – 15 Oct 2026</span></td>
+                        <td><span class="fw-bold text-dark">₹19,700.00</span></td>
+                        <td><span class="fw-bold text-danger">-₹2,955.00</span></td>
+                        <td><span class="text-danger">-₹450.00</span></td>
+                        <td><span class="fw-bold text-success fs-6">₹16,295.00</span></td>
+                        <td><span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Paid</span></td>
+                        <td><span class="small text-muted">Oct 29, 2026</span></td>
+                        <td class="text-end"><span class="text-muted small">Settled</span></td>
+                    </tr>
+                    <tr>
+                        <td><code class="text-primary fw-bold">UTR9847291847192</code></td>
+                        <td><span class="small fw-semibold text-dark">15 Oct – 22 Oct 2026</span></td>
+                        <td><span class="fw-bold text-dark">₹34,200.00</span></td>
+                        <td><span class="fw-bold text-danger">-₹5,130.00</span></td>
+                        <td><span class="text-danger">-₹450.00</span></td>
+                        <td><span class="fw-bold text-success fs-6">₹28,620.00</span></td>
+                        <td><span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Paid</span></td>
+                        <td><span class="small text-muted">Oct 29, 2026</span></td>
+                        <td class="text-end"><span class="text-muted small">Settled</span></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

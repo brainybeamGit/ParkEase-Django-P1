@@ -1,0 +1,358 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - ParkEase{% endblock %}
+
+{% block content %}
+<section class="py-5" style="background-color: #f8fafc; min-height: 85vh;">
+    <div class="container">
+
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 pb-2 border-bottom">
+            <div>
+                <h1 class="h2 fw-bold text-dark mb-1">User Profile</h1>
+                <p class="text-muted mb-0">
+                    Review your account details entered during registration, manage contact info, and update your security settings.
+                </p>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <a href="{% url 'accounts:vehicles' %}" class="btn btn-outline-primary fw-semibold px-3 py-2 rounded-3" id="myVehiclesTopBtn">
+                    <i class="bi bi-car-front me-1"></i>My Vehicles ({{ vehicles_count }})
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-8">
+
+                <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-4 bg-white">
+                    <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
+                                 style="width: 52px; height: 52px; background: linear-gradient(135deg, #0B3B60 0%, #0284c7 100%); font-size: 1.25rem;">
+                                {{ user.first_name|slice:":1"|default:"U" }}{{ user.last_name|slice:":1"|default:"P" }}
+                            </div>
+                            <div>
+                                <h4 class="fw-bold text-dark mb-0">Personal Information</h4>
+                                <span class="text-muted small">Information entered during your ParkEase registration.</span>
+                            </div>
+                        </div>
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill">
+                            Active Account
+                        </span>
+                    </div>
+
+                    <form method="POST" action="{% url 'accounts:profile' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="update_profile">
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="first_name" class="form-label fw-bold small text-dark">
+                                    First Name <span class="text-danger">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    class="form-control reg-input py-2"
+                                    id="first_name"
+                                    name="first_name"
+                                    value="{{ user.first_name }}"
+                                    required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="last_name" class="form-label fw-bold small text-dark">
+                                    Last Name <span class="text-danger">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    class="form-control reg-input py-2"
+                                    id="last_name"
+                                    name="last_name"
+                                    value="{{ user.last_name }}"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="email" class="form-label fw-bold small text-dark">
+                                    Email Address
+                                </label>
+                                <input
+                                    type="email"
+                                    class="form-control reg-input py-2 bg-light text-muted"
+                                    id="email"
+                                    value="{{ user.email }}"
+                                    readonly
+                                    title="Email address is linked to your notifications and login">
+                                <div class="form-text small text-muted">Official notification & login email address.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="username" class="form-label fw-bold small text-dark">
+                                    Username / Sign-in ID
+                                </label>
+                                <input
+                                    type="text"
+                                    class="form-control reg-input py-2 bg-light text-muted"
+                                    id="username"
+                                    value="{{ user.username }}"
+                                    readonly>
+                                <div class="form-text small text-muted">Unique account handle used across portals.</div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="mobile_number" class="form-label fw-bold small text-dark">
+                                    Mobile Phone Number
+                                </label>
+                                <input
+                                    type="tel"
+                                    class="form-control reg-input py-2"
+                                    id="mobile_number"
+                                    name="mobile_number"
+                                    placeholder="+91 98765 43210"
+                                    value="{{ profile.mobile_number }}">
+                                <div class="form-text small text-muted">Used for real-time gate entry SMS and emergency alerts.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-dark">
+                                    Account Role
+                                </label>
+                                <input
+                                    type="text"
+                                    class="form-control reg-input py-2 bg-light text-dark fw-semibold"
+                                    value="{{ profile.get_role_display|default:'Driver / Customer' }}"
+                                    readonly>
+                                <div class="form-text small text-muted">Platform permissions and portal access level.</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-theme-primary px-4 py-2 rounded-3 fw-bold">
+                                Save Profile Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white" id="securitySection">
+                    <div class="mb-4 pb-2 border-bottom">
+                        <h4 class="fw-bold text-dark mb-0">Password & Security</h4>
+                        <span class="text-muted small">Update your account password or trigger a password reset.</span>
+                    </div>
+
+                    <form method="POST" action="{% url 'accounts:profile' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="change_password">
+
+                        <div class="mb-3">
+                            <label for="current_password" class="form-label fw-bold small text-dark">
+                                Current Password <span class="text-danger">*</span>
+                            </label>
+                            <div class="position-relative">
+                                <input
+                                    type="password"
+                                    class="form-control reg-input py-2 pe-5"
+                                    id="current_password"
+                                    name="current_password"
+                                    placeholder="Enter your current password"
+                                    required>
+                                <button type="button"
+                                        class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-muted text-decoration-none px-3 py-1 password-toggle-btn"
+                                        onclick="togglePasswordVisibility('current_password', this)"
+                                        title="Show password"
+                                        aria-label="Toggle password visibility">
+                                    <svg class="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="new_password" class="form-label fw-bold small text-dark">
+                                    New Password <span class="text-danger">*</span>
+                                </label>
+                                <div class="position-relative">
+                                    <input
+                                        type="password"
+                                        class="form-control reg-input py-2 pe-5"
+                                        id="new_password"
+                                        name="new_password"
+                                        placeholder="Minimum 6 characters"
+                                        minlength="6"
+                                        required>
+                                    <button type="button"
+                                            class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-muted text-decoration-none px-3 py-1 password-toggle-btn"
+                                            onclick="togglePasswordVisibility('new_password', this)"
+                                            title="Show password"
+                                            aria-label="Toggle password visibility">
+                                        <svg class="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="confirm_password" class="form-label fw-bold small text-dark">
+                                    Confirm New Password <span class="text-danger">*</span>
+                                </label>
+                                <div class="position-relative">
+                                    <input
+                                        type="password"
+                                        class="form-control reg-input py-2 pe-5"
+                                        id="confirm_password"
+                                        name="confirm_password"
+                                        placeholder="Re-type new password"
+                                        minlength="6"
+                                        required>
+                                    <button type="button"
+                                            class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-muted text-decoration-none px-3 py-1 password-toggle-btn"
+                                            onclick="togglePasswordVisibility('confirm_password', this)"
+                                            title="Show password"
+                                            aria-label="Toggle password visibility">
+                                        <svg class="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 pt-3 border-top">
+                            <div>
+                                <a href="{% url 'accounts:forgot_password' %}" class="text-primary fw-semibold small text-decoration-none">
+                                    Forgot password?
+                                </a>
+                            </div>
+                            <div>
+                                <button type="submit" class="btn btn-theme-primary px-4 py-2 rounded-3 fw-bold">
+                                    Update Password
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+                        <h5 class="fw-bold text-dark mb-0">Primary Vehicle</h5>
+                        <a href="{% url 'accounts:vehicles' %}" class="small text-primary text-decoration-none fw-bold">
+                            Manage All
+                        </a>
+                    </div>
+
+                    {% if primary_vehicle %}
+                        <div class="p-3 rounded-3 border mb-3" style="background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);">
+                            <div class="license-plate-badge mb-2">
+                                <div class="license-plate-country">
+                                    <span style="font-size: 0.72rem; font-weight: 800;">IND</span>
+                                </div>
+                                <div class="license-plate-text fs-6">
+                                    {{ primary_vehicle.registration_number }}
+                                </div>
+                            </div>
+                            <div class="fw-bold text-dark mb-1">
+                                {% if primary_vehicle.make or primary_vehicle.model %}
+                                    {{ primary_vehicle.make }} {{ primary_vehicle.model }}
+                                {% else %}
+                                    {{ primary_vehicle.get_vehicle_type_display }}
+                                {% endif %}
+                            </div>
+                            <div class="d-flex flex-wrap gap-1 mt-2">
+                                <span class="badge bg-light text-dark border small">
+                                    {{ primary_vehicle.get_vehicle_type_display }}
+                                </span>
+                                {% if primary_vehicle.is_ev %}
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 small">
+                                        Electric Vehicle
+                                    </span>
+                                {% endif %}
+                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 small">
+                                    Active for QuickPay
+                                </span>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3 text-muted">
+                            <p class="small mb-2">No primary vehicle linked to this account.</p>
+                            <a href="{% url 'accounts:vehicles' %}" class="btn btn-sm btn-outline-primary fw-bold">
+                                Add Vehicle
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    <a href="{% url 'accounts:vehicles' %}" class="btn btn-outline-primary w-100 fw-bold py-2 rounded-3">
+                        <i class="bi bi-car-front me-1"></i> View All Registered Vehicles
+                    </a>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                    <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom">Account Summary</h5>
+
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="text-muted small">Registered Name</span>
+                        <span class="fw-bold text-dark">{{ user.get_full_name|default:user.username }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="text-muted small">Sign-in ID</span>
+                        <span class="fw-semibold text-dark">{{ user.username }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="text-muted small">Member Since</span>
+                        <span class="text-dark">{{ user.date_joined|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="text-muted small">Registered Vehicles</span>
+                        <span class="text-dark">{{ vehicles_count }} vehicle{{ vehicles_count|pluralize }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="text-muted small">Completed Bookings</span>
+                        <span class="text-dark">{{ bookings_count }} session{{ bookings_count|pluralize }}</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<script>
+    function togglePasswordVisibility(inputId, btn) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+
+        if (isPassword) {
+            btn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+            `;
+            btn.setAttribute('title', 'Hide password');
+        } else {
+            btn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+            `;
+            btn.setAttribute('title', 'Show password');
+        }
+    }
+</script>
+{% endblock %}

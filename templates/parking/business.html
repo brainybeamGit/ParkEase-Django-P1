@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ParkEase for Business - Commercial & Enterprise Parking Solutions{% endblock %}
+
+{% block content %}
+
+<section class="py-5" style="background: linear-gradient(135deg, #0a192f 0%, #0f2942 50%, #0369a1 100%); color: #ffffff;">
+    <div class="container py-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <span class="badge px-3 py-2 rounded-pill fw-semibold mb-3" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
+                    PARKEASE FOR BUSINESS
+                </span>
+                <h1 class="display-4 fw-extrabold text-white mb-3" style="letter-spacing: -1px; font-weight: 800;">
+                    Commercial & Enterprise <span style="color: #38bdf8;">Parking Management</span>
+                </h1>
+                <p class="lead text-white-50 mb-4" style="line-height: 1.7; font-size: 1.15rem;">
+                    Unlock the full revenue potential of your parking assets. From automated barrierless ANPR technology to turnkey EV charging hubs, ParkEase helps property managers optimize yield and deliver 5-star experiences.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="#contactSales" class="btn btn-theme-primary px-4 py-2 fs-6">
+                        Request a Demo &darr;
+                    </a>
+                    <a href="#sectors" class="btn btn-outline-light px-4 py-2 fs-6 fw-semibold" style="border-radius: 8px;">
+                        Explore Sectors
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="p-4 rounded-4 shadow-lg text-dark bg-white border">
+                    <h5 class="fw-bold mb-1" style="color: #000000 !important; font-weight: 800 !important;">Schedule a Business Consultation</h5>
+                    <p class="text-muted small mb-3">Speak with our commercial real estate mobility specialists.</p>
+
+                    <form id="businessDemoForm" onsubmit="event.preventDefault(); document.getElementById('demoSuccessAlert').classList.remove('d-none'); this.reset();">
+                        <div class="mb-2">
+                            <label class="form-label mb-1" style="color: #000000 !important; font-weight: 700 !important; font-size: 0.875rem;">Company / Organization <span style="color: #dc2626;">*</span></label>
+                            <input type="text" class="form-control form-control-sm py-2" placeholder="e.g. Prestige Tech Parks Ltd." required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label mb-1" style="color: #000000 !important; font-weight: 700 !important; font-size: 0.875rem;">Work Email <span style="color: #dc2626;">*</span></label>
+                            <input type="email" class="form-control form-control-sm py-2" placeholder="name@company.com" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label mb-1" style="color: #000000 !important; font-weight: 700 !important; font-size: 0.875rem;">Facility Type</label>
+                            <select class="form-select form-select-sm py-2">
+                                <option>Commercial Office / IT Park</option>
+                                <option>Shopping Mall / Retail Centre</option>
+                                <option>Hotel / Hospitality Group</option>
+                                <option>Hospital / Medical Facility</option>
+                                <option>Event Venue / Stadium</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label mb-1" style="color: #000000 !important; font-weight: 700 !important; font-size: 0.875rem;">Total Parking Bays</label>
+                            <input type="number" class="form-control form-control-sm py-2" placeholder="e.g. 250" min="5" required>
+                        </div>
+                        <button type="submit" class="btn btn-theme-primary w-100 py-2 fw-semibold">
+                            Submit Demo Request
+                        </button>
+                        <div class="alert alert-success py-2 px-3 mt-3 small d-none" id="demoSuccessAlert">
+                            Thank you! A mobility consultant will contact you within 2 business hours.
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-white" id="sectors">
+    <div class="container py-3">
+        <div class="text-center mb-5">
+            <span class="text-primary fw-bold text-uppercase small" style="letter-spacing: 1.5px;">TAILORED FOR YOUR INDUSTRY</span>
+            <h2 class="fw-bold fs-1 text-dark mt-1">Specialized Solutions for Every Asset Type</h2>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-md-6 col-lg-4">
+                <div class="p-4 rounded-4 border bg-light h-100 shadow-sm">
+                    <h4 class="fw-bold text-dark mb-2">Corporate & Tech Parks</h4>
+                    <p class="text-muted small mb-0" style="line-height: 1.6;">
+                        Manage employee permits, allocate hybrid worker bays on alternating weekdays, and monetize empty weekend slots to local drivers.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="p-4 rounded-4 border bg-light h-100 shadow-sm">
+                    <h4 class="fw-bold text-dark mb-2">Shopping Malls & Retail</h4>
+                    <p class="text-muted small mb-0" style="line-height: 1.6;">
+                        Replace outdated paper ticketing and long exit queues with seamless cashless barrier validation, customer validation discounts, and dwell time analysis.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="p-4 rounded-4 border bg-light h-100 shadow-sm">
+                    <h4 class="fw-bold text-dark mb-2">Hotels & Hospitality</h4>
+                    <p class="text-muted small mb-0" style="line-height: 1.6;">
+                        Offer guaranteed pre-booked bays with room reservations. Enable valet digital ticketing and generate incremental revenue from local event visitors.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="p-4 rounded-4 border bg-light h-100 shadow-sm">
+                    <h4 class="fw-bold text-dark mb-2">Arenas, Stadiums & Events</h4>
+                    <p class="text-muted small mb-0" style="line-height: 1.6;">
+                        Handle massive traffic influxes effortlessly with advance event parking passes, rapid QR lane verification, and dynamic event pricing algorithms.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="p-4 rounded-4 border bg-light h-100 shadow-sm">
+                    <h4 class="fw-bold text-dark mb-2">Hospitals & Healthcare</h4>
+                    <p class="text-muted small mb-0" style="line-height: 1.6;">
+                        Ensure patients and medical staff always have designated accessible spaces with clear digital directions, patient concessions, and fair enforcement.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="p-4 rounded-4 border bg-light h-100 shadow-sm">
+                    <h4 class="fw-bold text-dark mb-2">Municipalities & Transport</h4>
+                    <p class="text-muted small mb-0" style="line-height: 1.6;">
+                        Equip on-street and multi-storey municipal car parks with contactless pay-by-app capabilities, ANPR compliance verification, and carbon reduction tracking.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<section class="py-5" style="background-color: #f8fafc;">
+    <div class="container py-3">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="text-primary fw-bold text-uppercase small" style="letter-spacing: 1px;">TECHNOLOGY & PLATFORM</span>
+                <h2 class="fw-bold fs-1 text-dark mt-1 mb-4">Complete Operational Control from a Single Studio</h2>
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex gap-3">
+                        <div class="fs-4 fw-bold text-primary" style="min-width: 36px;">01</div>
+                        <div>
+                            <h5 class="fw-bold text-dark mb-1">Dynamic Yield Management</h5>
+                            <p class="text-muted small mb-0">Our AI pricing engine continuously adjusts hourly and daily rates based on local real-time demand, boosting facility yield by 28% on average.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <div class="fs-4 fw-bold text-primary" style="min-width: 36px;">02</div>
+                        <div>
+                            <h5 class="fw-bold text-dark mb-1">Turnkey EV Charging Integration</h5>
+                            <p class="text-muted small mb-0">We supply, install, and operate AC and DC fast chargers on your property with zero capital expenditure, sharing recurring charging revenue.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <div class="fs-4 fw-bold text-primary" style="min-width: 36px;">03</div>
+                        <div>
+                            <h5 class="fw-bold text-dark mb-1">Automated Weekly Settlements</h5>
+                            <p class="text-muted small mb-0">Receive automated direct bank deposits with transparent GST-compliant invoices and detailed audit statements every settlement cycle.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="p-4 rounded-4 shadow-sm bg-white border">
+                    <h5 class="fw-bold text-dark mb-3">Enterprise Impact Metrics</h5>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded-3 text-center border">
+                                <div class="fs-2 fw-extrabold text-primary fw-bold">+28%</div>
+                                <div class="small text-muted fw-semibold">Average Revenue Uplift</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded-3 text-center border">
+                                <div class="fs-2 fw-extrabold text-success fw-bold">100%</div>
+                                <div class="small text-muted fw-semibold">Cashless Transactions</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded-3 text-center border">
+                                <div class="fs-2 fw-extrabold text-info fw-bold">99.8%</div>
+                                <div class="small text-muted fw-semibold">Barrier Uptime SLA</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded-3 text-center border">
+                                <div class="fs-2 fw-extrabold text-warning fw-bold">&lt; 2 Hrs</div>
+                                <div class="small text-muted fw-semibold">Fast Integration Time</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 text-center text-white" style="background: #0f2942;" id="contactSales">
+    <div class="container py-3">
+        <h2 class="fw-bold fs-2 text-white mb-2">Partner with India's Smartest Parking Network</h2>
+        <p class="text-white-50 mb-4 mx-auto" style="max-width: 600px;">
+            Let our enterprise team show you how ParkEase technology can transform your parking space into an optimized asset.
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="mailto:business@parkease.com" class="btn btn-theme-primary px-4 py-2 fs-6">Contact Enterprise Sales</a>
+            <a href="{% url 'lot_owner_panel:register_step1' %}" class="btn btn-outline-light px-4 py-2 fs-6">Register a Facility</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

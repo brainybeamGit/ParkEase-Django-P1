@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Us - Our Mission & Story | ParkEase{% endblock %}
+
+{% block content %}
+
+<section class="py-5" style="background: linear-gradient(135deg, #0a192f 0%, #0f2942 50%, #0369a1 100%); color: #ffffff;">
+    <div class="container py-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <span class="badge px-3 py-2 rounded-pill fw-semibold mb-3" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
+                    OUR MISSION & STORY
+                </span>
+                <h1 class="display-4 fw-extrabold text-white mb-3" style="letter-spacing: -1px; font-weight: 800;">
+                    Reimagining Parking for a <span style="color: #38bdf8;">Connected India</span>
+                </h1>
+                <p class="lead text-white-50 mb-4" style="line-height: 1.7; font-size: 1.15rem;">
+                    ParkEase is on a mission to eliminate the friction, wasted fuel, and urban congestion associated with searching for parking. We connect drivers with thousands of guaranteed spaces across airports, city centres, railway stations, and residential driveways.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{% url 'parking:home' %}#searchSection" class="btn btn-theme-primary px-4 py-2 fs-6">
+                        Find a Parking Space
+                    </a>
+                    <a href="{% url 'parking:rent_out_your_space' %}" class="btn btn-outline-light px-4 py-2 fs-6 fw-semibold" style="border-radius: 8px;">
+                        Rent Out Your Space
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="p-4 rounded-4 shadow-lg text-dark" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3);">
+                    <h5 class="fw-bold text-dark mb-3">ParkEase at a Glance</h5>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="p-3 rounded-3 bg-light border text-center">
+                                <div class="fs-2 fw-extrabold text-primary fw-bold">4.5M+</div>
+                                <div class="small text-muted fw-semibold">Motorists Served</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 rounded-3 bg-light border text-center">
+                                <div class="fs-2 fw-extrabold text-success fw-bold">12,500+</div>
+                                <div class="small text-muted fw-semibold">Verified Spaces</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 rounded-3 bg-light border text-center">
+                                <div class="fs-2 fw-extrabold text-info fw-bold">45+</div>
+                                <div class="small text-muted fw-semibold">Indian Cities</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 rounded-3 bg-light border text-center">
+                                <div class="fs-2 fw-extrabold text-warning fw-bold">98%</div>
+                                <div class="small text-muted fw-semibold">Driver Approval</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-white">
+    <div class="container py-3">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <span class="text-primary fw-bold text-uppercase small" style="letter-spacing: 1.5px;">HOW IT STARTED</span>
+                <h2 class="fw-bold fs-1 text-dark mt-1 mb-3">From Driveway Sharing to Smart Urban Mobility</h2>
+                <p class="text-muted fs-6" style="line-height: 1.8;">
+                    Founded with the vision that unused parking spaces can dramatically reduce traffic congestion, ParkEase began by enabling homeowners to rent out empty driveways. Today, we have evolved into India’s most comprehensive mobility ecosystem, partnering with local authorities, commercial car parks, hotel chains, and EV charging operators to deliver frictionless digital parking experiences.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="p-4 rounded-4 h-100 border bg-light shadow-sm">
+                    <h4 class="fw-bold text-dark mb-2">Save Time & Fuel</h4>
+                    <p class="text-muted small mb-0" style="line-height: 1.6;">
+                        Studies show that 30% of inner-city traffic is drivers circling for parking. Pre-booking with ParkEase gets you directly to your reserved space without circling.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="p-4 rounded-4 h-100 border bg-light shadow-sm">
+                    <h4 class="fw-bold text-dark mb-2">Guaranteed Security</h4>
+                    <p class="text-muted small mb-0" style="line-height: 1.6;">
+                        Every facility in the ParkEase network is verified by our field operations team. Secure digital QR passes and ANPR barrier automation guarantee access.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="p-4 rounded-4 h-100 border bg-light shadow-sm">
+                    <h4 class="fw-bold text-dark mb-2">Green EV Network</h4>
+                    <p class="text-muted small mb-0" style="line-height: 1.6;">
+                        We accelerate electric vehicle adoption by combining guaranteed bay reservations with fast OCPP-standard charging, creating seamless dual sessions.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5" style="background-color: #f8fafc;">
+    <div class="container py-3">
+        <div class="text-center mb-5">
+            <span class="text-primary fw-bold text-uppercase small" style="letter-spacing: 1.5px;">OUR VALUES</span>
+            <h2 class="fw-bold fs-1 text-dark mt-1">The Principles Guiding Every Journey</h2>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="p-4 bg-white rounded-3 border h-100 shadow-sm">
+                    <span class="fs-3 fw-bold text-primary mb-2 d-block">01</span>
+                    <h5 class="fw-bold text-dark">Driver First</h5>
+                    <p class="text-muted small mb-0">We obsess over creating the smoothest, most transparent experience from reservation to departure.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="p-4 bg-white rounded-3 border h-100 shadow-sm">
+                    <span class="fs-3 fw-bold text-success mb-2 d-block">02</span>
+                    <h5 class="fw-bold text-dark">Empowering Owners</h5>
+                    <p class="text-muted small mb-0">We help property owners and operators turn empty bays into reliable, automated income streams.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="p-4 bg-white rounded-3 border h-100 shadow-sm">
+                    <span class="fs-3 fw-bold text-info mb-2 d-block">03</span>
+                    <h5 class="fw-bold text-dark">Cleaner Cities</h5>
+                    <p class="text-muted small mb-0">By cutting down circling traffic and powering EV chargers, we contribute to cleaner, more breathable cities.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="p-4 bg-white rounded-3 border h-100 shadow-sm">
+                    <span class="fs-3 fw-bold text-warning mb-2 d-block">04</span>
+                    <h5 class="fw-bold text-dark">Continuous Innovation</h5>
+                    <p class="text-muted small mb-0">We constantly push boundaries with dynamic pricing algorithms, AI camera integration, and digital payments.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 text-center text-white" style="background: #0f2942;">
+    <div class="container py-3">
+        <h2 class="fw-bold fs-2 text-white mb-3">Ready to experience smarter parking?</h2>
+        <p class="text-white-50 mb-4 mx-auto" style="max-width: 600px;">Join over 4 million drivers who save time and money on parking with ParkEase.</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'parking:home' %}#searchSection" class="btn btn-theme-primary px-4 py-2 fs-6">Find Parking Now</a>
+            <a href="{% url 'parking:rent_out_your_space' %}" class="btn btn-outline-light px-4 py-2 fs-6">List Your Driveway</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

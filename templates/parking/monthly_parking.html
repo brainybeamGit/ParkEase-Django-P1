@@ -1,0 +1,442 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Monthly Parking - Long Term Parking Plans | ParkEase{% endblock %}
+
+{% block content %}
+
+<section class="reserve-hero-section">
+    <div class="container pt-1 pb-4">
+        <div class="row align-items-stretch g-4 g-lg-5">
+
+            <div class="col-lg-6 d-flex flex-column">
+                <h1 class="reserve-hero-title text-white">
+                    Your Monthly <span class="highlight-blue">Parking Spot</span>
+                </h1>
+                <p class="reserve-hero-subtitle text-white-50">
+                    Find affordable monthly parking with ParkEase. Choose Every day, Monday to Friday, Saturday &ndash; Sunday. Secure your space today.
+                </p>
+
+                <div class="reserve-search-card">
+
+                    <div class="jp-tabs-container mb-3">
+                        <button type="button" class="jp-tab-btn active" style="pointer-events: none;">
+                            Monthly Parking
+                        </button>
+                    </div>
+
+                    <form id="justParkSearchForm" action="#" method="GET">
+                        <input type="hidden" id="hiddenSearchMode" name="mode" value="monthly">
+                        <input type="hidden" id="hiddenMonthlyStartDate" name="monthly_start_date">
+                        <input type="hidden" id="hiddenMonthlyAvailability" name="monthly_availability" value="Every day">
+                        <input type="hidden" id="hiddenVehicleType" name="vehicle_type" value="hatchback">
+
+                        <div class="jp-input-group mb-3" id="destinationFieldGroup">
+                            <label for="destinationInput" class="jp-input-label">Where would you like to park?</label>
+                            <div class="jp-search-field">
+                                <input type="text" id="destinationInput" name="area" class="jp-search-input" placeholder="Enter destination or postcode" autocomplete="off">
+                                <i class="bi bi-search jp-search-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="jp-datetime-row position-relative mb-3" id="monthlyDatetimeRow">
+
+                            <div class="jp-datetime-box" id="jpMonthlyStartBox">
+                                <span class="jp-datetime-label">Starting on</span>
+                                <div class="jp-datetime-val-row">
+                                    <span class="jp-datetime-text" id="jpMonthlyStartText">Tomorrow</span>
+                                    <i class="bi bi-chevron-down jp-datetime-arrow"></i>
+                                </div>
+                            </div>
+
+                            <div class="jp-datetime-separator">
+                                <i class="bi bi-arrow-right"></i>
+                            </div>
+
+                            <div class="jp-datetime-box" id="jpMonthlyAvailabilityBox">
+                                <span class="jp-datetime-label">Availability</span>
+                                <div class="jp-datetime-val-row">
+                                    <span class="jp-datetime-text" id="jpMonthlyAvailabilityText">Every day</span>
+                                    <i class="bi bi-chevron-down jp-datetime-arrow"></i>
+                                </div>
+                            </div>
+
+                            <div class="jp-popover-wrapper jp-monthly-calendar-popover" id="jpMonthlyCalendarPopover">
+                                <div class="jp-monthly-cal-body">
+                                    <div class="jp-cal-nav">
+                                        <span class="jp-cal-month-title" id="jpMonthlyCalMonthTitle">October 2026</span>
+                                        <div class="d-flex gap-1">
+                                            <button type="button" class="jp-cal-nav-btn" id="jpMonthlyCalPrevBtn" title="Previous Month">
+                                                <i class="bi bi-chevron-left"></i>
+                                            </button>
+                                            <button type="button" class="jp-cal-nav-btn" id="jpMonthlyCalNextBtn" title="Next Month">
+                                                <i class="bi bi-chevron-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="jp-cal-weekdays">
+                                        <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+                                    </div>
+
+                                    <div class="jp-cal-days-grid" id="jpMonthlyCalDaysGrid"></div>
+
+                                    <div class="mt-3">
+                                        <button type="button" class="btn-jp-popover-done w-100" id="jpMonthlyCalDoneBtn">
+                                            Done
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="jp-popover-wrapper jp-availability-popover" id="jpMonthlyAvailabilityPopover">
+                                <div class="jp-availability-body">
+
+                                    <label class="jp-radio-option selected" data-value="Every day">
+                                        <span class="jp-radio-label">Every day</span>
+                                        <input type="radio" name="availability_opt" value="Every day" class="jp-radio-input" checked>
+                                        <span class="jp-radio-circle"></span>
+                                    </label>
+
+                                    <label class="jp-radio-option" data-value="Mon-Fri">
+                                        <span class="jp-radio-label">Mon-Fri</span>
+                                        <input type="radio" name="availability_opt" value="Mon-Fri" class="jp-radio-input">
+                                        <span class="jp-radio-circle"></span>
+                                    </label>
+
+                                    <label class="jp-radio-option" data-value="Sat-Sun">
+                                        <span class="jp-radio-label">Sat-Sun</span>
+                                        <input type="radio" name="availability_opt" value="Sat-Sun" class="jp-radio-input">
+                                        <span class="jp-radio-circle"></span>
+                                    </label>
+
+                                    <div class="mt-3">
+                                        <button type="button" class="btn-jp-popover-done w-100" id="jpAvailabilityDoneBtn">
+                                            Done
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="jp-vehicle-group mb-3">
+                            <label for="vehicleTypeSelect" class="jp-vehicle-label">Vehicle Type</label>
+                            <select id="vehicleTypeSelect" class="jp-vehicle-select-control">
+                                <option value="hatchback" selected>Bike / Scooter (Two-Wheeler)</option>
+                                <option value="sedan">Hatchback (Compact Car)</option>
+                                <option value="suv">SUV / 4x4 car</option>
+                                <option value="bike">Sedan (Standard Car)</option>
+                                <option value="van">Van / Large Vehicle</option>
+                                <option value="ev">Electric Vehicle with Charging Bay</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-jp-search-submit w-100">
+                            Find parking spaces
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-6 d-flex">
+                <div class="reserve-hero-img-wrapper w-100">
+                    <img src="{% static 'images/monthly-hero-commuter.jpg' %}" alt="Smiling commuter booking monthly long term parking" class="reserve-hero-img shadow-lg">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<section class="section-padding" style="background-color: var(--bg-page);">
+    <div class="container">
+
+        <div class="mb-5">
+            <h2 class="section-title text-start">
+                Monthly Plan <span class="highlight-blue">Options</span>
+            </h2>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-4 col-md-6">
+                <div class="monthly-plan-card">
+                    <div class="plan-card-tag">7 DAYS / WEEK</div>
+                    <h3 class="plan-card-title">Every day</h3>
+                    <p class="plan-card-desc">
+                        Need an extra driveway near your home for your growing family of cars, or simply need a space for every day parking access?
+                    </p>
+                    <p class="plan-card-subdesc">
+                        Offering full-week convenience, with a dedicated space to use as you wish, with significant cost savings.
+                    </p>
+                    <div class="plan-card-pills">
+                        <span class="plan-pill">24/7 Guaranteed Access</span>
+                        <span class="plan-pill">Maximum Per-Day Savings</span>
+                        <span class="plan-pill">Unlimited Entries & Exits</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="monthly-plan-card">
+                    <div class="plan-card-tag">WEEKDAY COMMUTE</div>
+                    <h3 class="plan-card-title">Monday - Friday</h3>
+                    <p class="plan-card-desc">
+                        Ideal for weekly commuters who need a dedicated space Monday to Friday.
+                    </p>
+                    <p class="plan-card-subdesc">
+                        Find a dedicated space near your work or your regular travel hub, and take the stress out of your daily commute.
+                    </p>
+                    <div class="plan-card-pills">
+                        <span class="plan-pill">Business Hours Reserved</span>
+                        <span class="plan-pill">Near Offices & Metro Hubs</span>
+                        <span class="plan-pill">Never Pay For Weekends</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="monthly-plan-card">
+                    <div class="plan-card-tag">WEEKEND ONLY</div>
+                    <h3 class="plan-card-title">Saturday - Sunday</h3>
+                    <p class="plan-card-desc">
+                        Our dedicated weekend plan designed for weekend getaways, shift workers, and regular city leisure visits.
+                    </p>
+                    <p class="plan-card-subdesc">
+                        Secure a guaranteed parking space every Saturday and Sunday without paying for weekdays you do not use.
+                    </p>
+                    <div class="plan-card-pills">
+                        <span class="plan-pill">Guaranteed Sat & Sun Space</span>
+                        <span class="plan-pill">Shopping & Leisure Ready</span>
+                        <span class="plan-pill">Lowest Monthly Commitment</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<section class="section-padding bg-white">
+    <div class="container">
+
+        <div class="mb-5">
+            <h2 class="section-title text-start">
+                How do I book <span class="highlight-blue">Monthly?</span>
+            </h2>
+        </div>
+
+        <div class="booking-diagram-container">
+            <div class="row g-4 position-relative">
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="diagram-step-box">
+                        <div class="diagram-node-circle">01</div>
+                        <h4 class="diagram-step-title">Select a start date and time</h4>
+                        <p class="diagram-step-text">
+                            Pick the exact date when your monthly parking commences with rolling 30-day flexibility.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="diagram-step-box">
+                        <div class="diagram-node-circle">02</div>
+                        <h4 class="diagram-step-title">Select the days you need</h4>
+                        <p class="diagram-step-text">
+                            Choose between full 7-day Every day access, Monday &ndash; Friday commuter, or Saturday &ndash; Sunday weekend plans.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="diagram-step-box">
+                        <div class="diagram-node-circle">03</div>
+                        <h4 class="diagram-step-title">Find your perfect space</h4>
+                        <p class="diagram-step-text">
+                            Browse verified private driveways, underground garages, and dedicated bays with transparent monthly tariffs.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="diagram-step-box">
+                        <div class="diagram-node-circle">04</div>
+                        <h4 class="diagram-step-title">Select duration and pay</h4>
+                        <p class="diagram-step-text">
+                            Lock in your monthly price rate, complete secure checkout, and receive instant digital QR pass entry details.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section class="section-padding" style="background-color: var(--bg-page);">
+    <div class="container">
+
+        <div class="row align-items-center g-5">
+
+            <div class="col-lg-6">
+                <h2 class="section-title text-start mb-4">
+                    Key Benefits of <span class="highlight-blue">Monthly Plans</span>
+                </h2>
+
+                <div class="benefits-checklist-card">
+                    <div class="benefits-checklist-item">
+                        <div class="benefit-check-circle"></div>
+                        <span>Reserve your space in advance for stress-free parking</span>
+                    </div>
+                    <div class="benefits-checklist-item">
+                        <div class="benefit-check-circle"></div>
+                        <span>Choose from 3 options to match your parking needs</span>
+                    </div>
+                    <div class="benefits-checklist-item">
+                        <div class="benefit-check-circle"></div>
+                        <span>Lock in your Price with no price increases</span>
+                    </div>
+                    <div class="benefits-checklist-item">
+                        <div class="benefit-check-circle"></div>
+                        <span>Save time & money every month</span>
+                    </div>
+                    <div class="benefits-checklist-item">
+                        <div class="benefit-check-circle"></div>
+                        <span>Simple online booking or via the app</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <img src="{% static 'images/monthly-benefits.jpg' %}" alt="Key benefits of ParkEase monthly parking plans" class="benefits-hero-img shadow-lg">
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<section class="section-padding bg-white">
+    <div class="container">
+
+        <div class="mb-5">
+            <h2 class="section-title text-start">
+                Monthly Plans <span class="highlight-blue">FAQ's</span>
+            </h2>
+        </div>
+
+        <div class="accordion" id="faqMonthlyAccordion">
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="mHeadingOne">
+                    <button class="accordion-button faq-accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#mCollapseOne" aria-expanded="true" aria-controls="mCollapseOne">
+                        What parking is best for hybrid working?
+                    </button>
+                </h2>
+                <div id="mCollapseOne" class="accordion-collapse collapse show" aria-labelledby="mHeadingOne" data-bs-parent="#faqMonthlyAccordion">
+                    <div class="faq-accordion-body">
+                        If you travel into the city or office only on specific weekdays, our Monday to Friday plan offers great savings over daily drive-up rates. You get guaranteed access throughout the working week without having to pay for weekends.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="mHeadingTwo">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mCollapseTwo" aria-expanded="false" aria-controls="mCollapseTwo">
+                        How do monthly plans work?
+                    </button>
+                </h2>
+                <div id="mCollapseTwo" class="accordion-collapse collapse" aria-labelledby="mHeadingTwo" data-bs-parent="#faqMonthlyAccordion">
+                    <div class="faq-accordion-body">
+                        Monthly plans allow you to reserve a guaranteed parking space on a recurring 30-day rolling basis. You select your start date, frequency plan (Every day, Mon-Fri, or Sat-Sun), and pay a fixed monthly subscription rate with price-lock protection.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="mHeadingThree">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mCollapseThree" aria-expanded="false" aria-controls="mCollapseThree">
+                        How do I book the same parking space for longer than 1 month?
+                    </button>
+                </h2>
+                <div id="mCollapseThree" class="accordion-collapse collapse" aria-labelledby="mHeadingThree" data-bs-parent="#faqMonthlyAccordion">
+                    <div class="faq-accordion-body">
+                        All monthly plans automatically renew every month until you decide to cancel. You will keep the exact same parking spot for as long as your subscription is active, with no need to re-book.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="mHeadingFour">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mCollapseFour" aria-expanded="false" aria-controls="mCollapseFour">
+                        How can Space owners expect a steady income?
+                    </button>
+                </h2>
+                <div id="mCollapseFour" class="accordion-collapse collapse" aria-labelledby="mHeadingFour" data-bs-parent="#faqMonthlyAccordion">
+                    <div class="faq-accordion-body">
+                        Space owners receive guaranteed, predictable monthly payouts directly to their bank account for each monthly subscriber, with zero hassle and ParkEase owner protection.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="mHeadingFive">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mCollapseFive" aria-expanded="false" aria-controls="mCollapseFive">
+                        Where can I park my car when at University?
+                    </button>
+                </h2>
+                <div id="mCollapseFive" class="accordion-collapse collapse" aria-labelledby="mHeadingFive" data-bs-parent="#faqMonthlyAccordion">
+                    <div class="faq-accordion-body">
+                        ParkEase features hundreds of student-friendly private driveways and dedicated bays within easy walking distance of major university campuses, available on flexible monthly terms.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="mHeadingSix">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mCollapseSix" aria-expanded="false" aria-controls="mCollapseSix">
+                        Can I choose which days to park with a flexible monthly plan?
+                    </button>
+                </h2>
+                <div id="mCollapseSix" class="accordion-collapse collapse" aria-labelledby="mHeadingSix" data-bs-parent="#faqMonthlyAccordion">
+                    <div class="faq-accordion-body">
+                        Yes! You can choose between 7-day Every day access, weekday Monday &ndash; Friday commuting, or weekend Saturday &ndash; Sunday access to match your routine.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="mHeadingSeven">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mCollapseSeven" aria-expanded="false" aria-controls="mCollapseSeven">
+                        How much money can I save with a ParkEase monthly plan?
+                    </button>
+                </h2>
+                <div id="mCollapseSeven" class="accordion-collapse collapse" aria-labelledby="mHeadingSeven" data-bs-parent="#faqMonthlyAccordion">
+                    <div class="faq-accordion-body">
+                        Drivers typically save up to 45% compared to paying standard daily drive-up or meter rates every day. Plus, monthly plans are protected with our Price Lock guarantee.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="mHeadingEight">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mCollapseEight" aria-expanded="false" aria-controls="mCollapseEight">
+                        Are ParkEase monthly parking spaces reliable?
+                    </button>
+                </h2>
+                <div id="mCollapseEight" class="accordion-collapse collapse" aria-labelledby="mHeadingEight" data-bs-parent="#faqMonthlyAccordion">
+                    <div class="faq-accordion-body">
+                        Absolutely. Every space is verified by our administrative team, and your reservation is 100% guaranteed. If there are ever any issues with your space, our customer support team is available 24/7 to resolve it or reassign you instantly.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+{% endblock %}

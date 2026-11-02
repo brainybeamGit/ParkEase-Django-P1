@@ -1,0 +1,166 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load static %}
+
+{% block title %}EV Charging Management - ParkEase Admin Studio{% endblock %}
+{% block page_heading %}Platform EV Charging Stations & Sessions{% endblock %}
+
+{% block admin_content %}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">TOTAL EV STATIONS</span>
+            <div class="metric-value">{{ total_stations }}</div>
+            <p class="metric-subtitle">Across registered parking facilities</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">AVAILABLE CHARGERS</span>
+            <div class="metric-value text-success">{{ available_count }}</div>
+            <p class="metric-subtitle">Ready for driver plug-in</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">ACTIVE CHARGING</span>
+            <div class="metric-value text-primary">{{ charging_count }}</div>
+            <p class="metric-subtitle">Active DC / AC fast sessions</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">ENERGY DISPENSED</span>
+            <div class="metric-value">{{ total_energy_kwh }} <span class="fs-6 fw-normal text-muted">kWh</span></div>
+            <p class="metric-subtitle">Cumulative clean energy delivered</p>
+        </div>
+    </div>
+</div>
+
+<div class="admin-card mb-4">
+    <div class="pb-3 border-bottom mb-3">
+        <h5 class="fw-bold text-dark mb-0">Platform EV Chargers Directory</h5>
+    </div>
+
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>CHARGER ID</th>
+                    <th>FACILITY & LOCATION</th>
+                    <th>CONNECTOR TYPE</th>
+                    <th>POWER</th>
+                    <th>TARIFF</th>
+                    <th class="text-end">ACTION</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for chg in chargers %}
+                    <tr>
+                        <td>
+                            <code class="text-primary fw-bold">{{ chg.charger_id }}</code>
+                        </td>
+                        <td>
+                            <div class="fw-bold text-dark">{{ chg.parking_lot.name }}</div>
+                            <small class="text-muted">{{ chg.location }}</small>
+                        </td>
+                        <td>
+                            <span class="small text-dark">{{ chg.connector_type }}</span>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-dark">{{ chg.power_kw }} kW</span>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-dark">₹{{ chg.rate_per_kwh }}</span><span class="text-muted small">/kWh</span>
+                        </td>
+                        <td class="text-end">
+                            <form method="POST" action="{% url 'admin_panel:toggle_charger' chg.id %}">
+                                {% csrf_token %}
+                                {% if chg.status == 'Available' %}
+                                    <button type="submit" class="btn btn-sm btn-outline-warning py-1 px-2 fw-semibold" style="font-size: 0.78rem;">Set Maintenance</button>
+                                {% else %}
+                                    <button type="submit" class="btn btn-sm btn-outline-success py-1 px-2 fw-semibold" style="font-size: 0.78rem;">Set Available</button>
+                                {% endif %}
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td><code class="text-primary fw-bold">CHG-B1-01</code></td>
+                        <td><div class="fw-bold text-dark">Shree Complex Parking</div><small class="text-muted">Basement Level 1 (Zone A)</small></td>
+                        <td><span class="small text-dark">Type 2 AC / CCS2 DC Fast</span></td>
+                        <td><span class="fw-bold text-dark">50.0 kW</span></td>
+                        <td><span class="fw-bold text-dark">₹15.00</span><span class="text-muted small">/kWh</span></td>
+                        <td class="text-end"><button class="btn btn-sm btn-outline-warning py-1 px-2 fw-semibold" style="font-size: 0.78rem;">Set Maintenance</button></td>
+                    </tr>
+                    <tr>
+                        <td><code class="text-primary fw-bold">CHG-B1-02</code></td>
+                        <td><div class="fw-bold text-dark">Shree Complex Parking</div><small class="text-muted">Basement Level 1 (Zone B)</small></td>
+                        <td><span class="small text-dark">Type 2 AC</span></td>
+                        <td><span class="fw-bold text-dark">22.0 kW</span></td>
+                        <td><span class="fw-bold text-dark">₹15.00</span><span class="text-muted small">/kWh</span></td>
+                        <td class="text-end"><button class="btn btn-sm btn-outline-warning py-1 px-2 fw-semibold" style="font-size: 0.78rem;">Set Maintenance</button></td>
+                    </tr>
+                    <tr>
+                        <td><code class="text-primary fw-bold">CHG-G0-03</code></td>
+                        <td><div class="fw-bold text-dark">Shree Complex Parking</div><small class="text-muted">Ground Floor Entrance Bay</small></td>
+                        <td><span class="small text-dark">Bharat AC-001 / Type 2</span></td>
+                        <td><span class="fw-bold text-dark">7.4 kW</span></td>
+                        <td><span class="fw-bold text-dark">₹15.00</span><span class="text-muted small">/kWh</span></td>
+                        <td class="text-end"><button class="btn btn-sm btn-outline-warning py-1 px-2 fw-semibold" style="font-size: 0.78rem;">Set Maintenance</button></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="d-flex justify-content-between align-items-center pb-3 border-bottom mb-3">
+        <h5 class="fw-bold text-dark mb-0">Recent EV Charging Sessions</h5>
+    </div>
+
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>VEHICLE DETAILS</th>
+                    <th>CHARGER</th>
+                    <th>FACILITY</th>
+                    <th>ENERGY CONSUMED</th>
+                    <th>DURATION</th>
+                    <th>TOTAL TARIFF</th>
+                    <th>STATUS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="badge bg-light text-dark border font-monospace">GJ-01-EV-8821</div>
+                        <div class="text-muted" style="font-size: 0.76rem;">Tata Nexon EV</div>
+                    </td>
+                    <td><code class="text-primary fw-bold">CHG-B1-01</code></td>
+                    <td><span class="small fw-semibold text-dark">Shree Complex Parking</span></td>
+                    <td><span class="fw-bold text-dark">18.5 kWh</span></td>
+                    <td><span class="small text-muted">45 mins</span></td>
+                    <td><span class="fw-bold text-dark">₹277.50</span></td>
+                    <td><span class="small text-dark">Completed</span></td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="badge bg-light text-dark border font-monospace">MH-02-EV-4412</div>
+                        <div class="text-muted" style="font-size: 0.76rem;">MG ZS EV</div>
+                    </td>
+                    <td><code class="text-primary fw-bold">CHG-G0-03</code></td>
+                    <td><span class="small fw-semibold text-dark">Shree Complex Parking</span></td>
+                    <td><span class="fw-bold text-dark">12.2 kWh</span></td>
+                    <td><span class="small text-muted">35 mins</span></td>
+                    <td><span class="fw-bold text-dark">₹183.00</span></td>
+                    <td><span class="small text-dark">Charging</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

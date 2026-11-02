@@ -1,0 +1,134 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load static %}
+
+{% block title %}Complaints & Disputes - ParkEase Admin Studio{% endblock %}
+{% block page_heading %}Customer & Owner Dispute Resolution Center{% endblock %}
+
+{% block admin_content %}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">TOTAL DISPUTES</span>
+            <div class="metric-value">{{ total_complaints }}</div>
+            <p class="metric-subtitle">Reported via app or helpline</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">OPEN TICKETS</span>
+            <div class="metric-value text-danger">{{ open_count }}</div>
+            <p class="metric-subtitle">Require administrative triage</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">IN INVESTIGATION</span>
+            <div class="metric-value text-warning">{{ investigating_count }}</div>
+            <p class="metric-subtitle">Evidence review in progress</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-card-metric">
+            <span class="metric-title">RESOLVED</span>
+            <div class="metric-value text-success">{{ resolved_count }}</div>
+            <p class="metric-subtitle">Closed with mutual settlement</p>
+        </div>
+    </div>
+</div>
+
+<div class="admin-card">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="admin-filter-tabs mb-0">
+            <a href="{% url 'admin_panel:complaints' %}?status=all" class="admin-filter-tab {% if status_filter == 'all' %}active{% endif %}">
+                All ({{ total_complaints }})
+            </a>
+            <a href="{% url 'admin_panel:complaints' %}?status=open" class="admin-filter-tab {% if status_filter == 'open' %}active{% endif %}">
+                Open ({{ open_count }})
+            </a>
+            <a href="{% url 'admin_panel:complaints' %}?status=investigating" class="admin-filter-tab {% if status_filter == 'investigating' %}active{% endif %}">
+                In Investigation ({{ investigating_count }})
+            </a>
+            <a href="{% url 'admin_panel:complaints' %}?status=resolved" class="admin-filter-tab {% if status_filter == 'resolved' %}active{% endif %}">
+                Resolved ({{ resolved_count }})
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>TICKET ID</th>
+                    <th>COMPLAINANT</th>
+                    <th>CATEGORY & PRIORITY</th>
+                    <th>FACILITY / BOOKING</th>
+                    <th>DESCRIPTION & NOTES</th>
+                    <th>STATUS</th>
+                    <th class="text-end">ACTION</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in complaints %}
+                    <tr>
+                        <td>
+                            <code class="text-primary fw-bold">{{ c.ticket_id }}</code>
+                        </td>
+                        <td>
+                            <div class="fw-bold text-dark">{{ c.complainant_name }}</div>
+                            <span class="badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">{{ c.user_type }}</span>
+                        </td>
+                        <td>
+                            <div class="small fw-semibold text-dark">{{ c.category }}</div>
+                            {% if c.priority == 'High' %}
+                                <span class="badge bg-danger text-white" style="font-size: 0.7rem;">High Priority</span>
+                            {% else %}
+                                <span class="badge bg-light text-muted border" style="font-size: 0.7rem;">{{ c.priority }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="small fw-semibold text-dark">{{ c.lot_name|default:"Shree Complex Parking" }}</div>
+                            <small class="text-muted">Ref: {{ c.booking_ref|default:"BK-1039" }}</small>
+                        </td>
+                        <td style="max-width: 320px;">
+                            <div class="small text-dark mb-1">{{ c.description }}</div>
+                            {% if c.admin_notes %}
+                                <div class="p-2 rounded bg-light border small text-muted" style="font-size: 0.76rem;">
+                                    <strong>Admin Notes:</strong> {{ c.admin_notes }}
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if c.status == 'open' %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25">Open</span>
+                            {% elif c.status == 'investigating' %}
+                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25">Investigating</span>
+                            {% else %}
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Resolved</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <form method="POST" action="{% url 'admin_panel:resolve_complaint' c.id %}" class="d-inline">
+                                {% csrf_token %}
+                                {% if c.status != 'resolved' %}
+                                    <input type="hidden" name="status" value="resolved">
+                                    <button type="submit" class="btn btn-sm btn-success py-1 px-2 fw-semibold" style="font-size: 0.75rem;">Resolve</button>
+                                {% else %}
+                                    <span class="text-muted small">Closed</span>
+                                {% endif %}
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">No complaints recorded.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

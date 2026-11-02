@@ -1,0 +1,435 @@
+{% extends 'lot_owner_panel/base_owner.html' %}
+{% load static %}
+
+{% block title %}Parking Extensions - Space Owner Studio - ParkEase{% endblock %}
+{% block page_heading %}Parking Extensions Management{% endblock %}
+
+{% block owner_content %}
+<div class="container-fluid px-0">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h2 class="h5 fw-bold text-dark mb-1">Parking Time Extensions</h2>
+            <p class="text-muted small mb-0">
+                Review driver requests to extend active parking time, evaluate schedule overlaps with incoming reservations, and approve or reassign bays.
+            </p>
+        </div>
+
+        <form method="GET" action="" class="d-flex align-items-center gap-2">
+            <div class="input-group input-group-sm" style="width: 280px;">
+                <input type="text" name="q" value="{{ search_query|default:'' }}" class="form-control" placeholder="Search Booking / Driver / Plate...">
+                <button type="submit" class="btn btn-dark btn-sm">Search</button>
+            </div>
+            {% if status_filter != 'all' %}
+                <input type="hidden" name="status" value="{{ status_filter }}">
+            {% endif %}
+            <a href="{% url 'lot_owner_panel:extensions' %}" class="btn btn-outline-secondary btn-sm fw-semibold">
+                Reset
+            </a>
+        </form>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="owner-card-metric h-100">
+                <div class="mb-1">
+                    <span class="metric-title">Total Requests</span>
+                </div>
+                <div class="metric-value text-dark">{{ counts.all|default:"0" }}</div>
+                <p class="metric-subtitle">Lifetime extensions received</p>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="owner-card-metric h-100">
+                <div class="mb-1">
+                    <span class="metric-title">Pending Approval</span>
+                </div>
+                <div class="metric-value text-dark">{{ counts.pending|default:"0" }}</div>
+                <p class="metric-subtitle">Awaiting owner review</p>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="owner-card-metric h-100">
+                <div class="mb-1">
+                    <span class="metric-title">Overlap Conflicts</span>
+                </div>
+                <div class="metric-value text-dark">{{ counts.conflicts|default:"0" }}</div>
+                <p class="metric-subtitle">Subsequent booking overlaps</p>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="owner-card-metric h-100">
+                <div class="mb-1">
+                    <span class="metric-title">Approved Extensions</span>
+                </div>
+                <div class="metric-value text-dark">{{ counts.approved|default:"0" }}</div>
+                <p class="metric-subtitle">Confirmed & settled</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pb-2 border-bottom">
+        <ul class="nav nav-pills gap-1">
+            <li class="nav-item">
+                <a class="nav-link btn-sm py-1 px-3 fw-semibold {% if status_filter == 'all' %}active bg-dark text-white{% else %}text-muted{% endif %}"
+                   href="?status=all{% if search_query %}&q={{ search_query }}{% endif %}">
+                    All Requests ({{ counts.all }})
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link btn-sm py-1 px-3 fw-semibold {% if status_filter == 'pending' %}active bg-warning text-dark{% else %}text-muted{% endif %}"
+                   href="?status=pending{% if search_query %}&q={{ search_query }}{% endif %}">
+                    Pending Review ({{ counts.pending }})
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link btn-sm py-1 px-3 fw-semibold {% if status_filter == 'approved' %}active bg-success text-white{% else %}text-muted{% endif %}"
+                   href="?status=approved{% if search_query %}&q={{ search_query }}{% endif %}">
+                    Approved ({{ counts.approved }})
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link btn-sm py-1 px-3 fw-semibold {% if status_filter == 'rejected' %}active bg-danger text-white{% else %}text-muted{% endif %}"
+                   href="?status=rejected{% if search_query %}&q={{ search_query }}{% endif %}">
+                    Rejected ({{ counts.rejected }})
+                </a>
+            </li>
+        </ul>
+
+        <div class="d-flex align-items-center gap-2">
+            <span class="small text-muted fw-semibold">Facility:</span>
+            <form method="GET" action="" id="lotFilterForm" class="m-0">
+                {% if status_filter != 'all' %}<input type="hidden" name="status" value="{{ status_filter }}">{% endif %}
+                {% if search_query %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}
+                <select name="lot_id" class="form-select form-select-sm" onchange="document.getElementById('lotFilterForm').submit();">
+                    <option value="">All My Facilities ({{ total_lots_count }})</option>
+                    {% for lot in owner_lots %}
+                        <option value="{{ lot.id }}" {% if selected_lot_id == lot.id|stringformat:"s" %}selected{% endif %}>
+                            {{ lot.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for ext in extension_requests %}
+            <div class="col-12">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white {% if ext.conflict_detected and ext.status == 'pending' %}border-start border-warning border-4{% endif %}">
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pb-3 mb-3 border-bottom">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="badge bg-dark px-3 py-2 fs-6 font-monospace">
+                                Booking #BK-{{ ext.booking.id }}
+                            </span>
+                            <div>
+                                <h5 class="fw-bold text-dark mb-0">{{ ext.booking.parking_lot }}</h5>
+                                <span class="small text-muted">
+                                    Requested on {{ ext.created_at|date:"M d, Y · h:i A" }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div>
+                            {% if ext.status == 'approved' %}
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill fw-bold">
+                                    Approved & Active
+                                </span>
+                            {% elif ext.status == 'rejected' %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-3 py-2 rounded-pill fw-bold">
+                                    Declined
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-4 border-end-md">
+                            <span class="text-muted small d-block mb-1">Requesting Motorist</span>
+                            <div class="fw-bold text-dark fs-6">
+                                {{ ext.requested_by.get_full_name|default:ext.requested_by.username }}
+                            </div>
+                            <div class="small text-muted mb-2">
+                                {{ ext.requested_by.email }}
+                            </div>
+
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="license-plate-badge" style="transform: scale(0.9); transform-origin: left center;">
+                                    <span class="license-plate-country">IND</span>
+                                    <span class="license-plate-text">{{ ext.booking.vehicle.registration_number|default:"GUEST-PLATE" }}</span>
+                                </span>
+                                <span class="badge bg-light text-dark border small">
+                                    {{ ext.booking.vehicle.get_vehicle_type_display|default:"Vehicle" }}
+                                </span>
+                            </div>
+
+                            <div class="small text-muted">
+                                Current Bay: <strong class="text-dark">{{ ext.booking.slot.slot_number|default:"Standard Bay" }}</strong> ({{ ext.booking.slot.zone|default:"Main Zone" }})
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 border-end-md">
+                            <span class="text-muted small d-block mb-1">Extension Duration</span>
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge bg-primary px-3 py-2 fs-6 rounded-3 fw-bold">
+                                    +{{ ext.additional_hours|floatformat:0 }} Hour(s) Extra
+                                </span>
+                                <span class="fs-5 fw-bold text-success">
+                                    &#8377;{{ ext.additional_fee }}
+                                </span>
+                            </div>
+
+                            <div class="small mb-1">
+                                <span class="text-muted">Original End:</span>
+                                <strong class="text-dark">{{ ext.current_end_time|date:"d M Y, h:i A" }}</strong>
+                            </div>
+
+                            <div class="small mb-1">
+                                <span class="text-muted">Requested New Departure:</span>
+                                <strong class="text-primary">{{ ext.requested_new_end_time|date:"d M Y, h:i A" }}</strong>
+                            </div>
+
+                            <div class="small text-muted">
+                                Total Updated Booking Tariff: <strong>&#8377;{{ ext.booking.total_amount|add:ext.additional_fee }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 d-flex flex-column justify-content-between">
+                            <div>
+                                <span class="text-muted small d-block mb-1">Resolution Summary</span>
+                                {% if ext.status == 'approved' %}
+                                    <div class="small text-success fw-bold mb-1">
+                                        Approved on {{ ext.resolved_at|date:"d M Y, h:i A" }}
+                                    </div>
+                                    {% if ext.assigned_slot %}
+                                        <div class="small text-dark mb-1">
+                                            Reassigned Bay: <strong>{{ ext.assigned_slot.slot_number }} ({{ ext.assigned_slot.zone }})</strong>
+                                        </div>
+                                    {% endif %}
+                                    {% if ext.owner_note %}
+                                        <div class="small text-muted p-2 bg-light rounded-2 border">
+                                            <strong>Note to Motorist:</strong> {{ ext.owner_note }}
+                                        </div>
+                                    {% endif %}
+                                {% elif ext.status == 'rejected' %}
+                                    <div class="small text-danger fw-bold mb-1">
+                                        Declined on {{ ext.resolved_at|date:"d M Y, h:i A" }}
+                                    </div>
+                                    {% if ext.owner_note %}
+                                        <div class="small text-muted p-2 bg-light rounded-2 border">
+                                            <strong>Reason:</strong> {{ ext.owner_note }}
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <div class="small text-muted mb-2">
+                                        Motorist is waiting for your confirmation. Please check slot availability below.
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            {% if ext.status == 'pending' %}
+                                <div class="d-flex align-items-center gap-2 pt-2">
+                                    <button type="button"
+                                            class="btn btn-primary btn-sm fw-bold px-3 py-2 flex-grow-1"
+                                            style="background-color: #0B3B60; border: none;"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#approveModal{{ ext.id }}">
+                                        Review & Approve
+                                    </button>
+
+                                    <button type="button"
+                                            class="btn btn-outline-danger btn-sm fw-bold px-3 py-2"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#rejectModal{{ ext.id }}">
+                                        Decline
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                    {% if ext.conflict_detected %}
+                        <div class="p-3 mt-3 rounded-3 border border-warning" style="background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);">
+                            <div class="mb-2">
+                                <h6 class="fw-bold text-dark mb-0">Already Booked</h6>
+                            </div>
+
+                            <p class="small text-dark mb-0">
+                                <strong>{{ ext.requested_by.get_full_name|default:ext.requested_by.username }}</strong> has asked for an extension of time until <strong>{{ ext.requested_new_end_time|date:"h:i A, d M" }}</strong>.
+                                However, from <strong>{{ ext.conflicting_booking.start_time|date:"h:i A, d M" }}</strong> to <strong>{{ ext.conflicting_booking.end_time|date:"h:i A, d M" }}</strong>, second user <strong>{{ ext.conflicting_booking.user.get_full_name|default:ext.conflicting_booking.user.username }}</strong> (Booking <strong>#BK-{{ ext.conflicting_booking.id }}</strong>, Vehicle <code>{{ ext.conflicting_booking.vehicle.registration_number|default:'Confirmed Pass' }}</code>) has this parking space which is already booked and paid.
+                            </p>
+                        </div>
+                    {% endif %}
+
+                </div>
+            </div>
+
+            <div class="modal fade" id="approveModal{{ ext.id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content rounded-4 border-0 shadow">
+                        <form method="POST" action="{% url 'lot_owner_panel:approve_extension' ext.id %}">
+                            {% csrf_token %}
+                            <div class="modal-header border-bottom px-4 pt-4 pb-3">
+                                <div>
+                                    <h5 class="modal-title fw-bold text-dark">Approve Parking Duration Extension</h5>
+                                    <small class="text-muted">Booking #BK-{{ ext.booking.id }} · {{ ext.booking.parking_lot }}</small>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+
+                            <div class="modal-body p-4">
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <div class="h-100 p-3 bg-light rounded-3 border d-flex flex-column justify-content-between" style="min-height: 105px;">
+                                            <div>
+                                                <span class="text-muted small d-block mb-1">Requesting Driver</span>
+                                                <div class="fw-bold text-dark fs-6">{{ ext.requested_by.get_full_name|default:ext.requested_by.username }}</div>
+                                            </div>
+                                            <div class="text-muted small font-monospace mt-2">
+                                                Plate: {{ ext.booking.vehicle.registration_number|default:"N/A" }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="h-100 p-3 bg-light rounded-3 border d-flex flex-column justify-content-between" style="min-height: 105px;">
+                                            <div>
+                                                <span class="text-muted small d-block mb-1">Extension Duration & Tariff</span>
+                                                <div class="fw-bold text-primary fs-6">+{{ ext.additional_hours|floatformat:0 }} Hour(s) (New Departure: {{ ext.requested_new_end_time|date:"h:i A, d M" }})</div>
+                                            </div>
+                                            <div class="text-success small fw-bold mt-2">
+                                                Extra Fee: &#8377;{{ ext.additional_fee }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {% if ext.conflict_detected %}
+                                    <div class="alert alert-warning border border-warning rounded-3 small mb-3">
+                                        <div class="mb-1">
+                                            <strong class="text-dark">Already Booked Notice:</strong>
+                                        </div>
+                                        Second user <strong>{{ ext.conflicting_booking.user.get_full_name|default:ext.conflicting_booking.user.username }}</strong> has booked and paid from <strong>{{ ext.conflicting_booking.start_time|date:"h:i A, d M" }}</strong> to <strong>{{ ext.conflicting_booking.end_time|date:"h:i A, d M" }}</strong>.
+                                        You can either reassign the requesting driver to an available alternative bay/lot below, or approve with the explicit requirement that they vacate the lot when their extended time expires.
+                                    </div>
+                                {% endif %}
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-dark small mb-1">
+                                        Assign Parking Slot / Bay (Optional Reallocation)
+                                    </label>
+                                    <select name="reassign_slot_id" class="form-select">
+                                        <option value="">Keep in Current Bay ({{ ext.booking.slot.slot_number|default:"Same Assigned Bay" }})</option>
+                                        {% for s in all_operational_slots %}
+                                            {% if s.parking_lot_id == ext.booking.lot_id and s.id != ext.booking.slot_id %}
+                                                <option value="{{ s.id }}">
+                                                    Alternative Bay {{ s.slot_number }} ({{ s.zone }}) - {{ s.vehicle_category }}
+                                                </option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                    <div class="form-text small text-muted">
+                                        Select an alternative available bay if the current bay is booked by another driver.
+                                    </div>
+                                </div>
+
+                                {% if total_lots_count > 1 %}
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold text-dark small mb-1">
+                                            Alternative Facility / Lot
+                                        </label>
+                                        <select name="reassign_lot_id" class="form-select">
+                                            <option value="">Same Facility ({{ ext.booking.parking_lot }})</option>
+                                            {% for lot in owner_lots %}
+                                                {% if lot.id != ext.booking.lot_id %}
+                                                    <option value="{{ lot.id }}">
+                                                        Transfer to: {{ lot.name }} ({{ lot.area }}, {{ lot.city }})
+                                                    </option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                {% endif %}
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-dark small mb-1">
+                                        Owner Vacate Instructions & Note (Emailed to Motorist)
+                                    </label>
+                                    <textarea name="owner_note"
+                                              rows="2"
+                                              class="form-control"
+                                              placeholder="e.g. Your extension is approved until {{ ext.requested_new_end_time|date:'h:i A' }}. Please note that you must vacate the space promptly as subsequent motorists have booked and paid for this bay."></textarea>
+                                    <div class="form-text small text-muted">
+                                        This note will be highlighted in the confirmation email dispatched directly to the motorist.
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="modal-footer px-4 pb-4 pt-2 border-0">
+                                <button type="button" class="btn btn-light rounded-3 px-3" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-success fw-bold rounded-3 px-4 py-2" style="background-color: #107C41; border-color: #107C41;">
+                                    Approve
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="rejectModal{{ ext.id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content rounded-4 border-0 shadow">
+                        <form method="POST" action="{% url 'lot_owner_panel:reject_extension' ext.id %}">
+                            {% csrf_token %}
+                            <div class="modal-header border-bottom px-4 pt-4 pb-3">
+                                <div>
+                                    <h5 class="modal-title fw-bold text-danger">Decline Parking Extension</h5>
+                                    <small class="text-muted">Booking #BK-{{ ext.booking.id }}</small>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+
+                            <div class="modal-body p-4">
+                                <p class="small text-muted mb-3">
+                                    Are you sure you want to decline this extension request for <strong>{{ ext.requested_by.get_full_name|default:ext.requested_by.username }}</strong>?
+                                    The driver will be notified to vacate the bay by their original scheduled departure time (<strong>{{ ext.current_end_time|date:"d M Y, h:i A" }}</strong>).
+                                </p>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-dark small mb-1">Reason for Declining</label>
+                                    <textarea name="rejection_reason" rows="2" class="form-control" placeholder="e.g. Facility is at 100% capacity due to incoming confirmed reservations."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer px-4 pb-4 pt-2 border-0">
+                                <button type="button" class="btn btn-light rounded-3 px-3" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger fw-bold rounded-3 px-4 py-2">
+                                    Confirm Decline
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        {% empty %}
+            <div class="col-12 text-center py-5">
+                <div class="p-5 bg-white rounded-4 shadow-sm">
+                    <h5 class="fw-bold text-dark">No Parking Extension Requests</h5>
+                    <p class="text-muted small mb-0">
+                        When drivers request extra time for active bookings in your parking facilities, their requests and conflict alerts will appear here for your review and approval.
+                    </p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

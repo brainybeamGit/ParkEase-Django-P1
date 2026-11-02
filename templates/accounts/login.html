@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Log In - ParkEase{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container pt-1 pb-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-10 col-lg-8 col-xl-7" style="max-width: 640px;">
+
+                <div class="auth-card auth-card-login">
+
+                    <div class="auth-card-navy-header text-center">
+                        <h1 class="auth-title text-white mb-2">
+                            Welcome <span style="color: #38bdf8;">Back</span>
+                        </h1>
+                        <p class="auth-subtitle mb-0" style="color: rgba(255, 255, 255, 0.85);">
+                            Sign in to manage your bookings, vehicles, and reservations.
+                        </p>
+                    </div>
+
+                    <div class="auth-card-body">
+                        <form method="POST" action="{% url 'accounts:login' %}" novalidate id="loginForm">
+                            {% csrf_token %}
+                            {% if next %}
+                                <input type="hidden" name="next" value="{{ next }}">
+                            {% endif %}
+
+                            <div class="mb-3">
+                                <label for="id_username" class="auth-label">Username or Email</label>
+                                <input
+                                    type="text"
+                                    name="username"
+                                    id="id_username"
+                                    class="reg-input"
+                                    placeholder="Enter your username or email"
+                                    value="{{ identifier|default:'' }}"
+                                    required
+                                    autofocus
+                                    autocomplete="username">
+                            </div>
+
+                            <div class="mb-2">
+                                <label for="id_password" class="auth-label">Password</label>
+                                <div class="position-relative">
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        id="id_password"
+                                        class="reg-input pe-5"
+                                        placeholder="Enter your password"
+                                        required
+                                        autocomplete="current-password">
+                                    <button
+                                        type="button"
+                                        class="btn-password-eye"
+                                        id="btnTogglePassword"
+                                        tabindex="-1"
+                                        title="Show or hide password"
+                                        aria-label="Toggle password visibility">
+                                        <i class="bi bi-eye-slash" id="passwordToggleIcon"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-4 pt-1">
+                                <div class="form-check m-0">
+                                    <input class="form-check-input auth-checkbox" type="checkbox" id="rememberMe" name="remember_me" checked>
+                                    <label class="form-check-label auth-remember-label" for="rememberMe">
+                                        Remember me
+                                    </label>
+                                </div>
+                                <a href="{% url 'accounts:forgot_password' %}" class="auth-forgot-link">
+                                    Forgot password?
+                                </a>
+                            </div>
+
+                            <button type="submit" class="btn-theme-primary w-100 py-2">
+                                Log In
+                            </button>
+
+                        </form>
+
+                        <div class="auth-divider my-4">
+                            <span>OR</span>
+                        </div>
+
+                        <div class="text-center">
+                            <p class="auth-footer-text mb-0">
+                                Don't have an account?
+                                <a href="{% url 'accounts:register' %}" class="auth-signup-link">
+                                    New register
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleBtn = document.getElementById('btnTogglePassword');
+    const passwordInput = document.getElementById('id_password');
+    const toggleIcon = document.getElementById('passwordToggleIcon');
+
+    if (toggleBtn && passwordInput && toggleIcon) {
+        toggleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const isPassword = passwordInput.getAttribute('type') === 'password';
+
+            if (isPassword) {
+                passwordInput.setAttribute('type', 'text');
+                toggleIcon.classList.remove('bi-eye-slash');
+                toggleIcon.classList.add('bi-eye');
+                toggleBtn.setAttribute('title', 'Hide password');
+            } else {
+                passwordInput.setAttribute('type', 'password');
+                toggleIcon.classList.remove('bi-eye');
+                toggleIcon.classList.add('bi-eye-slash');
+                toggleBtn.setAttribute('title', 'Show password');
+            }
+            passwordInput.focus();
+        });
+    }
+});
+</script>
+{% endblock %}

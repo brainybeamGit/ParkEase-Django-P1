@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Current Booking & History - ParkEase{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 960px;">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="h3 fw-bold text-dark mb-1">Current Booking & Reservations</h1>
+            <p class="text-muted small mb-0">View your active parking sessions, digital QR gate entry passes, extend booking duration, or manage cancellations, refunds, and service ratings.</p>
+        </div>
+    </div>
+
+    <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3" id="bookingTabPills">
+        <li class="nav-item">
+            <a class="nav-link px-4 py-2 rounded-pill fw-bold {% if active_tab == 'current' %}active text-white shadow-sm{% else %}bg-white text-dark border{% endif %}"
+               style="{% if active_tab == 'current' %}background-color: #0284c7; border: none;{% endif %}"
+               href="?tab=current">
+                <i class="bi bi-clock-history me-1"></i> Current Bookings ({{ active_bookings|length }})
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link px-4 py-2 rounded-pill fw-bold {% if active_tab == 'history' %}active text-white shadow-sm{% else %}bg-white text-dark border{% endif %}"
+               style="{% if active_tab == 'history' %}background-color: #0284c7; border: none;{% endif %}"
+               href="?tab=history">
+                <i class="bi bi-archive-fill me-1"></i> Booking History ({{ history_bookings|length }})
+            </a>
+        </li>
+    </ul>
+
+    {% if active_tab == 'current' %}
+        {% if active_bookings %}
+            {% include 'bookings/_booking_list_partial.html' with booking_list=active_bookings is_history=False %}
+        {% else %}
+            <div class="card border border-light-subtle rounded-4 p-5 text-center bg-white shadow-sm">
+                <div class="mb-3 text-muted">
+                    <i class="bi bi-calendar2-check fs-1 text-primary"></i>
+                </div>
+                <h4 class="fw-bold text-dark mb-1">No Active Bookings Right Now</h4>
+                <p class="text-muted small mb-4">You have no active parking sessions in progress. Check your Booking History for completed stays or book a new spot!</p>
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="?tab=history" class="btn btn-outline-primary rounded-pill px-4">View Booking History</a>
+                    <a href="{% url 'parking:home' %}" class="btn btn-primary rounded-pill px-4 fw-bold" style="background-color: #0284c7; border: none;">Find Parking</a>
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        {% if history_bookings %}
+            {% include 'bookings/_booking_list_partial.html' with booking_list=history_bookings is_history=True %}
+        {% else %}
+            <div class="card border border-light-subtle rounded-4 p-5 text-center bg-white shadow-sm">
+                <div class="mb-3 text-muted">
+                    <i class="bi bi-archive fs-1 text-secondary"></i>
+                </div>
+                <h4 class="fw-bold text-dark mb-1">No Booking History Found</h4>
+                <p class="text-muted small mb-4">You haven't completed any past parking stays yet.</p>
+                <a href="{% url 'parking:home' %}" class="btn btn-primary rounded-pill px-4 fw-bold" style="background-color: #0284c7; border: none;">Find Parking</a>
+            </div>
+        {% endif %}
+    {% endif %}
+
+</div>
+
+<script>
+function updateExtendCalculation(bookingId) {
+    var input = document.getElementById('extendHours' + bookingId);
+    if (!input) return;
+    var hours = parseFloat(input.value) || 1;
+    var rate = parseFloat(input.getAttribute('data-hourly-rate')) || 50.0;
+    var endIso = input.getAttribute('data-end-iso');
+
+    var totalCost = (hours * rate).toFixed(2);
+    var amountEl = document.getElementById('amountToPay' + bookingId);
+    if (amountEl) {
+        amountEl.textContent = '₹' + totalCost;
+    }
+
+    if (endIso) {
+        var endDate = new Date(endIso);
+        if (!isNaN(endDate.getTime())) {
+            endDate.setHours(endDate.getHours() + hours);
+            var options = { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+            var newEndStr = endDate.toLocaleString('en-IN', options);
+            var endEl = document.getElementById('newEndTime' + bookingId);
+            if (endEl) {
+                endEl.textContent = newEndStr;
+            }
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var inputs = document.querySelectorAll('.extend-hours-input');
+    inputs.forEach(function(inp) {
+        var id = inp.getAttribute('data-booking-id');
+        if (id) {
+            updateExtendCalculation(id);
+        }
+    });
+});
+</script>
+{% endblock %}

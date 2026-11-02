@@ -1,0 +1,517 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Rent Out Your Space - Earn Passive Income with Your Driveway | ParkEase{% endblock %}
+
+{% block content %}
+
+<section class="rent-hero-fullwidth">
+    <div class="container">
+        <div class="row align-items-center g-4 g-lg-5">
+            <div class="col-lg-6">
+                <h1 class="rent-hero-title">
+                    Earn <span class="highlight-blue">passive income from home</span> — starting with your driveway
+                </h1>
+                <p class="rent-hero-desc">
+                    ParkEase lets homeowners rent out their driveway to drivers looking for somewhere to park. You set the availability and price, and ParkEase handles the bookings and payments for you.
+                </p>
+                <div class="pt-2">
+                    <a href="{% url 'lot_owner_panel:register_step1' %}" class="btn btn-theme-primary px-4 py-3 fs-6">
+
+                        Get started
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="rent-hero-img-wrap">
+                    <img src="{% static 'images/hero-landing-blue.jpg' %}" alt="Homeowner renting out driveway on ParkEase">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="rent-space-section pt-3 pb-5">
+    <div class="container">
+
+        <section class="py-4 my-3">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold fs-1" style="color: #0f172a; letter-spacing: -0.5px;">
+                    Turn your driveway into a <span style="color: #0284c7;">passive income stream</span>
+                </h2>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="rent-card-only">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="rent-card-badge">
+                                <i class="bi bi-lightning-charge-fill me-1 text-primary"></i> Easy Setup
+                            </span>
+                            <span class="badge bg-light text-success border px-2 py-1 small fw-bold">
+                                <i class="bi bi-check2"></i> Listed
+                            </span>
+                        </div>
+                        <h3 class="rent-card-title mb-2">Simplicity</h3>
+                        <p class="rent-card-lead mb-2 text-dark fw-bold">
+                            Add your space, set your price and availability, and you're live.
+                        </p>
+                        <p class="rent-card-text text-muted mb-4">
+                            Most listings are up and earning within a day. Bookings come to you and payments arrive automatically.
+                        </p>
+                        <div class="mt-auto pt-3 border-top">
+                            <small class="text-secondary fw-semibold">
+                                <i class="bi bi-clock-history me-1 text-primary"></i> Ready in under 10 mins
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="rent-card-only">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="rent-card-badge">
+                                <i class="bi bi-sliders me-1 text-primary"></i> 100% Flexible
+                            </span>
+                            <span class="badge bg-light text-primary border px-2 py-1 small fw-bold">
+                                Mon–Fri
+                            </span>
+                        </div>
+                        <h3 class="rent-card-title mb-2">Control</h3>
+                        <p class="rent-card-lead mb-2 text-dark fw-bold">
+                            Your space, your schedule, your rules.
+                        </p>
+                        <p class="rent-card-text text-muted mb-4">
+                            Block out times you need the space, adjust rates for peak periods or let ParkEase determine pricing based on demand. Full control, always.
+                        </p>
+                        <div class="mt-auto pt-3 border-top">
+                            <small class="text-secondary fw-semibold">
+                                <i class="bi bi-calendar-check me-1 text-primary"></i> Instant calendar sync
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="rent-card-only">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="rent-card-badge">
+                                <i class="bi bi-cash-stack me-1 text-primary"></i> Tax-Free
+                            </span>
+                            <span class="badge bg-light text-primary border px-2 py-1 small fw-bold">
+                                ₹14,000/mo
+                            </span>
+                        </div>
+                        <h3 class="rent-card-title mb-2">Value</h3>
+                        <p class="rent-card-lead mb-2 text-dark fw-bold">
+                            Earn up to ₹ 60,000 a year tax-free, with no earnings cap.
+                        </p>
+                        <p class="rent-card-text text-muted mb-4">
+                            Whether you're at home or away, your space can be earning for you. Most space owners are surprised by how much they make.
+                        </p>
+                        <div class="mt-auto pt-3 border-top">
+                            <small class="text-secondary fw-semibold">
+                                <i class="bi bi-wallet2 me-1 text-primary"></i> Automated bank payouts
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="rent-card-only">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="rent-card-badge">
+                                <i class="bi bi-shield-check me-1 text-primary"></i> Verified
+                            </span>
+                            <span class="badge bg-light text-success border px-2 py-1 small fw-bold">
+                                ★ 5.0 Trustpilot
+                            </span>
+                        </div>
+                        <h3 class="rent-card-title mb-2">Trust</h3>
+                        <p class="rent-card-lead mb-2 text-dark fw-bold">
+                            Join 65,000+ space owners on ParkEase's verified network.
+                        </p>
+                        <p class="rent-card-text text-muted mb-4">
+                            If anything goes wrong, our dedicated support team handles it so you don't have to worry about a thing.
+                        </p>
+                        <div class="mt-auto pt-3 border-top">
+                            <small class="text-secondary fw-semibold">
+                                <i class="bi bi-headset me-1 text-primary"></i> 24/7 dedicated support
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-5 my-3">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold fs-1" style="color: #0f172a; letter-spacing: -0.5px;">
+                    Everything you need to manage your space and <span style="color: #0284c7;">maximise earnings</span>
+                </h2>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="rent-mockup-card">
+                        <div class="phone-screen-frame">
+                            <div class="phone-inner-card">
+                                <p class="text-muted mb-2" style="font-size: 0.72rem; line-height: 1.4;">
+                                    Enable our smart pricing engine to maximize your earnings — it changes your pricing over time by analysing driver demand, nearby prices, seasonality and many other factors.
+                                </p>
+                                <div class="p-2 bg-light rounded-3">
+                                    <span class="d-block fw-bold text-dark mb-1" style="font-size: 0.75rem;">Default pricing</span>
+                                    <div class="d-flex justify-content-between small text-muted">
+                                        <span>Hourly Price</span>
+                                        <strong class="text-dark">₹ 20</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between small text-muted">
+                                        <span>Daily Price</span>
+                                        <strong class="text-dark">₹ 120</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between small text-muted">
+                                        <span>Monthly Price</span>
+                                        <strong class="text-dark">₹ 2,200</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rent-card-body">
+                            <h3 class="rent-card-title">Automated or Manual Pricing</h3>
+                            <p class="rent-card-text">
+                                You set the price, or we can do it for you. Adjust any time, and earn more during peak moments with Scheduled Pricing.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="rent-mockup-card">
+                        <div class="phone-screen-frame">
+                            <div class="phone-inner-card">
+                                <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                    <span class="fw-semibold text-dark" style="font-size: 0.75rem;">Available all day</span>
+                                    <i class="bi bi-toggle-on text-primary fs-5"></i>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="d-block text-muted" style="font-size: 0.7rem;">Available on selected time slots</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-1 pb-1 border-bottom">
+                                    <span class="fw-bold text-dark" style="font-size: 0.75rem;">Tuesday</span>
+                                    <i class="bi bi-toggle-on text-primary fs-5"></i>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center text-primary fw-semibold" style="font-size: 0.72rem;">
+                                    <span>Time: 08:00 – 23:59</span>
+                                    <i class="bi bi-clock-history"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rent-card-body">
+                            <h3 class="rent-card-title">Availability Settings</h3>
+                            <p class="rent-card-text">
+                                Offer your space by the hour, day, or month — on your terms. Block dates, set hours, or go full-time. Plans change? So can your listing, in seconds.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="rent-mockup-card">
+                        <div class="phone-screen-frame">
+                            <div class="phone-inner-card">
+                                <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom">
+                                    <strong class="text-primary" style="font-size: 0.75rem;">ParkEase</strong>
+                                    <i class="bi bi-question-circle text-muted" style="font-size: 0.75rem;"></i>
+                                </div>
+                                <span class="d-block fw-bold text-dark mb-2" style="font-size: 0.72rem;">What features does your space have?</span>
+                                <div class="d-flex align-items-center gap-2 mb-1" style="font-size: 0.72rem;">
+                                    <i class="bi bi-check-square-fill text-primary"></i>
+                                    <span class="text-dark">CCTV Monitoring</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 mb-1" style="font-size: 0.72rem;">
+                                    <i class="bi bi-check-square-fill text-primary"></i>
+                                    <span class="text-dark">Dedicated Access</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 mb-1" style="font-size: 0.72rem;">
+                                    <i class="bi bi-check-square-fill text-primary"></i>
+                                    <span class="text-dark">Lighting & Security</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2" style="font-size: 0.72rem;">
+                                    <i class="bi bi-check-square-fill text-primary"></i>
+                                    <span class="text-dark">Covered Parking</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rent-card-body">
+                            <h3 class="rent-card-title">Showcasing Your Listing</h3>
+                            <p class="rent-card-text">
+                                Show off what makes your space worth booking — features, photos, description, local area. Every detail is a reason for drivers to choose you.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="rent-mockup-card">
+                        <div class="phone-screen-frame">
+                            <div class="phone-inner-card">
+                                <span class="d-block text-muted mb-2" style="font-size: 0.68rem; line-height: 1.35;">
+                                    Select the largest vehicle possible that can fit through the entrance and into the space:
+                                </span>
+                                <div class="p-1 mb-1 border rounded bg-white d-flex align-items-center justify-content-between" style="font-size: 0.72rem;">
+                                    <span>Small (Hatchback / Bike)</span>
+                                    <i class="bi bi-check-circle-fill text-primary"></i>
+                                </div>
+                                <div class="p-1 mb-1 border rounded bg-white d-flex align-items-center justify-content-between" style="font-size: 0.72rem;">
+                                    <span>Medium (Sedan / Crossover)</span>
+                                    <i class="bi bi-check-circle-fill text-primary"></i>
+                                </div>
+                                <div class="p-1 border rounded bg-white d-flex align-items-center justify-content-between" style="font-size: 0.72rem;">
+                                    <span>Large / SUV / 4x4</span>
+                                    <i class="bi bi-check-circle-fill text-primary"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rent-card-body">
+                            <h3 class="rent-card-title">Vehicle and Access Settings</h3>
+                            <p class="rent-card-text">
+                                Select which vehicles fit, add arrival instructions, and let drivers see everything upfront. Fewer questions, smoother bookings.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-5 my-2" id="quoteCalculatorSection">
+            <div class="row align-items-center g-4 g-lg-5">
+                <div class="col-lg-5">
+                    <h2 class="fw-bold mb-3" style="font-size: clamp(2rem, 3.2vw, 2.8rem); line-height: 1.2; letter-spacing: -0.8px; color: #0f172a;">
+                        How much could you earn <span style="color: #0284c7;">renting out your driveway?</span>
+                    </h2>
+                    <p class="text-secondary fs-6 mb-4" style="line-height: 1.6;">
+                        Find out how much you could earn with our quick and simple quote calculator — based on your location, local demand, and nearby spaces.
+                    </p>
+                </div>
+
+                <div class="col-lg-7">
+                    <div class="quote-calc-card">
+                        <form id="drivewayQuoteForm" onsubmit="return false;">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <input type="text" class="reg-input" id="quoteName" placeholder="Name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" class="reg-input" id="quotePostcode" placeholder="Postcode / Area" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <input type="email" class="reg-input" id="quoteEmail" placeholder="Email address" required>
+                            </div>
+
+                            <div class="d-flex flex-wrap align-items-center gap-3">
+                                <button type="button" class="btn btn-theme-primary px-4 py-2 fw-bold" id="btnGetQuote">
+                                    Get quote
+                                </button>
+                                <a href="{% url 'lot_owner_panel:register_step1' %}" class="btn btn-outline-theme px-4 py-2">
+                                    Rent out your space now
+                                </a>
+                            </div>
+
+                            <div class="mt-4 p-3 rounded-3 bg-light border d-none" id="quoteResultBanner">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="badge bg-success px-2 py-1">High Demand Area</span>
+                                    <span class="text-dark fw-bold small" id="quoteLocationLabel">Connaught Place / Metro Corridor</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-baseline">
+                                    <span class="text-secondary small">Estimated Monthly Earning:</span>
+                                    <span class="fs-4 fw-bold text-primary" id="quoteMonthlyVal">₹ 12,500 – ₹ 16,800</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-baseline mt-1 pt-1 border-top">
+                                    <span class="text-muted small">Estimated Annual Earning:</span>
+                                    <strong class="text-dark" id="quoteAnnualVal">Up to ₹ 1,95,000 / year</strong>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-5 my-3">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold fs-1" style="color: #0f172a; letter-spacing: -0.5px;">
+                    How to <span style="color: #0284c7;">rent your driveway</span>
+                </h2>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-12 col-md-4">
+                    <div class="rent-step-card">
+                        <div class="rent-step-img">
+                            <img src="{% static 'images/step-1-details.png' %}" alt="Enter your details">
+                        </div>
+                        <div class="rent-card-body">
+                            <h3 class="rent-card-title">1. Enter your details</h3>
+                            <p class="rent-card-text">
+                                Provide your postcode and space information to instantly see how much you could earn.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <div class="rent-step-card">
+                        <div class="rent-step-img">
+                            <img src="{% static 'images/step-2-list.png' %}" alt="List your space on the map">
+                        </div>
+                        <div class="rent-card-body">
+                            <h3 class="rent-card-title">2. List your space</h3>
+                            <p class="rent-card-text">
+                                Add availability, set your price, and upload photos — all in under ten minutes.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <div class="rent-step-card">
+                        <div class="rent-step-img">
+                            <img src="{% static 'images/step-3-money.png' %}" alt="Start making money from your driveway">
+                        </div>
+                        <div class="rent-card-body">
+                            <h3 class="rent-card-title">3. Start making money</h3>
+                            <p class="rent-card-text">
+                                Once listed, drivers can book your space immediately and you'll start earning.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+            </div>
+</div>
+
+<section class="faq-section py-5">
+    <div class="container">
+
+        <div class="mb-5">
+            <h2 class="section-title text-start">
+                FAQs on <span class="highlight-blue">renting your driveway</span>
+            </h2>
+        </div>
+
+        <div class="accordion" id="faqRentDrivewayAccordion">
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="headingRentOne">
+                    <button class="accordion-button faq-accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRentOne" aria-expanded="true" aria-controls="collapseRentOne">
+                        Is it legal to rent out my parking space?
+                    </button>
+                </h2>
+                <div id="collapseRentOne" class="accordion-collapse collapse show" aria-labelledby="headingRentOne" data-bs-parent="#faqRentDrivewayAccordion">
+                    <div class="faq-accordion-body">
+                        Yes. In 2013, the government publicly endorsed renting out private parking spaces. If you own the space or have permission from your landlord, you're free to list it.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="headingRentTwo">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRentTwo" aria-expanded="false" aria-controls="collapseRentTwo">
+                        Do I have to pay tax on what I earn?
+                    </button>
+                </h2>
+                <div id="collapseRentTwo" class="accordion-collapse collapse" aria-labelledby="headingRentTwo" data-bs-parent="#faqRentDrivewayAccordion">
+                    <div class="faq-accordion-body">
+                        You can earn supplementary income from property tax-free under statutory property allowances. Most hosts fall comfortably within this tax-exempt threshold.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="headingRentThree">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRentThree" aria-expanded="false" aria-controls="collapseRentThree">
+                        What if a driver damages my property?
+                    </button>
+                </h2>
+                <div id="collapseRentThree" class="accordion-collapse collapse" aria-labelledby="headingRentThree" data-bs-parent="#faqRentDrivewayAccordion">
+                    <div class="faq-accordion-body">
+                        ParkEase provides protection for space owners. All drivers are verified with licence plate checks, and you have access to full booking history and dedicated 24/7 support.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="headingRentFour">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRentFour" aria-expanded="false" aria-controls="collapseRentFour">
+                        Do I need to be at home when someone parks?
+                    </button>
+                </h2>
+                <div id="collapseRentFour" class="accordion-collapse collapse" aria-labelledby="headingRentFour" data-bs-parent="#faqRentDrivewayAccordion">
+                    <div class="faq-accordion-body">
+                        Not at all. Once your listing is live, drivers receive all the details they need through their digital parking pass. Most hosts never interact with drivers at all.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="headingRentFive">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRentFive" aria-expanded="false" aria-controls="collapseRentFive">
+                        How much does ParkEase charge?
+                    </button>
+                </h2>
+                <div id="collapseRentFive" class="accordion-collapse collapse" aria-labelledby="headingRentFive" data-bs-parent="#faqRentDrivewayAccordion">
+                    <div class="faq-accordion-body">
+                        It's 100% free to list. We take a small service fee from each booking — so we only earn when you do. No upfront costs, no monthly subscription fees, and no hidden charges.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-accordion-item">
+                <h2 class="accordion-header" id="headingRentSix">
+                    <button class="accordion-button faq-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRentSix" aria-expanded="false" aria-controls="collapseRentSix">
+                        Can I pause or cancel my listing?
+                    </button>
+                </h2>
+                <div id="collapseRentSix" class="accordion-collapse collapse" aria-labelledby="headingRentSix" data-bs-parent="#faqRentDrivewayAccordion">
+                    <div class="faq-accordion-body">
+                        Absolutely. Pause, unlist, or adjust your available dates anytime with a single click right from your space owner dashboard. You retain 100% control always.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnQuote = document.getElementById('btnGetQuote');
+    const nameInput = document.getElementById('quoteName');
+    const postcodeInput = document.getElementById('quotePostcode');
+    const emailInput = document.getElementById('quoteEmail');
+    const banner = document.getElementById('quoteResultBanner');
+    const locLabel = document.getElementById('quoteLocationLabel');
+    const monthlyVal = document.getElementById('quoteMonthlyVal');
+    const annualVal = document.getElementById('quoteAnnualVal');
+
+    if (btnQuote && banner) {
+        btnQuote.addEventListener('click', function() {
+            const postcode = postcodeInput.value.trim() || 'Your Area';
+            const name = nameInput.value.trim() || 'Space Owner';
+
+            locLabel.textContent = postcode + ' Area (High Driver Demand)';
+            monthlyVal.textContent = '₹ 14,200 – ₹ 18,500 / mo';
+            annualVal.textContent = 'Up to ₹ 2,15,000 / year';
+
+            banner.classList.remove('d-none');
+            banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+    }
+
+});
+</script>
+{% endblock %}

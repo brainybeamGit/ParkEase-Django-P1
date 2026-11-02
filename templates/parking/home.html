@@ -1,0 +1,504 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ParkEase - Guaranteed Parking Spaces Pre-Booked in Seconds{% endblock %}
+
+{% block content %}
+
+<div class="homepage-fixed-bg-wrapper">
+
+<section class="hero-centered-section text-center">
+    <div class="container position-relative" style="z-index: 2;">
+
+        <h1 class="hero-main-title">
+            The <span class="highlight-blue">smarter way</span> to find parking
+        </h1>
+
+        <div class="justpark-search-card-wrapper" id="searchSection">
+            <div class="justpark-search-card">
+
+                <div class="jp-tabs-container">
+                    <button type="button" class="jp-tab-btn active" data-tab="hourly">Hourly/Daily</button>
+                    <button type="button" class="jp-tab-btn" data-tab="monthly">Monthly</button>
+                    <button type="button" class="jp-tab-btn" data-tab="airport">Airport</button>
+                </div>
+
+                <form id="justParkSearchForm" action="{% url 'parking:search' %}" method="GET">
+                    <input type="hidden" id="hiddenSearchMode" name="mode" value="hourly">
+                    <input type="hidden" id="hiddenFromDate" name="from_date">
+                    <input type="hidden" id="hiddenFromTime" name="from_time">
+                    <input type="hidden" id="hiddenUntilDate" name="until_date">
+                    <input type="hidden" id="hiddenUntilTime" name="until_time">
+                    <input type="hidden" id="hiddenMonthlyStartDate" name="monthly_start_date">
+                    <input type="hidden" id="hiddenMonthlyAvailability" name="monthly_availability" value="Mon-Fri">
+                    <input type="hidden" id="hiddenVehicleType" name="vehicle_type" value="hatchback">
+
+                    <div class="jp-input-group" id="destinationFieldGroup">
+                        <label for="destinationInput" class="jp-input-label">Park at</label>
+                        <div class="jp-search-field">
+                            <input type="text" id="destinationInput" name="q" class="jp-search-input" value="{{ request.GET.q|default:'' }}" placeholder="Enter a place, area, or postcode" autocomplete="off">
+                            <i class="bi bi-search jp-search-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="jp-input-group d-none" id="airportFieldGroup">
+                        <label for="airportSelect" class="jp-input-label">Flying from</label>
+                        <div class="jp-search-field">
+                            <select id="airportSelect" name="airport" class="jp-search-input jp-airport-select">
+                                <option value="DEL" selected>Indira Gandhi International Airport (DEL) - New Delhi</option>
+                                <option value="BOM">Chhatrapati Shivaji Maharaj International (BOM) - Mumbai</option>
+                                <option value="BLR">Kempegowda International Airport (BLR) - Bengaluru</option>
+                                <option value="HYD">Rajiv Gandhi International Airport (HYD) - Hyderabad</option>
+                                <option value="MAA">Chennai International Airport (MAA) - Chennai</option>
+                                <option value="CCU">Netaji Subhash Bose Airport (CCU) - Kolkata</option>
+                                <option value="AMD">Sardar Vallabhbhai Patel Airport (AMD) - Ahmedabad</option>
+                                <option value="COK">Cochin International Airport (COK) - Kochi</option>
+                                <option value="GOI">Goa Dabolim / Mopa Airport (GOI / GOX) - Goa</option>
+                                <option value="PNQ">Pune International Airport (PNQ) - Pune</option>
+                            </select>
+                            <i class="bi bi-airplane-fill jp-search-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="jp-datetime-row position-relative" id="hourlyDatetimeRow">
+
+                        <div class="jp-datetime-box" id="jpFromBox">
+                            <span class="jp-datetime-label" id="fromBoxLabel">From</span>
+                            <div class="jp-datetime-val-row">
+                                <span class="jp-datetime-text" id="jpFromText">Today at 20:00</span>
+                                <i class="bi bi-chevron-down jp-datetime-arrow"></i>
+                            </div>
+                        </div>
+
+                        <div class="jp-datetime-separator">
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+
+                        <div class="jp-datetime-box" id="jpUntilBox">
+                            <span class="jp-datetime-label" id="untilBoxLabel">Until</span>
+                            <div class="jp-datetime-val-row">
+                                <span class="jp-datetime-text" id="jpUntilText">Tomorrow at 00:00</span>
+                                <i class="bi bi-chevron-down jp-datetime-arrow"></i>
+                            </div>
+                        </div>
+
+                        <div class="jp-popover-wrapper" id="jpDatetimePopover">
+                            <div class="jp-popover-body">
+
+                                <div class="jp-calendar-column">
+                                    <div class="jp-cal-nav">
+                                        <span class="jp-cal-month-title" id="jpCalMonthTitle">October 2026</span>
+                                        <div class="d-flex gap-1">
+                                            <button type="button" class="jp-cal-nav-btn" id="jpCalPrevBtn" title="Previous Month">
+                                                <i class="bi bi-chevron-left"></i>
+                                            </button>
+                                            <button type="button" class="jp-cal-nav-btn" id="jpCalNextBtn" title="Next Month">
+                                                <i class="bi bi-chevron-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="jp-cal-weekdays">
+                                        <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+                                    </div>
+
+                                    <div class="jp-cal-days-grid" id="jpCalDaysGrid"></div>
+                                </div>
+
+                                <div class="jp-time-column">
+                                    <div class="jp-time-title">Select Time</div>
+                                    <div class="jp-time-scroll-list" id="jpTimeScrollList"></div>
+                                </div>
+
+                            </div>
+
+                            <div class="jp-popover-footer">
+                                <div class="jp-popover-summary-text" id="jpPopoverSummary">
+                                    Enter after: <strong>Today at 20:00</strong>
+                                </div>
+                                <button type="button" class="btn-jp-popover-done" id="jpPopoverDoneBtn">
+                                    Done
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="jp-datetime-row position-relative d-none" id="monthlyDatetimeRow">
+
+                        <div class="jp-datetime-box" id="jpMonthlyStartBox">
+                            <span class="jp-datetime-label">Starting on</span>
+                            <div class="jp-datetime-val-row">
+                                <span class="jp-datetime-text" id="jpMonthlyStartText">Tomorrow</span>
+                                <i class="bi bi-chevron-down jp-datetime-arrow"></i>
+                            </div>
+                        </div>
+
+                        <div class="jp-datetime-separator">
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+
+                        <div class="jp-datetime-box" id="jpMonthlyAvailabilityBox">
+                            <span class="jp-datetime-label">Availability</span>
+                            <div class="jp-datetime-val-row">
+                                <span class="jp-datetime-text" id="jpMonthlyAvailabilityText">Mon-Fri</span>
+                                <i class="bi bi-chevron-down jp-datetime-arrow"></i>
+                            </div>
+                        </div>
+
+                        <div class="jp-popover-wrapper jp-monthly-calendar-popover" id="jpMonthlyCalendarPopover">
+                            <div class="jp-monthly-cal-body">
+                                <div class="jp-cal-nav">
+                                    <span class="jp-cal-month-title" id="jpMonthlyCalMonthTitle">October 2026</span>
+                                    <div class="d-flex gap-1">
+                                        <button type="button" class="jp-cal-nav-btn" id="jpMonthlyCalPrevBtn" title="Previous Month">
+                                            <i class="bi bi-chevron-left"></i>
+                                        </button>
+                                        <button type="button" class="jp-cal-nav-btn" id="jpMonthlyCalNextBtn" title="Next Month">
+                                            <i class="bi bi-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="jp-cal-weekdays">
+                                    <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+                                </div>
+
+                                <div class="jp-cal-days-grid" id="jpMonthlyCalDaysGrid"></div>
+
+                                <div class="mt-3">
+                                    <button type="button" class="btn-jp-popover-done w-100" id="jpMonthlyCalDoneBtn">
+                                        Done
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="jp-popover-wrapper jp-availability-popover" id="jpMonthlyAvailabilityPopover">
+                            <div class="jp-availability-body">
+
+                                <label class="jp-radio-option" data-value="Every day">
+                                    <span class="jp-radio-label">Every day</span>
+                                    <input type="radio" name="availability_opt" value="Every day" class="jp-radio-input">
+                                    <span class="jp-radio-circle"></span>
+                                </label>
+
+                                <label class="jp-radio-option selected" data-value="Mon-Fri">
+                                    <span class="jp-radio-label">Mon-Fri</span>
+                                    <input type="radio" name="availability_opt" value="Mon-Fri" class="jp-radio-input" checked>
+                                    <span class="jp-radio-circle"></span>
+                                </label>
+
+                                <label class="jp-radio-option" data-value="Sat-Sun">
+                                    <span class="jp-radio-label">Sat-Sun</span>
+                                    <input type="radio" name="availability_opt" value="Sat-Sun" class="jp-radio-input">
+                                    <span class="jp-radio-circle"></span>
+                                </label>
+
+                                <div class="mt-3">
+                                    <button type="button" class="btn-jp-popover-done w-100" id="jpAvailabilityDoneBtn">
+                                        Done
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="jp-vehicle-group">
+                        <label for="vehicleTypeSelect" class="jp-vehicle-label">Vehicle Type</label>
+                        <select id="vehicleTypeSelect" class="jp-vehicle-select-control">
+                            <option value="hatchback" selected>Bike / Scooter (Two-Wheeler) </option>
+                            <option value="sedan">Hatchback (Compact Car) </option>
+                            <option value="suv">SUV / 4x4 car</option>
+                            <option value="bike">Sedan (Standard Car) </option>
+                            <option value="van">Van / Large Vehicle</option>
+                            <option value="ev">Electric Vehicle with Charging Bay</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-jp-search-submit">
+                        Show parking spaces
+                    </button>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section id="features" class="section-padding bg-white">
+    <div class="container">
+
+        <div class="text-start mb-5">
+            <span class="section-tag">WHY PARKEASE</span>
+            <h2 class="section-title">Parking Made Effortless</h2>
+            <p class="section-desc ms-0">Designed to replace the stress of driving in circles with guaranteed convenience.</p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+
+            <div class="col-lg-4 col-md-6">
+                <div class="benefit-card-jp">
+                    <div class="benefit-card-banner p-0 overflow-hidden" style="height: 190px;">
+                        <img src="{% static 'images/benefit-peace-of-mind.jpg' %}" alt="Peace of mind" class="w-100 h-100" style="object-fit: cover; transition: transform 0.3s ease;">
+                    </div>
+                    <div class="benefit-card-body">
+                        <h3 class="benefit-card-title">Peace of mind</h3>
+                        <ul class="benefit-card-list">
+                            <li>Choose from thousands of verified spaces across busy commercial hubs and transit centers.</li>
+                            <li>Instant slot discovery tailored for two-wheelers, sedans, SUVs, and EVs with charging bays.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="benefit-card-jp">
+                    <div class="benefit-card-banner p-0 overflow-hidden" style="height: 190px;">
+                        <img src="{% static 'images/benefit-book-confidence.jpg' %}" alt="Book with Confidence" class="w-100 h-100" style="object-fit: cover; transition: transform 0.3s ease;">
+                    </div>
+                    <div class="benefit-card-body">
+                        <h3 class="benefit-card-title">Book with Confidence</h3>
+                        <ul class="benefit-card-list">
+                            <li>Reserve your guaranteed space before heading out &mdash; never drive in circles again.</li>
+                            <li>Transparent hourly tariffs set by verified lot owners with clear grace periods and no surprise fees.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="benefit-card-jp">
+                    <div class="benefit-card-banner p-0 overflow-hidden" style="height: 190px;">
+                        <img src="{% static 'images/benefit-seamless-qr.jpg' %}" alt="Seamless experience" class="w-100 h-100" style="object-fit: cover; transition: transform 0.3s ease;">
+                    </div>
+                    <div class="benefit-card-body">
+                        <h3 class="benefit-card-title">Seamless experience</h3>
+                        <ul class="benefit-card-list">
+                            <li>Touchless digital QR pass for fast, automated check-in and barrier gate opening.</li>
+                            <li>Extend active parking on-the-go directly from your phone with smart overstay alerts.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<section id="howItWorks" class="section-padding" style="background-color: var(--bg-page);">
+    <div class="container">
+
+        <div class="text-center mb-5">
+            <span class="section-tag">SIMPLE STEPS</span>
+            <h2 class="section-title">How ParkEase Works for Drivers</h2>
+            <p class="section-desc">From booking to departure in 3 seamless steps</p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+
+            <div class="col-lg-4 col-md-6">
+                <div class="step-item-clean">
+                    <div class="step-circle">1</div>
+                    <h4 class="step-header">Search & Choose</h4>
+                    <p class="step-text">
+                        Enter your destination area, compare nearby verified lots, real-time availability, and hourly rates.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="step-item-clean">
+                    <div class="step-circle">2</div>
+                    <h4 class="step-header">Reserve & Pay</h4>
+                    <p class="step-text">
+                        Pick your vehicle and time window. Pay securely via Cashfree test mode to instantly confirm your reservation.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="step-item-clean">
+                    <div class="step-circle">3</div>
+                    <h4 class="step-header">Scan & Park</h4>
+                    <p class="step-text">
+                        Drive in and show your QR pass to the gate scanner. When leaving, scan out cleanly with automatic grace tracking.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<section id="findParkingWithUs" class="section-padding bg-white">
+    <div class="container find-parking-container">
+
+        <div class="mb-4">
+            <h2 class="find-parking-heading">
+                Find <span class="highlight-brand">parking</span> with us
+            </h2>
+        </div>
+
+        <div class="find-parking-slider-wrapper position-relative">
+
+            <div class="find-parking-track" id="findParkingTrack">
+
+                <div class="find-parking-slide-item" data-card="0">
+                    <div class="find-parking-card">
+                        <div class="find-parking-media">
+                            <img src="{% static 'images/card-reservations.png' %}" alt="Reservations" class="find-parking-img" draggable="false">
+                        </div>
+                        <div class="find-parking-body">
+                            <h3 class="find-parking-title">Reservations</h3>
+                            <p class="find-parking-desc">
+                                Take the stress out of city parking with our trusted private driveways and car parks. Reserve your space in advance and follow the simple instructions to park on arrival.
+                            </p>
+                            <a href="{% url 'parking:reserve_parking' %}" class="find-parking-link">
+                                Reserve Parking <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="find-parking-slide-item" data-card="1">
+                    <div class="find-parking-card">
+                        <div class="find-parking-media">
+                            <img src="{% static 'images/card-monthly.png' %}" alt="Monthly Parking" class="find-parking-img" draggable="false">
+                        </div>
+                        <div class="find-parking-body">
+                            <h3 class="find-parking-title">Monthly Parking</h3>
+                            <p class="find-parking-desc">
+                                Want a regular space? You can book the same space on a 3, 5 or 7 day basis so that you have a reliable spot to turn up to on the days you need it.
+                            </p>
+                            <a href="{% url 'parking:monthly_parking' %}" class="find-parking-link">
+                                Book Monthly Parking <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="find-parking-slide-item" data-card="2">
+                    <div class="find-parking-card">
+                        <div class="find-parking-media">
+                            <img src="{% static 'images/card-park-pay.png' %}" alt="Park and Pay" class="find-parking-img" draggable="false">
+                        </div>
+                        <div class="find-parking-body">
+                            <h3 class="find-parking-title">Park and Pay</h3>
+                            <p class="find-parking-desc">
+                                Turn up and park when at our on-demand parking locations. Just enter the number visible, select how long you want to park for and let ParkEase sort the rest.
+                            </p>
+                            <a href="{% url 'parking:drive_up_parking' %}" class="find-parking-link">
+                                Drive-up Parking <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="find-parking-slide-item" data-card="3">
+                    <div class="find-parking-card">
+                        <div class="find-parking-media">
+                            <img src="{% static 'images/card-on-the-move.png' %}" alt="On the move" class="find-parking-img" draggable="false">
+                        </div>
+                        <div class="find-parking-body">
+                            <h3 class="find-parking-title">On the move</h3>
+                            <p class="find-parking-desc">
+                                For when you don't have time to reserve parking in advance, you can find parking whilst in your car with On the move.
+                            </p>
+                            <a href="{% url 'parking:on_the_move' %}" class="find-parking-link">
+                                Parking on the move <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <button type="button" class="fp-floating-arrow fp-floating-arrow-prev" id="fpFloatingArrowPrev" title="View previous cards" aria-label="Previous cards">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <button type="button" class="fp-floating-arrow fp-floating-arrow-next" id="fpFloatingArrowNext" title="View more options" aria-label="Next cards">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+
+            <div class="find-parking-dots">
+                <button type="button" class="fp-dot active" data-slide="0" aria-label="Slide 1"></button>
+                <button type="button" class="fp-dot" data-slide="1" aria-label="Slide 2"></button>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section id="rentOutSpace" class="section-padding" style="background-color: var(--bg-page);">
+    <div class="container">
+
+        <div class="owner-card-clean">
+            <div class="row align-items-center g-4">
+
+                <div class="col-lg-7">
+                    <h2 class="owner-title">
+                        Earn money from your empty parking space or lot
+                    </h2>
+                    <p class="owner-desc">
+                        Join hundreds of space owners monetizing driveways, commercial parking facilities, and vacant plots. Set your own vehicle hourly rates, scan passes at the gate, and receive payouts directly to your account.
+                    </p>
+                    <div class="d-flex flex-wrap gap-4 mb-4">
+                        <div class="d-flex align-items-center gap-2 text-white small">
+                            <i class="bi bi-check-circle-fill text-info fs-5"></i> Zero setup hardware needed
+                        </div>
+                        <div class="d-flex align-items-center gap-2 text-white small">
+                            <i class="bi bi-check-circle-fill text-info fs-5"></i> Automatic overstay fines
+                        </div>
+                        <div class="d-flex align-items-center gap-2 text-white small">
+                            <i class="bi bi-check-circle-fill text-info fs-5"></i> Fast admin approval
+                        </div>
+                    </div>
+                    <a href="{% url 'lot_owner_panel:register_step1' %}" class="btn-owner-cta">
+                        <span>List your space for free</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+
+                <div class="col-lg-5 text-center">
+                    <div class="earnings-pill-box">
+                        <span class="text-uppercase small fw-bold text-light" style="letter-spacing: 1px;">POTENTIAL EARNINGS</span>
+                        <div class="earnings-num mt-2">₹12,000+</div>
+                        <p class="earnings-label mb-3">average monthly passive income per parking slot</p>
+                        <div class="d-flex justify-content-center gap-2">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+</div>
+
+{% include 'includes/_feedback_footer_card.html' %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var searchForm = document.getElementById('justParkSearchForm');
+    if (searchForm) {
+        searchForm.addEventListener('submit', function(e) {
+            {% if not user.is_authenticated %}
+            e.preventDefault();
+            var q = document.getElementById('destinationInput') ? document.getElementById('destinationInput').value.trim() : '';
+            var targetUrl = "{% url 'parking:search' %}";
+            if (q) {
+                targetUrl += "?q=" + encodeURIComponent(q);
+            }
+            window.location.href = "{% url 'accounts:login' %}?next=" + encodeURIComponent(targetUrl);
+            {% endif %}
+        });
+    }
+});
+</script>
+{% endblock %}

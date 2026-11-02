@@ -1,0 +1,103 @@
+{% extends 'admin_panel/base_admin.html' %}
+{% load static %}
+
+{% block title %}Help & Support - ParkEase Admin Studio{% endblock %}
+{% block page_heading %}Platform Help Center & Support Tickets{% endblock %}
+
+{% block admin_content %}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="admin-card-metric">
+            <span class="metric-title">OPEN SUPPORT TICKETS</span>
+            <div class="metric-value text-danger">{{ open_tickets_count }}</div>
+            <p class="metric-subtitle">Assigned to customer care desk</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="admin-card-metric">
+            <span class="metric-title">RESOLVED INQUIRIES</span>
+            <div class="metric-value text-success">{{ resolved_tickets_count }}</div>
+            <p class="metric-subtitle">Avg resolution time: 2.1 hours</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="admin-card-metric">
+            <span class="metric-title">PLATFORM HELPLINE</span>
+            <div class="metric-value fs-4 mt-2 text-primary">1800-PARKEASE</div>
+            <p class="metric-subtitle">Toll-free 24/7 incident assistance</p>
+        </div>
+    </div>
+</div>
+
+<div class="admin-card mb-4">
+    <div class="pb-3 border-bottom mb-3">
+        <h5 class="fw-bold text-dark mb-0">Incoming Owner & Driver Support Requests</h5>
+    </div>
+
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>TICKET #</th>
+                    <th>USER / APPLICANT</th>
+                    <th>CATEGORY</th>
+                    <th>SUBJECT & INQUIRY</th>
+                    <th>CREATED</th>
+                    <th>STATUS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in tickets %}
+                    <tr>
+                        <td><code class="text-primary fw-bold">#SUP-{{ t.id }}</code></td>
+                        <td>
+                            <div class="fw-bold text-dark">{{ t.owner.get_full_name|default:t.owner.username }}</div>
+                            <small class="text-muted">{{ t.owner.email }}</small>
+                        </td>
+                        <td>
+                            <span class="badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">
+                                {{ t.category }}
+                            </span>
+                        </td>
+                        <td style="max-width: 300px;">
+                            <div class="small fw-bold text-dark">{{ t.subject }}</div>
+                            <div class="small text-muted text-truncate">{{ t.description }}</div>
+                        </td>
+                        <td>
+                            <span class="small text-muted">{{ t.created_at|date:"M d, Y" }}</span>
+                        </td>
+                        <td>
+                            {% if t.status == 'Open' %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25">Open</span>
+                            {% elif t.status == 'In Review' %}
+                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25">In Review</span>
+                            {% else %}
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Resolved</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td><code class="text-primary fw-bold">#SUP-8801</code></td>
+                        <td><div class="fw-bold text-dark">Ramesh Patel</div><small class="text-muted">owner@gmail.com</small></td>
+                        <td><span class="badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">Payout / Settlement</span></td>
+                        <td><div class="small fw-bold text-dark">Bank statement generation</div><div class="small text-muted">Requested official PDF statement for October cycle.</div></td>
+                        <td><span class="small text-muted">Oct 28, 2026</span></td>
+                        <td><span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Resolved</span></td>
+                    </tr>
+                    <tr>
+                        <td><code class="text-primary fw-bold">#SUP-8802</code></td>
+                        <td><div class="fw-bold text-dark">Ananya Deshmukh</div><small class="text-muted">ananya.d@gmail.com</small></td>
+                        <td><span class="badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">EV Charger</span></td>
+                        <td><div class="small fw-bold text-dark">Fast charging connector query</div><div class="small text-muted">Inquired regarding CCS2 DC compatibility at C.G. Road.</div></td>
+                        <td><span class="small text-muted">Oct 29, 2026</span></td>
+                        <td><span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Resolved</span></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

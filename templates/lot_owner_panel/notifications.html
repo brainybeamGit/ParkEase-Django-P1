@@ -1,0 +1,72 @@
+{% extends 'lot_owner_panel/base_owner.html' %}
+{% load static %}
+
+{% block title %}Notification Center - Space Owner Studio - ParkEase{% endblock %}
+{% block page_heading %}Notification Center{% endblock %}
+
+{% block owner_content %}
+<div class="container-fluid px-0">
+
+    <div style="max-width: 70%; width: 100%;">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div>
+                <h1 class="h5 fw-bold text-dark mb-1">Notification Center</h1>
+                <p class="text-muted small mb-0">Real-time alerts for incoming bookings, parking updates, settlements, and admin review queues.</p>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <a href="{% url 'lot_owner_panel:mark_notifications_read' %}" class="btn btn-outline-dark btn-sm fw-semibold" style="border-color: #cbd5e1; border-radius: 6px; padding: 0.4rem 0.9rem;">
+                    Mark All as Read
+                </a>
+            </div>
+        </div>
+
+        <div class="owner-card p-0 mb-4">
+            <div class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h2 class="fs-6 fw-bold text-dark mb-0">Recent Alerts & Triggers</h2>
+                <span class="text-muted small">{{ all_notifications|length }} total alerts</span>
+            </div>
+
+            <div class="list-group list-group-flush">
+                {% for n in all_notifications %}
+                    <div class="list-group-item px-4 py-3 border-bottom {% if not n.is_read %}bg-white{% else %}bg-light bg-opacity-25{% endif %}">
+                        <div class="d-flex flex-wrap flex-md-nowrap align-items-start justify-content-between gap-3">
+
+                            <div class="d-flex align-items-start gap-3">
+
+                                <span class="badge" style="background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-weight: 600; font-size: 0.75rem; padding: 0.35rem 0.65rem; border-radius: 4px;">
+                                    Notice
+                                </span>
+
+                                <div>
+                                    <h3 class="fs-6 fw-bold text-dark mb-1" style="line-height: 1.3;">
+                                        {{ n.title }}
+                                    </h3>
+                                    <p class="text-secondary small mb-1" style="max-width: 720px; line-height: 1.45;">
+                                        {{ n.message }}
+                                    </p>
+                                    <span class="text-muted" style="font-size: 0.75rem;">
+                                        {{ n.created_at|date:"M d, Y H:i" }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="ms-auto ms-md-0 flex-shrink-0 align-self-center">
+                                <a href="{% url 'lot_owner_panel:dashboard' %}" class="btn btn-outline-dark btn-sm fw-semibold px-3" style="border-color: #cbd5e1; border-radius: 4px; font-size: 0.8rem;">
+                                    View
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="text-center py-5 text-muted">
+                        <p class="mb-0">No notifications found.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

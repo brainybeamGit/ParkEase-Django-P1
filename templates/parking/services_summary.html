@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Summary of Services - Explore All ParkEase Parking Features{% endblock %}
+
+{% block content %}
+
+<section class="py-5" style="background: linear-gradient(135deg, #0a192f 0%, #0f2942 50%, #0369a1 100%); color: #ffffff;">
+    <div class="container py-4">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge px-3 py-2 rounded-pill fw-semibold mb-3" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
+                    PLATFORM CAPABILITIES
+                </span>
+                <h1 class="display-4 fw-extrabold text-white mb-3" style="letter-spacing: -1px; font-weight: 800;">
+                    Summary of <span style="color: #38bdf8;">ParkEase Services</span>
+                </h1>
+                <p class="lead text-white-50 mb-0" style="line-height: 1.7; font-size: 1.15rem;">
+                    From pre-booking a secure airport parking spot to turning an unused home driveway into passive income, here is the full overview of what ParkEase provides.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                <a href="{% url 'parking:home' %}#searchSection" class="btn btn-theme-primary px-4 py-2 fs-6">
+                    Find Parking Now &rarr;
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.service-theme-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 40%, #0f2942 100%);
+    color: #ffffff !important;
+    border: none;
+    border-radius: 12px;
+    padding: 0.7rem 1.6rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+    transition: all 0.25s ease;
+}
+.service-theme-btn:hover {
+    background: linear-gradient(135deg, #0369a1 0%, #075079 40%, #0c3b5e 100%);
+    color: #ffffff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(2, 132, 199, 0.45);
+}
+</style>
+
+<section class="py-5 bg-white">
+    <div class="container py-3">
+
+        <div class="row g-4 mb-5">
+
+            <div class="col-lg-6">
+                <div class="p-4 p-md-5 rounded-4 border bg-light h-100 shadow-sm d-flex flex-column justify-content-between">
+                    <div>
+                        <h3 class="fw-bold text-dark fs-4 mb-2">1. Pre-Booked Advance Parking</h3>
+                        <p class="text-muted mb-4" style="line-height: 1.7;">
+                            Guarantee your parking spot hours, days, or months ahead of time. Search thousands of spaces across city centres, stadiums, shopping hubs, and major airports. Receive instant directions, gate entry QR tokens, and guaranteed space availability.
+                        </p>
+                    </div>
+                    <div>
+                        <a href="{% url 'parking:reserve_parking' %}" class="service-theme-btn">
+                            Explore Advance Booking &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="p-4 p-md-5 rounded-4 border bg-light h-100 shadow-sm d-flex flex-column justify-content-between">
+                    <div>
+                        <h3 class="fw-bold text-dark fs-4 mb-2">2. Monthly Commuter Parking</h3>
+                        <p class="text-muted mb-4" style="line-height: 1.7;">
+                            Say goodbye to daily parking stress on your morning commute. Secure a recurring dedicated bay near your office or transit station. Flexible plans available: Monday to Friday for office workers, weekend-only, or full 7-day 24/7 access.
+                        </p>
+                    </div>
+                    <div>
+                        <a href="{% url 'parking:monthly_parking' %}" class="service-theme-btn">
+                            Explore Monthly Plans &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="p-4 p-md-5 rounded-4 border bg-light h-100 shadow-sm d-flex flex-column justify-content-between">
+                    <div>
+                        <h3 class="fw-bold text-dark fs-4 mb-2">3. Contactless Drive-Up (Park & Pay)</h3>
+                        <p class="text-muted mb-4" style="line-height: 1.7;">
+                            Already arrived at a participating car park? Simply scan the location QR code or enter the location ID to start your session instantly via UPI, credit card, or net banking. Extend your parking session remotely with a single tap.
+                        </p>
+                    </div>
+                    <div>
+                        <a href="{% url 'parking:drive_up_parking' %}" class="service-theme-btn">
+                            Explore Drive-Up Parking &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="p-4 p-md-5 rounded-4 border bg-light h-100 shadow-sm d-flex flex-column justify-content-between">
+                    <div>
+                        <h3 class="fw-bold text-dark fs-4 mb-2">4. Electric Vehicle Fast Charging</h3>
+                        <p class="text-muted mb-4" style="line-height: 1.7;">
+                            Combine bay reservation with electric vehicle charging. Book guaranteed access to Type 2 AC chargers or CCS2 DC high-speed chargers. Monitor your charge status, kilowatt hours consumed, and billing within your ParkEase account.
+                        </p>
+                    </div>
+                    <div>
+                        <a href="{% url 'parking:home' %}#searchSection" class="service-theme-btn">
+                            Find EV Charging Hubs &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="p-4 p-md-5 rounded-4 border bg-light h-100 shadow-sm d-flex flex-column justify-content-between">
+                    <div>
+                        <h3 class="fw-bold text-dark fs-4 mb-2">5. Rent Out Your Residential Driveway</h3>
+                        <p class="text-muted mb-4" style="line-height: 1.7;">
+                            Turn your unused home driveway or parking bay into up to ₹60,000+ per year in hassle-free passive income. You control when it's available and set your hourly/monthly rates. ParkEase manages payments and sends weekly automated bank deposits.
+                        </p>
+                    </div>
+                    <div>
+                        <a href="{% url 'parking:rent_out_your_space' %}" class="service-theme-btn">
+                            List Your Driveway &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="p-4 p-md-5 rounded-4 border bg-light h-100 shadow-sm d-flex flex-column justify-content-between">
+                    <div>
+                        <h3 class="fw-bold text-dark fs-4 mb-2">6. Commercial Lot & Enterprise Management</h3>
+                        <p class="text-muted mb-4" style="line-height: 1.7;">
+                            Tailored enterprise solutions for shopping malls, tech parks, hotel groups, and airport operators. Features dynamic algorithmic yield optimization, automated barrier access integration, and live revenue reporting.
+                        </p>
+                    </div>
+                    <div>
+                        <a href="{% url 'parking:business' %}" class="service-theme-btn">
+                            Explore Business Solutions &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="p-4 p-md-5 rounded-4 border bg-light">
+            <h4 class="fw-bold text-dark mb-4 text-center">Service Comparison Matrix</h4>
+            <div class="table-responsive">
+                <table class="table table-bordered bg-white mb-0">
+                    <thead style="background-color: #f1f5f9;">
+                        <tr>
+                            <th class="py-3 px-4">Feature / Offering</th>
+                            <th class="py-3 px-4 text-center">Motorists / Drivers</th>
+                            <th class="py-3 px-4 text-center">Driveway Owners</th>
+                            <th class="py-3 px-4 text-center">Commercial Operators</th>
+                        </tr>
+                    </thead>
+                    <tbody class="small text-secondary">
+                        <tr>
+                            <td class="py-3 px-4 fw-bold text-dark">Advance Space Reservation</td>
+                            <td class="text-center text-success fw-semibold">Guaranteed</td>
+                            <td class="text-center text-success fw-semibold">Enabled</td>
+                            <td class="text-center text-success fw-semibold">Enabled</td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-4 fw-bold text-dark">Contactless Drive-Up Pay & Park</td>
+                            <td class="text-center text-success fw-semibold">Yes</td>
+                            <td class="text-center text-muted">—</td>
+                            <td class="text-center text-success fw-semibold">Full Support</td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-4 fw-bold text-dark">Automated Weekly Bank Payouts</td>
+                            <td class="text-center text-muted">—</td>
+                            <td class="text-center text-success fw-semibold">Direct Deposit</td>
+                            <td class="text-center text-success fw-semibold">Direct Deposit</td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-4 fw-bold text-dark">EV Charging Session Integration</td>
+                            <td class="text-center text-success fw-semibold">Yes</td>
+                            <td class="text-center text-muted">—</td>
+                            <td class="text-center text-success fw-semibold">OCPP Turnkey</td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-4 fw-bold text-dark">Dedicated Management Dashboard</td>
+                            <td class="text-center text-muted">—</td>
+                            <td class="text-center text-success fw-semibold">Owner Studio</td>
+                            <td class="text-center text-success fw-semibold">Admin Studio</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

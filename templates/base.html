@@ -1,0 +1,285 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ParkEase - Guaranteed Parking Spaces Pre-Booked in Seconds{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% include 'includes/_page_loader.html' %}
+
+    <nav class="navbar navbar-expand-lg navbar-clean">
+        <div class="container-fluid px-3 px-lg-4 px-xl-5">
+
+            <a class="brand-wrapper" href="{% url 'parking:home' %}">
+                <img src="https://res.cloudinary.com/doexdsxo/image/upload/e_trim/v1793319662/LogoIMG2.png" alt="ParkEase" class="brand-logo-img">
+            </a>
+
+            <button class="navbar-toggler border-0 p-1" type="button" id="btnToggleNavDrawer" aria-label="Toggle navigation">
+                <i class="bi bi-list fs-2 text-dark"></i>
+            </button>
+
+            <div class="parkease-nav-drawer" id="parkeaseNavbar">
+
+                <div class="d-flex d-lg-none align-items-center justify-content-between pb-3 mb-3 border-bottom">
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="https://res.cloudinary.com/doexdsxo/image/upload/e_trim/v1793319662/LogoIMG2.png" alt="ParkEase" style="height: 32px; width: auto;">
+                    </div>
+                    <button type="button" class="btn-close" id="btnCloseNavDrawer" aria-label="Close"></button>
+                </div>
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-item" href="{% url 'parking:home' %}#findParkingWithUs">
+                            Find Parking
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-item" href="{% url 'parking:home' %}#howItWorks">
+                            How It Works
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-item {% if request.resolver_match.url_name == 'rent_out_your_space' %}active{% endif %}" href="{% url 'parking:rent_out_your_space' %}">
+                            Rent out your space
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-item" href="{% url 'parking:home' %}#searchSection">
+                            Search Spaces
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-item {% if request.resolver_match.url_name == 'business' %}active{% endif %}" href="{% url 'parking:business' %}">
+                            Business
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-item" href="{% url 'parking:home' %}#features">
+                            Why ParkEase
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-item {% if request.resolver_match.url_name == 'my_bookings' %}active{% endif %}" href="{% url 'parking:my_bookings' %}">
+                            Current Booking
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+
+                <div class="d-flex align-items-center flex-wrap gap-2 mt-3 mt-lg-0 navbar-auth-buttons">
+                    {% if '/login' in request.path or request.resolver_match.url_name == 'login' %}
+                        <a href="{% url 'parking:home' %}" class="btn-login-link text-nowrap">Home</a>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                        {% if user.lot_owner_profile or user.profile.role == 'owner' or user.is_staff %}
+                            <a href="{% url 'lot_owner_panel:dashboard' %}" class="btn btn-sm text-white fw-bold me-2" style="background-color: #2A1810; border-radius: 6px;">
+                                Owner Studio
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'accounts:profile' %}" class="btn-login-link text-nowrap {% if request.resolver_match.url_name == 'profile' %}active-profile{% endif %}" title="View My Profile">Profile</a>
+                        <a href="{% url 'accounts:logout' %}" class="btn-login-link text-nowrap" title="Log out">Log out</a>
+                        {% if request.resolver_match.url_name != 'home' and request.path != '/' %}
+                            <a href="{% url 'parking:home' %}" class="btn-login-link text-nowrap" title="Home">Home</a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}" class="btn-login-link text-nowrap">Log in</a>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </nav>
+    <div class="parkease-nav-backdrop" id="parkeaseNavBackdrop"></div>
+
+    <main>
+        {% if messages %}
+            <div class="container mt-3">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show shadow-sm" role="alert">
+                        <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill text-success{% elif message.tags == 'error' or message.tags == 'danger' %}bi-exclamation-triangle-fill text-danger{% else %}bi-info-circle-fill text-info{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+
+        <div class="modal fade" id="instantBookingModal" tabindex="-1" aria-labelledby="instantBookingModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content booking-modal-card">
+                    <div class="modal-header booking-modal-header">
+                        <div>
+                            <h5 class="modal-title fw-bold text-white mb-0" id="instantBookingModalLabel">
+                                <i class="bi bi-shield-check me-2"></i>Reserve Your Parking Space
+                            </h5>
+                            <small class="text-white-50">Instant Space Lock & Guaranteed Bay</small>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4" id="bookingModalBody">
+                        <div class="booking-detail-pill">
+                            <span class="booking-detail-label">Location / Destination</span>
+                            <span class="booking-detail-value" id="modalBookingLocation">Connaught Place, New Delhi</span>
+                        </div>
+                        <div class="booking-detail-pill">
+                            <span class="booking-detail-label">Plan / Schedule</span>
+                            <span class="booking-detail-value" id="modalBookingSchedule">Hourly Booking</span>
+                        </div>
+                        <div class="booking-detail-pill">
+                            <span class="booking-detail-label">Vehicle Category</span>
+                            <span class="booking-detail-value" id="modalBookingVehicle">Standard Car</span>
+                        </div>
+                        <div class="booking-detail-pill">
+                            <span class="booking-detail-label">Reservation Status</span>
+                            <span class="booking-detail-value text-success">
+                                <i class="bi bi-check-circle-fill me-1"></i>Space Available
+                            </span>
+                        </div>
+
+                        <div class="p-3 bg-light rounded-3 my-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="text-secondary small fw-semibold">Best Price Lock</span>
+                                <span class="fw-bold text-dark fs-5" id="modalBookingPrice">₹ 140.00</span>
+                            </div>
+                            <small class="text-muted d-block">Includes free cancellation up to 30 mins before arrival & 24/7 space protection.</small>
+                        </div>
+
+                        <button type="button" class="btn btn-primary w-100 py-2 fw-bold" id="btnConfirmBookingModal" style="background-color: var(--primary-color); border: none; border-radius: 12px;">
+                            Confirm & Reserve Slot
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+        <footer class="footer-parkwhiz" id="parkeaseFooter">
+
+        <svg class="footer-road-art" viewBox="0 0 440 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+            <path d="M-60 380 C 140 380, 360 220, 360 -40" stroke="rgba(0, 0, 0, 0.28)" stroke-width="66" stroke-linecap="round" fill="none"/>
+            <path d="M-60 380 C 140 380, 360 220, 360 -40" stroke="rgba(255, 255, 255, 0.08)" stroke-width="48" stroke-linecap="round" fill="none"/>
+            <path d="M-60 380 C 140 380, 360 220, 360 -40" stroke="rgba(255, 255, 255, 0.22)" stroke-width="2" stroke-dasharray="14 14" stroke-linecap="round" fill="none"/>
+
+            <g transform="translate(70, 255) rotate(-34)">
+
+                <rect x="-25" y="-48" width="50" height="96" rx="20" fill="rgba(0, 0, 0, 0.45)" filter="blur(6px)"/>
+
+                <rect x="-27" y="-36" width="6" height="18" rx="3" fill="#0f172a"/>
+                <rect x="21" y="-36" width="6" height="18" rx="3" fill="#0f172a"/>
+                <rect x="-27" y="18" width="6" height="18" rx="3" fill="#0f172a"/>
+                <rect x="21" y="18" width="6" height="18" rx="3" fill="#0f172a"/>
+
+                <rect x="-23" y="-45" width="46" height="90" rx="16" fill="#0284c7"/>
+                <path d="M -23 -20 Q -23 -43 0 -45 Q 23 -43 23 -20 L 23 25 Q 23 43 0 45 Q -23 43 -23 25 Z" fill="#38bdf8"/>
+
+                <path d="M -17 -12 L -14 -31 Q 0 -35 14 -31 L 17 -12 Q 0 -15 -17 -12 Z" fill="#0f172a"/>
+                <path d="M -15 -14 L -13 -29 Q 0 -32 13 -29 L 15 -14 Z" fill="#e0f2fe" opacity="0.9"/>
+
+                <rect x="-16" y="-10" width="32" height="32" rx="4" fill="#0369a1"/>
+
+                <path d="M -15 25 L -13 29 Q 0 31 13 29 L 15 25 Z" fill="#0f172a"/>
+
+                <ellipse cx="-16" cy="-43" rx="4" ry="2.5" fill="#ffffff"/>
+                <ellipse cx="16" cy="-43" rx="4" ry="2.5" fill="#ffffff"/>
+
+                <rect x="-19" y="43" width="8" height="2" rx="1" fill="#ef4444"/>
+                <rect x="11" y="43" width="8" height="2" rx="1" fill="#ef4444"/>
+            </g>
+        </svg>
+
+        <div class="container pw-footer-content">
+            <div class="row g-4">
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <div class="footer-brand-icon" style="width: 32px; height: 32px; font-size: 1.1rem; border-radius: 8px;">
+                            <i class="bi bi-p-square-fill"></i>
+                        </div>
+                        <span class="fs-4 fw-bold text-white" style="letter-spacing: -0.5px;">ParkEase</span>
+                    </div>
+                    <div class="text-white small fw-bold mb-4" style="letter-spacing: 1.5px; font-size: 0.72rem; opacity: 0.9;">
+                        A SMART PARKING PLATFORM
+                    </div>
+
+                    <div class="text-white fw-bold small text-uppercase mb-2" style="letter-spacing: 0.5px;">
+
+                    </div>                </div>
+
+                <div class="col-lg-3 col-md-6 col-6">
+                    <h6 class="pw-heading">GET TO KNOW US</h6>
+                    <a href="{% url 'parking:about_us' %}" class="pw-link">About Us</a>
+                    <a href="{% url 'parking:press_news' %}" class="pw-link">Press & News</a>
+                    <a href="{% url 'parking:careers' %}" class="pw-link">Careers</a>
+                    <a href="{% url 'admin_panel:login' %}" class="pw-link">Admin Login</a>
+                    <a href="{% url 'lot_owner_panel:login' %}" class="pw-link">Lot Owner Login</a>
+
+                    <h6 class="pw-subheading">BETTER FOR BUSINESS</h6>
+                    <a href="{% url 'parking:business' %}" class="pw-link">ParkEase for Business</a>
+                    <a href="{% url 'parking:rent_out_your_space' %}" class="pw-link">List Your Parking Lot</a>
+                </div>
+
+                <div class="col-lg-3 col-md-6 col-6">
+                    <h6 class="pw-heading">FIND US HERE</h6>
+                    <a href="{% url 'parking:search' %}?q=Mumbai" class="pw-link">Mumbai Parking</a>
+                    <a href="{% url 'parking:search' %}?q=Delhi+NCR" class="pw-link">Delhi NCR Parking</a>
+                    <a href="{% url 'parking:search' %}?q=Bengaluru&mode=monthly" class="pw-link">Bengaluru Monthly Parking</a>
+                    <a href="{% url 'parking:search' %}?q=Pune" class="pw-link">Pune Central Parking</a>
+                    <a href="{% url 'parking:search' %}?q=Hyderabad&mode=monthly" class="pw-link">Hyderabad Monthly Parking</a>
+                    <a href="{% url 'parking:search' %}?q=Ahmedabad" class="pw-link">Ahmedabad Parking</a>
+                    <a href="{% url 'parking:search' %}?near_me=1" class="pw-link">Parking Near Me</a>
+                    <a href="{% url 'parking:browse_cities' %}" class="pw-link">Browse All Cities</a>
+                    <a href="{% url 'parking:browse_airports' %}" class="pw-link">Browse Airports</a>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="pw-heading">LET US HELP YOU</h6>
+                    <a href="{% url 'parking:help_center' %}" class="pw-link">Visit Our Help Center</a>
+                    <a href="{% url 'parking:services_summary' %}" class="pw-link">Summary of Services</a>
+                    <a href="{% url 'parking:faqs_support' %}" class="pw-link">FAQs & Support</a>
+
+                    <h6 class="pw-subheading">
+                    <div class="small mb-1" style="font-size: 0.78rem; color: #b9c9d4;">Follow Us:</div></h6>
+                    <div class="pw-social-links">
+                        <a href="https://x.com/JustPark?lang=en" class="pw-social-btn" title="Twitter" target="_blank" rel="noopener noreferrer"><i class="bi bi-twitter-x"></i></a>
+                        <a href="https://www.facebook.com/JustParkHQ/" class="pw-social-btn" title="Facebook" target="_blank" rel="noopener noreferrer"><i class="bi bi-facebook"></i></a>
+                        <a href="https://www.linkedin.com/company/justpark" class="pw-social-btn" title="LinkedIn" target="_blank" rel="noopener noreferrer"><i class="bi bi-linkedin"></i></a>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="pw-bottom-bar">
+            <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                <div>
+                    <span class="me-3" style="color: #b9c9d4;">ParkEase &copy; 2026. All Rights Reserved.</span>
+                    <span class="d-inline-block mt-2 mt-md-0">
+                        <a href="{% url 'parking:policies' %}?tab=privacy#privacy-policy" class="pw-legal-link">Privacy Policy</a>
+                        <a href="{% url 'parking:policies' %}?tab=overstay#overstay-policy" class="pw-legal-link">Overstay Policy</a>
+                    </span>
+                </div>
+
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
