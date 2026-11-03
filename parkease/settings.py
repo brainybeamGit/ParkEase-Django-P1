@@ -86,6 +86,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'parking.context_processors.google_maps',
             ],
         },
     },
@@ -168,3 +169,9 @@ CASHFREE_APP_ID = os.getenv('CASHFREE_APP_ID', 'TEST10000001')
 CASHFREE_SECRET_KEY = os.getenv('CASHFREE_SECRET_KEY', 'TEST_SECRET_KEY')
 CASHFREE_ENV = os.getenv('CASHFREE_ENV', 'sandbox')
 CASHFREE_API_VERSION = os.getenv('CASHFREE_API_VERSION', '2023-08-01')
+
+
+# Google Maps Platform APIs
+GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY', '')
+GOOGLE_PLACES_API_KEY = os.getenv('GOOGLE_PLACES_API_KEY', '')
+GOOGLE_ROUTES_API_KEY = os.getenv('GOOGLE_ROUTES_API_KEY', '')

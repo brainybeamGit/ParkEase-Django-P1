@@ -413,11 +413,95 @@ function triggerOverstayRazorpay() {
 <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"></script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const lotLat = {{ lat }};
-        const lotLng = {{ lng }};
+    const lotLat = {{ lat }};
+    const lotLng = {{ lng }};
+    const cityCenterLat = 23.0360, cityCenterLng = 72.5610;
 
-        const ticketMap = L.map('ticketRouteMap', {
+    let activeTicketMapMode = 'none';
+    let gTicketMap = null;
+    let lTicketMap = null;
+
+    window.gm_authFailure = function() {
+        console.warn('Google Maps Auth Restricted on ticket pass. Activating Leaflet fallback.');
+        if (activeTicketMapMode !== 'leaflet') {
+            initLeafletTicketMap('RefererNotAllowed');
+        }
+    };
+
+    function initGoogleTicketMap() {
+        if (activeTicketMapMode === 'leaflet') return;
+        if (typeof google === 'undefined' || !google.maps) {
+            initLeafletTicketMap('Google Maps library not available');
+            return;
+        }
+
+        try {
+            const mapContainer = document.getElementById('ticketRouteMap');
+            if (!mapContainer) return;
+
+            gTicketMap = new google.maps.Map(mapContainer, {
+                center: { lat: lotLat, lng: lotLng },
+                zoom: 15,
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: true,
+                zoomControl: true
+            });
+
+            activeTicketMapMode = 'google';
+
+            // Entrance Pin Marker
+            new google.maps.Marker({
+                position: { lat: lotLat, lng: lotLng },
+                map: gTicketMap,
+                title: "Entrance Gate"
+            });
+
+            // Google Directions Driving Route
+            const dirService = new google.maps.DirectionsService();
+            const dirRenderer = new google.maps.DirectionsRenderer({
+                map: gTicketMap,
+                suppressMarkers: false,
+                polylineOptions: {
+                    strokeColor: '#0284c7',
+                    strokeWeight: 5,
+                    strokeOpacity: 0.85
+                }
+            });
+
+            const req = {
+                origin: new google.maps.LatLng(cityCenterLat, cityCenterLng),
+                destination: new google.maps.LatLng(lotLat, lotLng),
+                travelMode: google.maps.TravelMode.DRIVING
+            };
+
+            dirService.route(req, (res, status) => {
+                if (status === google.maps.DirectionsStatus.OK) {
+                    dirRenderer.setDirections(res);
+                    const leg = res.routes[0].legs[0];
+                    const statsEl = document.getElementById('ticketRouteStats');
+                    if (statsEl) {
+                        statsEl.innerHTML = `${leg.distance.text} · ${leg.duration.text} drive`;
+                    }
+                }
+            });
+
+        } catch (err) {
+            console.error('Google ticket map failed:', err);
+            initLeafletTicketMap(err.message);
+        }
+    }
+
+    function initLeafletTicketMap(reason) {
+        if (activeTicketMapMode === 'leaflet') return;
+        activeTicketMapMode = 'leaflet';
+        console.log('Leaflet ticket map active. Reason:', reason);
+
+        const container = document.getElementById('ticketRouteMap');
+        if (!container) return;
+        container.innerHTML = '';
+
+        lTicketMap = L.map('ticketRouteMap', {
             zoomControl: true,
             scrollWheelZoom: false,
             attributionControl: false
@@ -429,20 +513,20 @@ function triggerOverstayRazorpay() {
                 L.maplibreGL({
                     style: OPENFREEMAP_STYLE,
                     attribution: '&copy; OpenFreeMap &copy; OpenStreetMap'
-                }).addTo(ticketMap);
+                }).addTo(lTicketMap);
             } catch (err) {
                 L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                     maxZoom: 19,
                     subdomains: 'abcd',
                     attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
-                }).addTo(ticketMap);
+                }).addTo(lTicketMap);
             }
         } else {
             L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                 maxZoom: 19,
                 subdomains: 'abcd',
                 attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
-            }).addTo(ticketMap);
+            }).addTo(lTicketMap);
         }
 
         const pinIcon = L.divIcon({
@@ -456,9 +540,8 @@ function triggerOverstayRazorpay() {
             iconAnchor: [0, 0]
         });
 
-        L.marker([lotLat, lotLng], { icon: pinIcon }).addTo(ticketMap);
+        L.marker([lotLat, lotLng], { icon: pinIcon }).addTo(lTicketMap);
 
-        const cityCenterLat = 23.0360, cityCenterLng = 72.5610;
         const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${cityCenterLng},${cityCenterLat};${lotLng},${lotLat}?overview=full&geometries=geojson`;
 
         fetch(osrmUrl)
@@ -477,26 +560,31 @@ function triggerOverstayRazorpay() {
                             lineCap: 'round',
                             lineJoin: 'round'
                         }
-                    }).addTo(ticketMap);
+                    }).addTo(lTicketMap);
 
                     const statsEl = document.getElementById('ticketRouteStats');
                     if (statsEl) {
                         statsEl.innerHTML = `${distKm} km · ${durMin} min drive`;
                     }
 
-                    ticketMap.fitBounds(routeLayer.getBounds().pad(0.2));
+                    lTicketMap.fitBounds(routeLayer.getBounds().pad(0.2));
                 }
             })
-            .catch(() => {
-
-            });
+            .catch(() => {});
 
         setTimeout(() => {
-            ticketMap.invalidateSize();
+            lTicketMap.invalidateSize();
         }, 200);
-    });
+    }
+
+    setTimeout(() => {
+        if (activeTicketMapMode === 'none') {
+            initLeafletTicketMap('Timeout');
+        }
+    }, 2800);
 </script>
 
+<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&libraries=places,geometry&callback=initGoogleTicketMap" async defer></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 function triggerOverstayRazorpay() {

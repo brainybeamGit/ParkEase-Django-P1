@@ -629,6 +629,23 @@
 <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"></script>
 
 <script>
+    // State & Map Variables
+    const markersData = {{ map_markers_json|safe }};
+    const centerLat = {{ center_lat }};
+    const centerLng = {{ center_lng }};
+    const hasSearchQuery = {% if query %}true{% else %}false{% endif %};
+    const destinationQuery = "{{ destination_name|escapejs }}";
+
+    let activeMapMode = 'none'; // 'google' | 'leaflet'
+    let googleMap = null;
+    let leafletMap = null;
+    let googleLotOverlays = {};
+    let leafletLotMarkers = {};
+    let googleInfoWindow = null;
+    let googleDirectionsService = null;
+    let googleDirectionsRenderer = null;
+    let leafletRouteLayer = null;
+    let leafletDestMarker = null;
 
     // Mobile Map/List View Toggle Logic
     const toggleBtn = document.getElementById('btnToggleMobileView');
@@ -641,8 +658,10 @@
                 splitContainer.classList.add('show-map');
                 toggleBtn.innerHTML = '<i class="bi bi-list-ul me-2"></i>List View';
                 setTimeout(function() {
-                    if (typeof map !== 'undefined' && map) {
-                        map.invalidateSize();
+                    if (activeMapMode === 'leaflet' && leafletMap) {
+                        leafletMap.invalidateSize();
+                    } else if (activeMapMode === 'google' && googleMap && window.google) {
+                        google.maps.event.trigger(googleMap, 'resize');
                     }
                 }, 150);
             } else {
@@ -652,82 +671,173 @@
         });
     }
 
-    const markersData = {{ map_markers_json|safe }};
-    const centerLat = {{ center_lat }};
-    const centerLng = {{ center_lng }};
-    const hasSearchQuery = {% if query %}true{% else %}false{% endif %};
-    const destinationQuery = "{{ destination_name|escapejs }}";
-
-    const map = L.map('parkingMap', {
-        zoomControl: true,
-        scrollWheelZoom: true,
-        attributionControl: false
-    }).setView([centerLat, centerLng], 14);
-
-    const OPENFREEMAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
-    if (typeof L.maplibreGL !== 'undefined') {
-        try {
-            L.maplibreGL({
-                style: OPENFREEMAP_STYLE,
-                attribution: '&copy; OpenFreeMap &copy; OpenStreetMap'
-            }).addTo(map);
-        } catch (err) {
-            console.warn('MapLibre GL init fallback to CartoDB Voyager:', err);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                maxZoom: 20,
-                subdomains: 'abcd',
-                attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
-            }).addTo(map);
+    // =========================================================================
+    // GOOGLE MAPS ENGINE
+    // =========================================================================
+    window.gm_authFailure = function() {
+        console.warn('Google Maps Auth Restricted (RefererNotAllowedMapError). Seamlessly activating Leaflet + OpenFreeMap fallback.');
+        if (activeMapMode !== 'leaflet') {
+            initLeafletMap('Google Maps website referrer restrictions active on API key');
         }
-    } else {
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            maxZoom: 20,
-            subdomains: 'abcd',
-            attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
-        }).addTo(map);
+    };
+
+    function initGoogleMap() {
+        if (activeMapMode === 'leaflet') return;
+        if (typeof google === 'undefined' || !google.maps) {
+            initLeafletMap('Google Maps library not available');
+            return;
+        }
+
+        try {
+            const mapContainer = document.getElementById('parkingMap');
+            if (!mapContainer) return;
+
+            googleMap = new google.maps.Map(mapContainer, {
+                center: { lat: centerLat, lng: centerLng },
+                zoom: 14,
+                mapTypeControl: true,
+                mapTypeControlOptions: {
+                    style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+                    position: google.maps.ControlPosition.TOP_LEFT
+                },
+                streetViewControl: false,
+                fullscreenControl: true,
+                fullscreenControlOptions: {
+                    position: google.maps.ControlPosition.RIGHT_BOTTOM
+                },
+                zoomControl: true,
+                zoomControlOptions: {
+                    position: google.maps.ControlPosition.RIGHT_CENTER
+                },
+                styles: [
+                    { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
+                    { featureType: "transit", elementType: "labels.icon", stylers: [{ visibility: "on" }] },
+                    { featureType: "road", elementType: "geometry", stylers: [{ lightness: 10 }] }
+                ]
+            });
+
+            activeMapMode = 'google';
+            googleInfoWindow = new google.maps.InfoWindow();
+            googleDirectionsService = new google.maps.DirectionsService();
+            googleDirectionsRenderer = new google.maps.DirectionsRenderer({
+                map: googleMap,
+                suppressMarkers: false,
+                preserveViewport: false,
+                polylineOptions: {
+                    strokeColor: '#0284c7',
+                    strokeWeight: 5,
+                    strokeOpacity: 0.85
+                }
+            });
+
+            // Search Destination Marker
+            if (hasSearchQuery) {
+                const destMarker = new google.maps.Marker({
+                    position: { lat: centerLat, lng: centerLng },
+                    map: googleMap,
+                    title: destinationQuery,
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 8,
+                        fillColor: '#4f46e5',
+                        fillOpacity: 1,
+                        strokeWeight: 3,
+                        strokeColor: '#ffffff'
+                    }
+                });
+                destMarker.addListener('click', () => {
+                    googleInfoWindow.setContent(`
+                        <div style="font-family: inherit; font-size: 0.85rem; padding: 4px;">
+                            <div style="font-weight: 700; color: #4f46e5; margin-bottom: 2px;">Search Location</div>
+                            <div style="color: #1e293b; font-weight: 600;">${destinationQuery}</div>
+                        </div>
+                    `);
+                    googleInfoWindow.open(googleMap, destMarker);
+                });
+            }
+
+            // Custom Google Price Overlay Pin Class
+            class GooglePriceOverlay extends google.maps.OverlayView {
+                constructor(lat, lng, lot, onClick) {
+                    super();
+                    this.lat = lat;
+                    this.lng = lng;
+                    this.lot = lot;
+                    this.onClick = onClick;
+                    this.div = null;
+                }
+                onAdd() {
+                    this.div = document.createElement('div');
+                    this.div.className = 'custom-price-pin-wrapper';
+                    this.div.style.position = 'absolute';
+                    this.div.style.cursor = 'pointer';
+                    this.div.style.zIndex = '100';
+                    this.div.innerHTML = `
+                        <div class="leaflet-price-pin" id="gpin-${this.lot.id}">
+                            ${this.lot.hourly_rate}/hr
+                        </div>
+                    `;
+                    this.div.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.onClick();
+                    });
+                    const panes = this.getPanes();
+                    if (panes && panes.overlayMouseTarget) {
+                        panes.overlayMouseTarget.appendChild(this.div);
+                    }
+                }
+                draw() {
+                    const proj = this.getProjection();
+                    if (!proj || !this.div) return;
+                    const p = proj.fromLatLngToDivPixel(new google.maps.LatLng(this.lat, this.lng));
+                    if (p) {
+                        this.div.style.left = (p.x - 32) + 'px';
+                        this.div.style.top = (p.y - 30) + 'px';
+                    }
+                }
+                onRemove() {
+                    if (this.div && this.div.parentNode) {
+                        this.div.parentNode.removeChild(this.div);
+                        this.div = null;
+                    }
+                }
+            }
+
+            const bounds = new google.maps.LatLngBounds();
+            if (hasSearchQuery) {
+                bounds.extend(new google.maps.LatLng(centerLat, centerLng));
+            }
+
+            markersData.forEach(lot => {
+                const latLng = new google.maps.LatLng(lot.lat, lot.lng);
+                bounds.extend(latLng);
+
+                const overlay = new GooglePriceOverlay(lot.lat, lot.lng, lot, () => {
+                    openGoogleLotInfo(lot);
+                    highlightCard(lot.id);
+                    drawGoogleRoute(centerLat, centerLng, lot.lat, lot.lng, lot.name);
+                });
+                overlay.setMap(googleMap);
+                googleLotOverlays[lot.id] = overlay;
+            });
+
+            if (markersData.length > 0) {
+                googleMap.fitBounds(bounds);
+            }
+
+            // Google Places Autocomplete on Search Bar
+            initGooglePlacesAutocomplete();
+
+        } catch (err) {
+            console.error('Google Maps initialization failed, falling back:', err);
+            initLeafletMap(err.message);
+        }
     }
 
-    let destMarker = null;
-    if (hasSearchQuery) {
-        const destIcon = L.divIcon({
-            className: 'custom-destination-wrapper',
-            html: '<div class="leaflet-destination-pin" title="' + destinationQuery + '"></div>',
-            iconSize: [28, 38],
-            iconAnchor: [14, 38],
-            popupAnchor: [0, -36]
-        });
-
-        destMarker = L.marker([centerLat, centerLng], { icon: destIcon }).addTo(map);
-        destMarker.bindPopup(`
-            <div style="font-family: inherit; font-size: 0.85rem; padding: 4px;">
-                <div style="font-weight: 700; color: #4f46e5; margin-bottom: 2px;">Search Location</div>
-                <div style="color: #1e293b; font-weight: 600;">${destinationQuery}</div>
-            </div>
-        `);
-    }
-
-    const lotMarkers = {};
-
-    markersData.forEach(lot => {
-        const priceHtml = `
-            <div class="leaflet-price-pin" id="pin-${lot.id}">
-                ${lot.hourly_rate}/hr
-            </div>
-        `;
-
-        const priceIcon = L.divIcon({
-            className: 'custom-price-pin-wrapper',
-            html: priceHtml,
-            iconSize: [64, 30],
-            iconAnchor: [32, 30],
-            popupAnchor: [0, -32]
-        });
-
-        const marker = L.marker([lot.lat, lot.lng], { icon: priceIcon }).addTo(map);
-        lotMarkers[lot.id] = marker;
-
-        const popupContent = `
-            <div style="font-family: inherit; width: 230px; padding: 2px;">
+    function openGoogleLotInfo(lot) {
+        if (!googleMap || !googleInfoWindow) return;
+        const infoHtml = `
+            <div style="font-family: inherit; width: 230px; padding: 4px;">
                 <div style="font-weight: 800; font-size: 0.95rem; color: #0f172a; margin-bottom: 2px;">${lot.name}</div>
                 <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 8px;">${lot.street}, ${lot.area}</div>
 
@@ -755,23 +865,208 @@
                 </div>
 
                 <button type="button"
-                        onclick="drawOsrmRoute(${centerLat}, ${centerLng}, ${lot.lat}, ${lot.lng}, '${lot.name.replace(/'/g, "\\'")}')"
+                        onclick="drawGoogleRoute(${centerLat}, ${centerLng}, ${lot.lat}, ${lot.lng}, '${lot.name.replace(/'/g, "\\'")}')"
                         style="width: 100%; margin-top: 6px; background: none; border: 1px solid #0284c7; color: #0284c7; border-radius: 6px; font-weight: 700; font-size: 0.74rem; padding: 5px 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
                     <i class="bi bi-compass"></i> Show Driving Route
                 </button>
             </div>
         `;
-        marker.bindPopup(popupContent);
+        googleInfoWindow.setContent(infoHtml);
+        googleInfoWindow.setPosition(new google.maps.LatLng(lot.lat, lot.lng));
+        googleInfoWindow.open(googleMap);
+    }
 
-        marker.on('click', () => {
-            highlightCard(lot.id);
-            drawOsrmRoute(centerLat, centerLng, lot.lat, lot.lng, lot.name);
+    function drawGoogleRoute(originLat, originLng, destLat, destLng, lotName) {
+        if (!googleDirectionsService || !googleDirectionsRenderer) {
+            drawOsrmRoute(originLat, originLng, destLat, destLng, lotName);
+            return;
+        }
+
+        const banner = document.getElementById('osrmRouteBanner');
+        const bannerText = document.getElementById('osrmRouteText');
+        if (banner && bannerText) {
+            banner.classList.remove('d-none');
+            bannerText.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" style="width: 0.85rem; height: 0.85rem;"></span> Calculating Google route to ${lotName}...`;
+        }
+
+        const req = {
+            origin: new google.maps.LatLng(originLat, originLng),
+            destination: new google.maps.LatLng(destLat, destLng),
+            travelMode: google.maps.TravelMode.DRIVING
+        };
+
+        googleDirectionsService.route(req, (result, status) => {
+            if (status === google.maps.DirectionsStatus.OK) {
+                googleDirectionsRenderer.setDirections(result);
+                const leg = result.routes[0].legs[0];
+                if (banner && bannerText) {
+                    bannerText.innerHTML = `<i class="bi bi-car-front-fill text-primary"></i> <strong>${leg.distance.text}</strong> · approx. <strong>${leg.duration.text} drive</strong> to ${lotName}`;
+                }
+            } else {
+                console.warn('Google DirectionsService failed, trying OSRM fallback:', status);
+                drawOsrmRoute(originLat, originLng, destLat, destLng, lotName);
+            }
         });
-    });
+    }
+
+    function initGooglePlacesAutocomplete() {
+        const qInput = document.getElementById('qInput');
+        if (!qInput || typeof google === 'undefined' || !google.maps || !google.maps.places) return;
+
+        try {
+            const autocomplete = new google.maps.places.Autocomplete(qInput, {
+                types: ['geocode', 'establishment'],
+                componentRestrictions: { country: 'in' }
+            });
+
+            autocomplete.addListener('place_changed', function() {
+                const place = autocomplete.getPlace();
+                if (place && place.geometry && place.geometry.location) {
+                    const lat = place.geometry.location.lat();
+                    const lng = place.geometry.location.lng();
+                    if (googleMap) {
+                        googleMap.panTo({ lat: lat, lng: lng });
+                        googleMap.setZoom(15);
+                    }
+                    const form = document.getElementById('searchControlsForm');
+                    if (form) form.submit();
+                }
+            });
+        } catch (err) {
+            console.warn('Google Places Autocomplete init skipped:', err);
+        }
+    }
+
+    // =========================================================================
+    // LEAFLET / OPENFREEMAP ENGINE (Graceful Fallback)
+    // =========================================================================
+    function initLeafletMap(reason) {
+        if (activeMapMode === 'leaflet') return;
+        activeMapMode = 'leaflet';
+        console.log('Leaflet fallback active. Reason:', reason);
+
+        const container = document.getElementById('parkingMap');
+        if (!container) return;
+        container.innerHTML = '';
+
+        leafletMap = L.map('parkingMap', {
+            zoomControl: true,
+            scrollWheelZoom: true,
+            attributionControl: false
+        }).setView([centerLat, centerLng], 14);
+
+        const OPENFREEMAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
+        if (typeof L.maplibreGL !== 'undefined') {
+            try {
+                L.maplibreGL({
+                    style: OPENFREEMAP_STYLE,
+                    attribution: '&copy; OpenFreeMap &copy; OpenStreetMap'
+                }).addTo(leafletMap);
+            } catch (err) {
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                    maxZoom: 20,
+                    subdomains: 'abcd',
+                    attribution: '&copy; OpenStreetMap &copy; CARTO'
+                }).addTo(leafletMap);
+            }
+        } else {
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                maxZoom: 20,
+                subdomains: 'abcd',
+                attribution: '&copy; OpenStreetMap &copy; CARTO'
+            }).addTo(leafletMap);
+        }
+
+        if (hasSearchQuery) {
+            const destIcon = L.divIcon({
+                className: 'custom-destination-wrapper',
+                html: '<div class="leaflet-destination-pin" title="' + destinationQuery + '"></div>',
+                iconSize: [28, 38],
+                iconAnchor: [14, 38],
+                popupAnchor: [0, -36]
+            });
+            leafletDestMarker = L.marker([centerLat, centerLng], { icon: destIcon }).addTo(leafletMap);
+            leafletDestMarker.bindPopup(`
+                <div style="font-family: inherit; font-size: 0.85rem; padding: 4px;">
+                    <div style="font-weight: 700; color: #4f46e5; margin-bottom: 2px;">Search Location</div>
+                    <div style="color: #1e293b; font-weight: 600;">${destinationQuery}</div>
+                </div>
+            `);
+        }
+
+        markersData.forEach(lot => {
+            const priceHtml = `
+                <div class="leaflet-price-pin" id="pin-${lot.id}">
+                    ${lot.hourly_rate}/hr
+                </div>
+            `;
+            const priceIcon = L.divIcon({
+                className: 'custom-price-pin-wrapper',
+                html: priceHtml,
+                iconSize: [64, 30],
+                iconAnchor: [32, 30],
+                popupAnchor: [0, -32]
+            });
+
+            const marker = L.marker([lot.lat, lot.lng], { icon: priceIcon }).addTo(leafletMap);
+            leafletLotMarkers[lot.id] = marker;
+
+            const popupContent = `
+                <div style="font-family: inherit; width: 230px; padding: 2px;">
+                    <div style="font-weight: 800; font-size: 0.95rem; color: #0f172a; margin-bottom: 2px;">${lot.name}</div>
+                    <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 8px;">${lot.street}, ${lot.area}</div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-top: 6px; border-top: 1px solid #e2e8f0;">
+                        <div>
+                            <span style="font-size: 0.7rem; color: #64748b; display: block;">Final Total</span>
+                            <strong style="color: #0B3B60; font-size: 1.05rem;">${lot.total_price}</strong>
+                        </div>
+                        <span style="background-color: #e0f2fe; color: #0284c7; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px;">
+                            ${lot.available_slots} bays free
+                        </span>
+                    </div>
+
+                    ${lot.has_ev ? '<div style="font-size: 0.72rem; color: #16a34a; font-weight: 700; margin-bottom: 8px;">⚡ EV Charging Available</div>' : ''}
+
+                    <div class="d-flex gap-1 mt-2">
+                        <a href="/lot/${lot.id}/?from_date={{ from_date }}&from_time={{ from_time }}&until_date={{ until_date }}&until_time={{ until_time }}&vehicle_type={{ vehicle_type }}"
+                           style="flex: 1; text-align: center; background-color: #f1f5f9; color: #334155; text-decoration: none; font-weight: 700; font-size: 0.76rem; padding: 6px 8px; border-radius: 6px; border: 1px solid #cbd5e1;">
+                            Details
+                        </a>
+                        <a href="/lot/${lot.id}/book/?from_date={{ from_date }}&from_time={{ from_time }}&until_date={{ until_date }}&until_time={{ until_time }}&vehicle_type={{ vehicle_type }}"
+                           style="flex: 2; text-align: center; background-color: #0B3B60; color: #ffffff; text-decoration: none; font-weight: 700; font-size: 0.76rem; padding: 6px 8px; border-radius: 6px;">
+                            Book Space
+                        </a>
+                    </div>
+
+                    <button type="button"
+                            onclick="drawOsrmRoute(${centerLat}, ${centerLng}, ${lot.lat}, ${lot.lng}, '${lot.name.replace(/'/g, "\\'")}')"
+                            style="width: 100%; margin-top: 6px; background: none; border: 1px solid #0284c7; color: #0284c7; border-radius: 6px; font-weight: 700; font-size: 0.74rem; padding: 5px 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                        <i class="bi bi-compass"></i> Show Driving Route
+                    </button>
+                </div>
+            `;
+            marker.bindPopup(popupContent);
+
+            marker.on('click', () => {
+                highlightCard(lot.id);
+                drawOsrmRoute(centerLat, centerLng, lot.lat, lot.lng, lot.name);
+            });
+        });
+
+        setTimeout(() => {
+            leafletMap.invalidateSize();
+            if (Object.keys(leafletLotMarkers).length > 0) {
+                const group = L.featureGroup(Object.values(leafletLotMarkers));
+                if (leafletDestMarker) group.addLayer(leafletDestMarker);
+                leafletMap.fitBounds(group.getBounds().pad(0.18));
+            }
+        }, 200);
+
+        initNominatimFallback();
+    }
 
     const OSRM_BASE = 'https://router.project-osrm.org/route/v1/driving';
-    let activeRouteLayer = null;
-
     async function drawOsrmRoute(originLat, originLng, destLat, destLng, lotName) {
         const url = `${OSRM_BASE}/${originLng},${originLat};${destLng},${destLat}?overview=full&geometries=geojson`;
         const banner = document.getElementById('osrmRouteBanner');
@@ -792,38 +1087,35 @@
                 const distanceKm = (route.distance / 1000).toFixed(1);
                 const durationMin = Math.round(route.duration / 60);
 
-                if (activeRouteLayer) {
-                    map.removeLayer(activeRouteLayer);
+                if (activeMapMode === 'leaflet' && leafletMap) {
+                    if (leafletRouteLayer) leafletMap.removeLayer(leafletRouteLayer);
+                    leafletRouteLayer = L.geoJSON(route.geometry, {
+                        style: {
+                            color: '#0284c7',
+                            weight: 5,
+                            opacity: 0.85,
+                            lineCap: 'round',
+                            lineJoin: 'round'
+                        }
+                    }).addTo(leafletMap);
+                    leafletMap.fitBounds(leafletRouteLayer.getBounds().pad(0.2));
                 }
-
-                activeRouteLayer = L.geoJSON(route.geometry, {
-                    style: {
-                        color: '#0284c7',
-                        weight: 5,
-                        opacity: 0.85,
-                        lineCap: 'round',
-                        lineJoin: 'round'
-                    }
-                }).addTo(map);
 
                 if (banner && bannerText) {
                     bannerText.innerHTML = `<i class="bi bi-car-front-fill text-primary"></i> <strong>${distanceKm} km</strong> · approx. <strong>${durationMin} min drive</strong> to ${lotName}`;
                 }
-
-                map.fitBounds(activeRouteLayer.getBounds().pad(0.2));
             }
         } catch (err) {
-            console.warn('OSRM network fallback to straight line:', err);
-            if (activeRouteLayer) {
-                map.removeLayer(activeRouteLayer);
+            console.warn('OSRM network fallback:', err);
+            if (activeMapMode === 'leaflet' && leafletMap) {
+                if (leafletRouteLayer) leafletMap.removeLayer(leafletRouteLayer);
+                leafletRouteLayer = L.polyline([[originLat, originLng], [destLat, destLng]], {
+                    color: '#0284c7',
+                    dashArray: '6, 8',
+                    weight: 4,
+                    opacity: 0.8
+                }).addTo(leafletMap);
             }
-            activeRouteLayer = L.polyline([[originLat, originLng], [destLat, destLng]], {
-                color: '#0284c7',
-                dashArray: '6, 8',
-                weight: 4,
-                opacity: 0.8
-            }).addTo(map);
-
             if (banner && bannerText) {
                 bannerText.innerHTML = `<i class="bi bi-geo-alt-fill text-primary"></i> Direct path to ${lotName}`;
             }
@@ -831,68 +1123,20 @@
     }
 
     function clearOsrmRoute() {
-        if (activeRouteLayer) {
-            map.removeLayer(activeRouteLayer);
-            activeRouteLayer = null;
+        if (leafletRouteLayer && leafletMap) {
+            leafletMap.removeLayer(leafletRouteLayer);
+            leafletRouteLayer = null;
+        }
+        if (googleDirectionsRenderer) {
+            googleDirectionsRenderer.set('directions', null);
         }
         const banner = document.getElementById('osrmRouteBanner');
-        if (banner) {
-            banner.classList.add('d-none');
-        }
+        if (banner) banner.classList.add('d-none');
     }
 
-    const NOMINATIM_SEARCH = 'https://nominatim.openstreetmap.org/search';
-    const qInput = document.getElementById('qInput');
-    const suggestionsBox = document.getElementById('nominatimSuggestions');
-    let debounceTimer = null;
-
-    if (qInput && suggestionsBox) {
-        qInput.addEventListener('input', function() {
-            clearTimeout(debounceTimer);
-            const val = this.value.trim();
-            if (val.length < 3) {
-                suggestionsBox.classList.add('d-none');
-                suggestionsBox.innerHTML = '';
-                return;
-            }
-
-            debounceTimer = setTimeout(() => {
-                fetch(`${NOMINATIM_SEARCH}?format=json&q=${encodeURIComponent(val)}&countrycodes=in&limit=5`, {
-                    headers: { 'User-Agent': 'ParkEaseApp/1.0' }
-                })
-                .then(r => r.json())
-                .then(items => {
-                    if (!items || items.length === 0) {
-                        suggestionsBox.classList.add('d-none');
-                        return;
-                    }
-                    suggestionsBox.innerHTML = '';
-                    items.forEach(item => {
-                        const div = document.createElement('div');
-                        div.className = 'nominatim-item';
-                        div.innerHTML = `<i class="bi bi-geo-alt-fill text-primary"></i> <span>${item.display_name}</span>`;
-                        div.addEventListener('click', () => {
-                            qInput.value = item.display_name.split(',').slice(0, 3).join(',').trim();
-                            suggestionsBox.classList.add('d-none');
-                            document.getElementById('searchControlsForm').submit();
-                        });
-                        suggestionsBox.appendChild(div);
-                    });
-                    suggestionsBox.classList.remove('d-none');
-                })
-                .catch(() => {
-                    suggestionsBox.classList.add('d-none');
-                });
-            }, 350);
-        });
-
-        document.addEventListener('click', function(e) {
-            if (!qInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
-                suggestionsBox.classList.add('d-none');
-            }
-        });
-    }
-
+    // =========================================================================
+    // BI-DIRECTIONAL CARD <-> MAP SYNC
+    // =========================================================================
     function highlightCard(lotId) {
         document.querySelectorAll('.parking-result-card').forEach(c => c.classList.remove('selected'));
         const targetCard = document.getElementById(`card-${lotId}`);
@@ -903,13 +1147,21 @@
     }
 
     function selectParkingLot(lotId) {
-        const marker = lotMarkers[lotId];
-        if (marker) {
-            map.flyTo(marker.getLatLng(), 15, { duration: 0.8 });
-            marker.openPopup();
-            highlightCard(lotId);
-            const lot = markersData.find(l => l.id === lotId);
-            if (lot) {
+        const lot = markersData.find(l => l.id === lotId);
+        if (!lot) return;
+
+        highlightCard(lotId);
+
+        if (activeMapMode === 'google' && googleMap) {
+            googleMap.panTo({ lat: lot.lat, lng: lot.lng });
+            googleMap.setZoom(15);
+            openGoogleLotInfo(lot);
+            drawGoogleRoute(centerLat, centerLng, lot.lat, lot.lng, lot.name);
+        } else if (activeMapMode === 'leaflet' && leafletMap) {
+            const marker = leafletLotMarkers[lotId];
+            if (marker) {
+                leafletMap.flyTo(marker.getLatLng(), 15, { duration: 0.8 });
+                marker.openPopup();
                 drawOsrmRoute(centerLat, centerLng, lot.lat, lot.lng, lot.name);
             }
         }
@@ -920,17 +1172,70 @@
         document.getElementById('searchControlsForm').submit();
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => {
-            map.invalidateSize();
-            if (Object.keys(lotMarkers).length > 0) {
-                const group = L.featureGroup(Object.values(lotMarkers));
-                if (destMarker) {
-                    group.addLayer(destMarker);
+    // Nominatim fallback suggestions if Google Places is offline
+    function initNominatimFallback() {
+        const NOMINATIM_SEARCH = 'https://nominatim.openstreetmap.org/search';
+        const qInput = document.getElementById('qInput');
+        const suggestionsBox = document.getElementById('nominatimSuggestions');
+        let debounceTimer = null;
+
+        if (qInput && suggestionsBox) {
+            qInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                const val = this.value.trim();
+                if (val.length < 3) {
+                    suggestionsBox.classList.add('d-none');
+                    suggestionsBox.innerHTML = '';
+                    return;
                 }
-                map.fitBounds(group.getBounds().pad(0.18));
-            }
-        }, 200);
-    });
+
+                debounceTimer = setTimeout(() => {
+                    fetch(`${NOMINATIM_SEARCH}?format=json&q=${encodeURIComponent(val)}&countrycodes=in&limit=5`, {
+                        headers: { 'Accept-Language': 'en' }
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        suggestionsBox.innerHTML = '';
+                        if (data.length === 0) {
+                            suggestionsBox.classList.add('d-none');
+                            return;
+                        }
+                        data.forEach(item => {
+                            const li = document.createElement('li');
+                            li.className = 'list-group-item list-group-item-action py-2 px-3';
+                            li.style.cursor = 'pointer';
+                            li.innerHTML = `<i class="bi bi-geo-alt-fill text-primary me-2"></i><strong>${item.name || item.display_name.split(',')[0]}</strong> <span class="text-muted small">${item.display_name}</span>`;
+                            li.addEventListener('click', () => {
+                                qInput.value = item.name || item.display_name.split(',')[0];
+                                suggestionsBox.classList.add('d-none');
+                                document.getElementById('searchControlsForm').submit();
+                            });
+                            suggestionsBox.appendChild(li);
+                        });
+                        suggestionsBox.classList.remove('d-none');
+                    })
+                    .catch(() => {
+                        suggestionsBox.classList.add('d-none');
+                    });
+                }, 350);
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!qInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+                    suggestionsBox.classList.add('d-none');
+                }
+            });
+        }
+    }
+
+    // Fallback trigger if Google Maps script takes too long
+    setTimeout(() => {
+        if (activeMapMode === 'none') {
+            initLeafletMap('Initial Google Maps loading timer elapsed');
+        }
+    }, 2800);
 </script>
+
+<!-- Google Maps JavaScript API with Places & Geometry SDK -->
+<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&libraries=places,geometry&callback=initGoogleMap" async defer></script>
 {% endblock %}
