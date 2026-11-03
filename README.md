@@ -55,34 +55,33 @@ The platform is engineered using Django's Model-View-Template (MVT) architecture
 ## Technology Stack
 
 ### Backend & Core Architecture
-* **Python (3.10+ / 3.11 / 3.12):** 
-* **Django (5.0+):**
-* **Django Templates (DTL):**
-* **Python Multi-Threading (`threading.Thread`):**
+* **Python (3.10+ / 3.11 / 3.12)** 
+* **Django (5.0+)**
+* **Django Templates (DTL)**
 
 ### Frontend, Styling & UI
-* **HTML5 & CSS3:** 
-* **Bootstrap 5.3:** 
-* **Vanilla JavaScript (ES6+):** 
+* **HTML5 & CSS3** 
+* **Bootstrap 5.3** 
+* **Vanilla JavaScript (ES6+)** 
 
 ### Mapping, GIS & Routing
-* **Leaflet.js (v1.9.4):**
-* **MapLibre GL:**
-* **OpenFreeMap Liberty:**
-* **OSRM (Open Source Routing Machine):**
+* **Leaflet.js (v1.9.4)**
+* **MapLibre GL**
+* **OpenFreeMap Liberty**
+* **OSRM (Open Source Routing Machine)**
 
 ### Payment Gateway
-* **Razorpay Official Checkout SDK (`https://checkout.razorpay.com/v1/checkout.js`):**
-* **Razorpay Python SDK (`razorpay`):**
+* **Razorpay Official Checkout SDK (`https://checkout.razorpay.com/v1/checkout.js`)**
+* **Razorpay Python SDK (`razorpay`)**
 
 ### Media, QR Code & File Processing
-* **Python `qrcode` Library:**
-* **Pillow (PIL):**
+* **Python `qrcode` Library**
+* **Pillow (PIL)**
 
 ### Database & Environment Management
-* **SQLite3:**
-* **Django ORM:**
-* **`python-dotenv`:**
+* **SQLite3**
+* **Django ORM**
+* **`python-dotenv`**
 
 
 ---
@@ -90,14 +89,12 @@ The platform is engineered using Django's Model-View-Template (MVT) architecture
 ## Project Screenshots
 
 ### 1. Homepage & Smart Facility Discovery
-*Clean, gentle search interface allowing motorists to search parking spaces by city, street, or landmark.*
 
 ![Homepage & Smart Search](docs/screenshots/01_home_search.png)
 
 ---
 
 ### 2. Authentication (Login & Registration)
-*Dedicated sign-in and motorist onboarding with role-based routing.*
 
 | Motorist Login | New Account Registration |
 | :---: | :---: |
@@ -106,14 +103,12 @@ The platform is engineered using Django's Model-View-Template (MVT) architecture
 ---
 
 ### 3. User Dashboard (My Bookings)
-*Driver portal showing active bay reservations, QR pass access, and booking history.*
 
 ![User Dashboard - My Bookings](docs/screenshots/07_user_dashboard.png)
 
 ---
 
 ### 4. Admin Dashboard (Platform Governance Studio)
-*Executive analytics studio tracking daily parking revenue turnover, booking volumes, and dispute queues.*
 
 ![Admin Dashboard](docs/screenshots/08_admin_dashboard.png)
 
@@ -122,17 +117,14 @@ The platform is engineered using Django's Model-View-Template (MVT) architecture
 ### 5. Main Functionalities
 
 #### A. Parking Facility Details & Interactive Map Navigation
-*Detailed facility view showing real-time slot availability, hourly tariffs by vehicle type, amenities, and interactive Leaflet map.*
 
 ![Facility Detail & Maps](docs/screenshots/03_lot_detail.png)
 
 #### B. Booking Checkout & Official Razorpay Gateway
-*Pre-booking step with bay allocation, price summary, and official Razorpay secure checkout integration.*
 
 ![Booking Checkout & Razorpay](docs/screenshots/04_book_lot_checkout.png)
 
 #### C. Digital Parking Ticket with Scannable QR Pass
-*Post-payment digital pass with live entry/exit QR code, vehicle ANPR registration, arrival/departure windows, and Google Maps directions.*
 
 ![Digital Entry Ticket Pass](docs/screenshots/02_digital_ticket_qr.png)
 
