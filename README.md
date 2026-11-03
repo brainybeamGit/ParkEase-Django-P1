@@ -1,11 +1,5 @@
 # ParkEase — Smart Urban Parking & Bay Reservation Platform
 
-[![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/)
-[![Django](https://img.shields.io/badge/Django-5.0%2B-darkgreen.svg)](https://www.djangoproject.com/)
-[![Razorpay](https://img.shields.io/badge/Payments-Razorpay%20Official-blueviolet.svg)](https://razorpay.com/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Bootstrap](https://img.shields.io/badge/UI-Bootstrap%205.3-purple.svg)](https://getbootstrap.com/)
-
 > A full-stack, enterprise-grade smart parking management ecosystem that seamlessly connects motorists, parking lot owners, and platform administrators. Built with Python and Django, it features interactive map discovery, guaranteed bay reservations, contactless dual QR entry/exit passes, automated overstay clearance, and official Razorpay payments.
 
 ---
