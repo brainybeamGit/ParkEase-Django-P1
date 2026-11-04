@@ -2,10 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class LotOwnerProfile(models.Model):
-    """
-    Extended profile for space/parking lot owners.
-    Stores verification documents, owner type, identity proof, and bank details.
-    """
+    
     OWNER_TYPE_CHOICES = [
         ('individual', 'Individual'),
         ('business', 'Business'),
@@ -24,18 +21,18 @@ class LotOwnerProfile(models.Model):
     owner_type = models.CharField(max_length=30, choices=OWNER_TYPE_CHOICES, default='individual')
     profile_photo = models.ImageField(upload_to='owners/profiles/', blank=True, null=True)
     
-    # Present / Communication Address
+    
     present_address = models.TextField(blank=True, default='')
     city = models.CharField(max_length=100, blank=True, default='')
     state = models.CharField(max_length=100, blank=True, default='')
     pin_code = models.CharField(max_length=20, blank=True, default='')
 
-    # Identity Verification
+    
     id_type = models.CharField(max_length=30, choices=ID_TYPE_CHOICES, default='aadhaar')
     id_number = models.CharField(max_length=100)
     id_document = models.FileField(upload_to='owners/id_documents/', blank=True, null=True)
 
-    # Bank & Settlement Account Details (Image 4)
+    
     bank_account_holder = models.CharField(max_length=150, blank=True, default='')
     bank_name = models.CharField(max_length=150, blank=True, default='')
     bank_account_number = models.CharField(max_length=50, blank=True, default='')
@@ -78,9 +75,7 @@ class LotOwnerProfile(models.Model):
 
 
 class ParkingLot(models.Model):
-    """
-    Parking Space / Lot submitted by owner for Admin approval.
-    """
+   
     SPACE_TYPE_CHOICES = [
         ('open_plot', 'Open plot'),
         ('covered', 'Covered parking'),
@@ -101,7 +96,7 @@ class ParkingLot(models.Model):
     name = models.CharField(max_length=150, verbose_name="Parking lot name")
     space_type = models.CharField(max_length=50, choices=SPACE_TYPE_CHOICES, default='residential')
     
-    # Address Details
+    
     building_name = models.CharField(max_length=150, blank=True, default='')
     street_address = models.CharField(max_length=255)
     area = models.CharField(max_length=120)
@@ -110,30 +105,30 @@ class ParkingLot(models.Model):
     pin_code = models.CharField(max_length=20)
     map_location = models.CharField(max_length=255, blank=True, default='')
 
-    # Capacity and vehicle types
+    
     total_capacity = models.PositiveIntegerField(default=1)
-    supported_vehicles = models.JSONField(default=list)  # ['Two-wheelers', 'Cars', 'SUVs', 'EVs']
+    supported_vehicles = models.JSONField(default=list)  
     parking_arrangement = models.CharField(max_length=60, default='open_air')
     
-    # Operating hours and amenities
+    
     operating_hours = models.CharField(max_length=100, default='24/7')
-    available_services = models.JSONField(default=list)  # ['CCTV', 'Security', 'Lighting', 'EV charging', 'Washroom']
+    available_services = models.JSONField(default=list)  
     access_instructions = models.TextField(blank=True, default='')
     space_photo = models.ImageField(upload_to='parking_lots/photos/', blank=True, null=True)
 
-    # Tariff and status
+    
     hourly_rate = models.DecimalField(max_digits=8, decimal_places=2, default=50.00)
     daily_rate = models.DecimalField(max_digits=8, decimal_places=2, default=300.00)
     monthly_rate = models.DecimalField(max_digits=8, decimal_places=2, default=4500.00)
     overnight_rate = models.DecimalField(max_digits=8, decimal_places=2, default=500.00)
     
-    # Category rates
+    
     bike_rate = models.DecimalField(max_digits=8, decimal_places=2, default=20.00)
     car_rate = models.DecimalField(max_digits=8, decimal_places=2, default=50.00)
     suv_rate = models.DecimalField(max_digits=8, decimal_places=2, default=70.00)
     ev_rate = models.DecimalField(max_digits=8, decimal_places=2, default=60.00)
 
-    # Pricing & Rules
+    
     peak_hour_surge_pct = models.PositiveIntegerField(default=20)
     min_duration_hours = models.PositiveIntegerField(default=1)
     max_duration_days = models.PositiveIntegerField(default=7)
@@ -144,7 +139,7 @@ class ParkingLot(models.Model):
     is_paused = models.BooleanField(default=False)
     admin_notes = models.TextField(blank=True, default='')
 
-    # Legal agreements
+    
     agreed_terms = models.BooleanField(default=False)
     agreed_privacy = models.BooleanField(default=False)
     confirmed_declaration = models.BooleanField(default=False)
@@ -167,17 +162,15 @@ class ParkingLot(models.Model):
 
 
 class ParkingSlot(models.Model):
-    """
-    Slot & Availability Management (Image 3)
-    """
+    
     parking_lot = models.ForeignKey(ParkingLot, on_delete=models.CASCADE, related_name='slots')
     zone = models.CharField(max_length=60, default='Basement A')
     slot_number = models.CharField(max_length=30)
-    vehicle_category = models.CharField(max_length=30, default='Car')  # Car, Two-wheeler, SUV, EV
-    status = models.CharField(max_length=30, default='Available')  # Available, Occupied, Reserved, Out of Service
+    vehicle_category = models.CharField(max_length=30, default='Car')  
+    status = models.CharField(max_length=30, default='Available')  
     schedule = models.CharField(max_length=100, default='6 AM–11 PM')
     booking_restrictions = models.CharField(max_length=100, default='Min 1 hr, Max 24 hrs')
-    maintenance_status = models.CharField(max_length=30, default='Operational')  # Operational, Maintenance
+    maintenance_status = models.CharField(max_length=30, default='Operational')  
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -187,15 +180,13 @@ class ParkingSlot(models.Model):
 
 
 class EVCharger(models.Model):
-    """
-    EV Charging Management
-    """
+    
     parking_lot = models.ForeignKey(ParkingLot, on_delete=models.CASCADE, related_name='ev_chargers')
-    charger_id = models.CharField(max_length=50)  # e.g. CHG-B1-01
+    charger_id = models.CharField(max_length=50)  
     location = models.CharField(max_length=100, default='Basement Level 1')
     connector_type = models.CharField(max_length=100, default='Type 2 AC / CCS2 DC Fast')
     power_kw = models.DecimalField(max_digits=6, decimal_places=1, default=22.0)
-    status = models.CharField(max_length=30, default='Available')  # Available, Charging, Offline, Maintenance
+    status = models.CharField(max_length=30, default='Available') 
     rate_per_kwh = models.DecimalField(max_digits=6, decimal_places=2, default=15.00)
     parking_fee_included = models.BooleanField(default=True)
     schedule = models.CharField(max_length=100, default='24/7 Access')
@@ -207,9 +198,7 @@ class EVCharger(models.Model):
 
 
 class OwnerPayout(models.Model):
-    """
-    Earnings & Payouts settlement records
-    """
+    
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
         ('Processing', 'Processing'),
@@ -234,9 +223,7 @@ class OwnerPayout(models.Model):
 
 
 class OwnerNotification(models.Model):
-    """
-    In-app notifications for lot owners (New booking, arrival, payout, dispute, etc.)
-    """
+    
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owner_notifications')
     category = models.CharField(max_length=50, default='booking')  # booking, arrival, payment, cancellation, approval, maintenance, dispute
     title = models.CharField(max_length=200)
@@ -252,9 +239,7 @@ class OwnerNotification(models.Model):
 
 
 class OwnerSupportTicket(models.Model):
-    """
-    Support tickets raised by owners
-    """
+    
     STATUS_CHOICES = [
         ('Open', 'Open'),
         ('In Review', 'In Review'),
@@ -279,9 +264,7 @@ class OwnerSupportTicket(models.Model):
 
 
 class LotReview(models.Model):
-    """
-    Driver reviews and owner responses
-    """
+    
     parking_lot = models.ForeignKey(ParkingLot, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='lot_reviews')
     driver_name = models.CharField(max_length=100, default='Driver')

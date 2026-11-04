@@ -3,6 +3,20 @@
 
 {% block title %}Registration - ParkEase{% endblock %}
 
+{% block extra_css %}
+<style>
+    #id_password.is-valid,
+    #id_password.is-invalid,
+    #id_confirm_password.is-valid,
+    #id_confirm_password.is-invalid,
+    .position-relative > .form-control.is-valid,
+    .position-relative > .form-control.is-invalid {
+        background-image: none !important;
+        padding-right: 3rem !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <section class="register-section">
     <div class="container-fluid px-3 px-md-4">
@@ -36,10 +50,15 @@
                                             name="first_name"
                                             id="id_first_name"
                                             class="reg-input"
-                                            placeholder="First Name"
+                                            placeholder="First Name (letters only)"
                                             value="{{ first_name|default:'' }}"
+                                            minlength="2"
+                                            maxlength="30"
                                             required
                                             autofocus>
+                                        <div class="form-text small text-muted">Letters only (2 to 30 characters).</div>
+                                        <div class="invalid-feedback small" id="regFnFeedback">First name must contain letters only (2 to 30 characters).</div>
+                                        <div class="valid-feedback small">Looks good ✓</div>
                                     </div>
 
                                     <div class="col-md-6">
@@ -49,9 +68,14 @@
                                             name="last_name"
                                             id="id_last_name"
                                             class="reg-input"
-                                            placeholder="Last Name"
+                                            placeholder="Last Name (letters only)"
                                             value="{{ last_name|default:'' }}"
+                                            minlength="2"
+                                            maxlength="30"
                                             required>
+                                        <div class="form-text small text-muted">Letters only (2 to 30 characters).</div>
+                                        <div class="invalid-feedback small" id="regLnFeedback">Last name must contain letters only (2 to 30 characters).</div>
+                                        <div class="valid-feedback small">Looks good ✓</div>
                                     </div>
                                 </div>
 
@@ -63,9 +87,12 @@
                                             name="email"
                                             id="id_email"
                                             class="reg-input"
-                                            placeholder="name@example.com"
+                                            placeholder="yourname@gmail.com"
                                             value="{{ email|default:'' }}"
                                             required>
+                                        <div class="form-text small text-muted"><strong>@gmail.com is compulsory</strong> (e.g. yourname@gmail.com).</div>
+                                        <div class="invalid-feedback small" id="regEmailFeedback">Email must be a valid @gmail.com address.</div>
+                                        <div class="valid-feedback small">Valid Gmail address ✓</div>
                                     </div>
 
                                     <div class="col-md-6">
@@ -75,9 +102,13 @@
                                             name="mobile_number"
                                             id="id_mobile_number"
                                             class="reg-input"
-                                            placeholder="Mobile Number"
+                                            placeholder="+91 98200 12345 or 9820012345"
                                             value="{{ mobile_number|default:'' }}"
+                                            maxlength="16"
                                             required>
+                                        <div class="form-text small text-muted"><strong>Min & max 10 digits allowed</strong> (e.g. 9820012345 or +91 98200 12345).</div>
+                                        <div class="invalid-feedback small" id="regMobileFeedback">Mobile number must be exactly 10 digits.</div>
+                                        <div class="valid-feedback small">Valid 10-digit mobile number ✓</div>
                                     </div>
                                 </div>
 
@@ -90,7 +121,9 @@
                                                 name="password"
                                                 id="id_password"
                                                 class="reg-input pe-5"
-                                                placeholder="Password (min. 6 characters)"
+                                                placeholder="6 to 15 characters"
+                                                minlength="6"
+                                                maxlength="15"
                                                 required>
                                             <button
                                                 type="button"
@@ -100,6 +133,9 @@
                                                 <i class="bi bi-eye-slash" id="passIcon1"></i>
                                             </button>
                                         </div>
+                                        <div class="form-text small text-muted"><strong>Minimum 6 & maximum 15 characters only</strong>.</div>
+                                        <div class="invalid-feedback small" id="regPassFeedback">Password must be between 6 and 15 characters.</div>
+                                        <div class="valid-feedback small">Valid password length ✓</div>
                                     </div>
 
                                     <div class="col-md-6">
@@ -110,7 +146,9 @@
                                                 name="confirm_password"
                                                 id="id_confirm_password"
                                                 class="reg-input pe-5"
-                                                placeholder="Confirm Password"
+                                                placeholder="Confirm Password (6 to 15 chars)"
+                                                minlength="6"
+                                                maxlength="15"
                                                 required>
                                             <button
                                                 type="button"
@@ -120,6 +158,9 @@
                                                 <i class="bi bi-eye-slash" id="passIcon2"></i>
                                             </button>
                                         </div>
+                                        <div class="form-text small text-muted">Must match password above.</div>
+                                        <div class="invalid-feedback small" id="regConfPassFeedback">Passwords do not match.</div>
+                                        <div class="valid-feedback small">Passwords match ✓</div>
                                     </div>
                                 </div>
 
@@ -140,13 +181,17 @@
                                             name="vehicle_reg"
                                             id="id_vehicle_reg"
                                             class="reg-input text-uppercase fw-bold"
-                                            placeholder="e.g. DL 01 AB 1234 or MH 12 CD 5678"
+                                            placeholder="e.g. DL 01 AB 1234 or GJ 01 AB 1234"
                                             value="{{ vehicle_reg|default:'' }}"
+                                            minlength="4"
+                                            maxlength="16"
                                             required
                                             oninput="updatePlatePreview(this.value)">
                                         <div class="form-text small text-muted">
-                                            Normalized and validated on server. Accepts all standard formats.
+                                            Indian RTO/ANPR format (must contain both letters and digits).
                                         </div>
+                                        <div class="invalid-feedback small" id="regVehFeedback">Vehicle registration number is required (e.g. GJ 01 AB 1234).</div>
+                                        <div class="valid-feedback small">Valid registration format ✓</div>
                                     </div>
 
                                     <div class="col-md-5">
@@ -243,7 +288,7 @@
                                         Log in
                                     </a>
                                 </div>
-                                <button type="submit" class="btn btn-theme-primary px-5 py-2 fs-6">
+                                <button type="submit" class="btn btn-theme-primary px-5 py-2 fs-6" id="btnRegisterSubmit">
                                     Register
                                 </button>
                             </div>
@@ -300,10 +345,236 @@ function togglePasswordVisibility(inputId, iconId) {
     }
 }
 
+
+function validateRegName(input, feedbackEl, label) {
+    const val = (input.value || '').trim();
+    if (!val) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        feedbackEl.textContent = `${label} is required.`;
+        return false;
+    }
+    if (val.length < 2) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        feedbackEl.textContent = `${label} must be at least 2 characters.`;
+        return false;
+    }
+    if (val.length > 30) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        feedbackEl.textContent = `${label} cannot exceed 30 characters.`;
+        return false;
+    }
+    if (!/^[A-Za-z\s'\-]+$/.test(val)) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        feedbackEl.textContent = `${label} must contain letters only (no numbers or special characters).`;
+        return false;
+    }
+    input.classList.remove('is-invalid');
+    input.classList.add('is-valid');
+    return true;
+}
+
+function validateRegEmail(input, feedbackEl) {
+    const val = (input.value || '').trim();
+    if (!val) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        feedbackEl.textContent = 'Email address is required.';
+        return false;
+    }
+    const pattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
+    if (!pattern.test(val)) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        feedbackEl.textContent = "Email must end with @gmail.com (e.g. user@gmail.com).";
+        return false;
+    }
+    input.classList.remove('is-invalid');
+    input.classList.add('is-valid');
+    return true;
+}
+
+function validateRegMobile(input, feedbackEl) {
+    const val = (input.value || '').trim();
+    if (!val) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        feedbackEl.textContent = 'Mobile number is required.';
+        return false;
+    }
+    let digits = val.replace(/\D/g, '');
+    if (digits.startsWith('91') && digits.length === 12) {
+        digits = digits.substring(2);
+    } else if (digits.startsWith('0') && digits.length === 11) {
+        digits = digits.substring(1);
+    }
+    if (digits.length < 10) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        feedbackEl.textContent = `Mobile number must be exactly 10 digits (currently ${digits.length}/10 digits entered).`;
+        return false;
+    }
+    if (digits.length > 10) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        feedbackEl.textContent = `Mobile number must be exactly 10 digits (currently ${digits.length} digits entered; max 10 allowed).`;
+        return false;
+    }
+    if (!/^[6-9]\d{9}$/.test(digits)) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        feedbackEl.textContent = "Mobile number must start with 6, 7, 8, or 9.";
+        return false;
+    }
+    input.classList.remove('is-invalid');
+    input.classList.add('is-valid');
+    return true;
+}
+
+function validateRegPassword(input, feedbackEl) {
+    const val = input.value || '';
+    if (!val) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        feedbackEl.textContent = 'Password is required.';
+        return false;
+    }
+    if (val.length < 6) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        feedbackEl.textContent = `Password is too short (minimum 6 characters required, currently ${val.length}).`;
+        return false;
+    }
+    if (val.length > 15) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        feedbackEl.textContent = `Password cannot exceed 15 characters (currently ${val.length}).`;
+        return false;
+    }
+    input.classList.remove('is-invalid');
+    input.classList.add('is-valid');
+    return true;
+}
+
+function validateRegConfirmPassword(input, passInput, feedbackEl) {
+    const val = input.value || '';
+    const passVal = passInput.value || '';
+    if (!val) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        feedbackEl.textContent = 'Please confirm your password.';
+        return false;
+    }
+    if (val !== passVal) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        feedbackEl.textContent = 'Passwords do not match.';
+        return false;
+    }
+    input.classList.remove('is-invalid');
+    input.classList.add('is-valid');
+    return true;
+}
+
+function validateRegVehicle(input, feedbackEl) {
+    const val = (input.value || '').trim();
+    if (!val) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        feedbackEl.textContent = 'Vehicle registration number is required.';
+        return false;
+    }
+    const compact = val.replace(/\s+/g, '');
+    if (compact.length < 4 || compact.length > 16) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        feedbackEl.textContent = 'Registration number must be between 4 and 16 characters.';
+        return false;
+    }
+    const hasDigit = /\d/.test(compact);
+    const hasLetter = /[A-Za-z]/.test(compact);
+    if (!hasDigit || !hasLetter) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        feedbackEl.textContent = 'Registration number must contain both letters and digits (e.g. DL 01 AB 1234).';
+        return false;
+    }
+    input.classList.remove('is-invalid');
+    input.classList.add('is-valid');
+    return true;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const vSelect = document.getElementById('id_vehicle_type');
     if (vSelect) {
         handleVehicleTypeChange(vSelect.value);
+    }
+
+    const fn = document.getElementById('id_first_name');
+    const ln = document.getElementById('id_last_name');
+    const em = document.getElementById('id_email');
+    const mob = document.getElementById('id_mobile_number');
+    const pass = document.getElementById('id_password');
+    const conf = document.getElementById('id_confirm_password');
+    const vreg = document.getElementById('id_vehicle_reg');
+    const regForm = document.getElementById('singlePageRegisterForm');
+
+    if (fn) {
+        fn.addEventListener('input', () => validateRegName(fn, document.getElementById('regFnFeedback'), 'First Name'));
+        fn.addEventListener('blur', () => validateRegName(fn, document.getElementById('regFnFeedback'), 'First Name'));
+    }
+    if (ln) {
+        ln.addEventListener('input', () => validateRegName(ln, document.getElementById('regLnFeedback'), 'Last Name'));
+        ln.addEventListener('blur', () => validateRegName(ln, document.getElementById('regLnFeedback'), 'Last Name'));
+    }
+    if (em) {
+        em.addEventListener('input', () => validateRegEmail(em, document.getElementById('regEmailFeedback')));
+        em.addEventListener('blur', () => validateRegEmail(em, document.getElementById('regEmailFeedback')));
+    }
+    if (mob) {
+        mob.addEventListener('input', () => validateRegMobile(mob, document.getElementById('regMobileFeedback')));
+        mob.addEventListener('blur', () => validateRegMobile(mob, document.getElementById('regMobileFeedback')));
+    }
+    if (pass) {
+        pass.addEventListener('input', () => {
+            validateRegPassword(pass, document.getElementById('regPassFeedback'));
+            if (conf.value) validateRegConfirmPassword(conf, pass, document.getElementById('regConfPassFeedback'));
+        });
+        pass.addEventListener('blur', () => validateRegPassword(pass, document.getElementById('regPassFeedback')));
+    }
+    if (conf) {
+        conf.addEventListener('input', () => validateRegConfirmPassword(conf, pass, document.getElementById('regConfPassFeedback')));
+        conf.addEventListener('blur', () => validateRegConfirmPassword(conf, pass, document.getElementById('regConfPassFeedback')));
+    }
+    if (vreg) {
+        vreg.addEventListener('input', () => validateRegVehicle(vreg, document.getElementById('regVehFeedback')));
+        vreg.addEventListener('blur', () => validateRegVehicle(vreg, document.getElementById('regVehFeedback')));
+    }
+
+    if (regForm) {
+        regForm.addEventListener('submit', function(e) {
+            const v1 = validateRegName(fn, document.getElementById('regFnFeedback'), 'First Name');
+            const v2 = validateRegName(ln, document.getElementById('regLnFeedback'), 'Last Name');
+            const v3 = validateRegEmail(em, document.getElementById('regEmailFeedback'));
+            const v4 = validateRegMobile(mob, document.getElementById('regMobileFeedback'));
+            const v5 = validateRegPassword(pass, document.getElementById('regPassFeedback'));
+            const v6 = validateRegConfirmPassword(conf, pass, document.getElementById('regConfPassFeedback'));
+            const v7 = validateRegVehicle(vreg, document.getElementById('regVehFeedback'));
+
+            if (!v1 || !v2 || !v3 || !v4 || !v5 || !v6 || !v7) {
+                e.preventDefault();
+                if (!v1) fn.focus();
+                else if (!v2) ln.focus();
+                else if (!v3) em.focus();
+                else if (!v4) mob.focus();
+                else if (!v5) pass.focus();
+                else if (!v6) conf.focus();
+                else if (!v7) vreg.focus();
+            }
+        });
     }
 });
 </script>

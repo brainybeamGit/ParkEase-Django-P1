@@ -18,19 +18,14 @@ from bookings.models import Booking
 from accounts.models import Vehicle
 
 def home(request):
-    """
-    ParkEase Homepage view with clean JustPark-inspired layout.
-    """
+    
     context = {
         'page_title': 'ParkEase - The smarter way to find parking',
     }
     return render(request, 'parking/home.html', context)
 
 def reserve_parking_view(request):
-    """
-    Reserve Your Parking in Advance solution page.
-    If 'lot' query parameter is provided, route directly to lot detail page.
-    """
+    
     lot_id = request.GET.get('lot')
     if lot_id:
         qs = request.META.get('QUERY_STRING', '')
@@ -41,27 +36,21 @@ def reserve_parking_view(request):
     return render(request, 'parking/reserve_parking.html', context)
 
 def monthly_parking_view(request):
-    """
-    Monthly Parking Solution Page.
-    """
+    
     context = {
         'page_title': 'Monthly Parking - The Best Choice for Long Term Parking | ParkEase',
     }
     return render(request, 'parking/monthly_parking.html', context)
 
 def drive_up_parking_view(request):
-    """
-    Drive-up Parking (Park and Pay) Solution Page.
-    """
+    
     context = {
         'page_title': 'Park and Pay - Quick, Convenient & Cashless Drive-Up Parking | ParkEase',
     }
     return render(request, 'parking/drive_up_parking.html', context)
 
 def on_the_move_view(request):
-    """
-    Parking On the Move (Apple CarPlay & Android Auto) Solution Page.
-    """
+    
     context = {
         'page_title': 'Find Parking on the Move - Apple CarPlay & Android Auto | ParkEase',
     }
@@ -71,9 +60,7 @@ def on_the_move_view(request):
 
 
 def rent_out_your_space_view(request):
-    """
-    Rent out your space (driveway) landing page.
-    """
+    
     context = {
         'page_title': 'Rent Out Your Space - Earn Passive Income with Your Driveway | ParkEase',
     }
@@ -81,9 +68,7 @@ def rent_out_your_space_view(request):
 
 
 def about_us_view(request):
-    """
-    About Us page - ParkEase company mission, story, milestones and values.
-    """
+    
     context = {
         'page_title': 'About Us - Our Mission & Story | ParkEase',
     }
@@ -91,9 +76,7 @@ def about_us_view(request):
 
 
 def press_news_view(request):
-    """
-    Press & News (Blog) page - Mobility updates, press releases and research reports.
-    """
+    
     context = {
         'page_title': 'Press & Newsroom - Latest Stories & Company Updates | ParkEase',
     }
@@ -101,9 +84,7 @@ def press_news_view(request):
 
 
 def careers_view(request):
-    """
-    Careers page - Life at ParkEase, perks, and open positions.
-    """
+    
     context = {
         'page_title': 'Careers at ParkEase - Shape the Future of Urban Mobility',
     }
@@ -121,9 +102,7 @@ def business_view(request):
 
 
 def help_center_view(request):
-    """
-    Help Center - Searchable knowledge base, FAQs, and support ticket desk.
-    """
+    
     context = {
         'page_title': 'Help Center - Knowledge Base & Customer Support | ParkEase',
     }
@@ -131,9 +110,7 @@ def help_center_view(request):
 
 
 def services_summary_view(request):
-    """
-    Summary of Services - Comprehensive breakdown of all driver & owner services.
-    """
+    
     context = {
         'page_title': 'Summary of Services - Explore All ParkEase Parking Features',
     }
@@ -141,9 +118,7 @@ def services_summary_view(request):
 
 
 def faqs_support_view(request):
-    """
-    FAQs & Support page - Frequently asked questions categorized for drivers and space owners.
-    """
+    
     context = {
         'page_title': 'FAQs & Support - Quick Answers to Common Questions | ParkEase',
     }
@@ -163,16 +138,7 @@ def parse_coords(map_location_str, fallback=(23.0456, 72.5489)):
 
 
 def search_view(request):
-    """
-    JustPark-style Parking Search with interactive OpenStreetMap (Leaflet.js).
-    Requires authenticated user. Unauthenticated motorists are redirected to login.
-    Supports:
-    - Real-time location query search (Ahmedabad, Navrangpura, Delhi, etc.)
-    - Date and time interval filters (From / Until)
-    - Registered vehicle selector
-    - Closest / Recommended / Cheapest sorting
-    - Two-way interactive map sync with custom price pin markers
-    """
+    
     if not request.user.is_authenticated:
         from django.urls import reverse
         messages.info(request, "Please log in to your ParkEase account to search and reserve parking spaces.")
@@ -186,21 +152,21 @@ def search_view(request):
     sort_by = request.GET.get('sort', 'closest').lower()
     filter_ev = request.GET.get('filter_ev') == '1'
 
-    # Default dates to tomorrow if not set
+    
     tomorrow = date.today() + timedelta(days=1)
     if not from_date:
         from_date = tomorrow.strftime('%Y-%m-%d')
     if not until_date:
         until_date = tomorrow.strftime('%Y-%m-%d')
 
-    # All approved and active lots
+    
     all_approved = list(ParkingLot.objects.filter(status='approved', is_paused=False))
 
     if filter_ev:
         all_approved = [lot for lot in all_approved if 'ev_charging' in (lot.available_services or [])]
 
-    # Determine map center coordinates
-    center_lat, center_lng = 23.0456, 72.5489  # Navrangpura, Ahmedabad default
+    
+    center_lat, center_lng = 23.0456, 72.5489  
     destination_name = query or "Navrangpura, Ahmedabad"
 
     exact_matches = []
@@ -225,10 +191,10 @@ def search_view(request):
         elif 'ahmedabad' in q_lower or 'navrangpura' in q_lower or 'sarvottam' in q_lower or 'gujarat' in q_lower or 'amd' in q_lower:
             center_lat, center_lng = 23.0456, 72.5489
 
-        # Search matching keywords in Python for complete DB compatibility
+        
         for lot in all_approved:
             searchable_text = f"{lot.name} {lot.street_address} {lot.building_name} {lot.area} {lot.city} {lot.state} {lot.pin_code}".lower()
-            # Match either whole query or key tokens
+            
             tokens = [t.strip() for t in q_lower.replace(',', ' ').split() if len(t.strip()) > 2]
             if q_lower in searchable_text or any(token in searchable_text for token in tokens):
                 exact_matches.append(lot)
@@ -245,7 +211,7 @@ def search_view(request):
 
     active_lots = exact_matches if exact_matches else nearby_lots
 
-    # Sorting
+
     if sort_by == 'cheapest':
         active_lots.sort(key=lambda x: x.hourly_rate)
     elif sort_by == 'recommended':
@@ -253,7 +219,7 @@ def search_view(request):
     else:
         active_lots.sort(key=lambda x: x.id)
 
-    # Calculate duration based on search parameters (default 3 hours)
+    
     duration_hours = 3
     if from_date and until_date and from_time and until_time:
         try:
@@ -265,7 +231,7 @@ def search_view(request):
         except Exception:
             duration_hours = 3
 
-    # Build JSON payload for Leaflet markers
+    
     map_markers = []
     for lot in active_lots:
         lat, lng = parse_coords(lot.map_location)
@@ -322,13 +288,10 @@ def search_view(request):
 
 
 def lot_detail_view(request, lot_id):
-    """
-    Step 05: Open a parking lot.
-    Review photos, exact location, rules, entry instructions, available slots, and total price.
-    """
+   
     lot = get_object_or_404(ParkingLot, id=lot_id)
 
-    # Extract query params
+    
     from_date = request.GET.get('from_date', '')
     from_time = request.GET.get('from_time', '09:00')
     until_date = request.GET.get('until_date', '')
@@ -360,12 +323,12 @@ def lot_detail_view(request, lot_id):
     estimated_total = round(rate * duration_hours, 2)
     lat, lng = parse_coords(lot.map_location)
 
-    # Slots
+    
     slots = lot.slots.all()
     available_slots = slots.filter(status='available')
     available_bays_count = available_slots.count() if slots.exists() else lot.total_capacity
 
-    # Reviews
+
     reviews = lot.reviews.all()[:5] if hasattr(lot, 'reviews') else []
 
     google_maps_url = f"https://www.google.com/maps/dir/?api=1&destination={lat},{lng}"
@@ -392,10 +355,7 @@ def lot_detail_view(request, lot_id):
 
 
 def book_lot_view(request, lot_id):
-    """
-    Step 06: Choose a slot and book.
-    Enter vehicle details, confirm duration, select slot bay, and review charges.
-    """
+    
     lot = get_object_or_404(ParkingLot, id=lot_id)
     user_vehicles = []
     if request.user.is_authenticated and hasattr(request.user, 'vehicles'):
@@ -422,7 +382,7 @@ def book_lot_view(request, lot_id):
         diff_hours = (dt_end_naive - dt_start_naive).total_seconds() / 3600
         if diff_hours > 0:
             duration_hours = max(1, round(diff_hours, 1))
-        # Make timezone-aware
+        
         dt_start = timezone.make_aware(dt_start_naive, timezone.get_current_timezone())
         dt_end = timezone.make_aware(dt_end_naive, timezone.get_current_timezone())
     except Exception:
@@ -442,16 +402,12 @@ def book_lot_view(request, lot_id):
     available_slots = lot.slots.filter(status='available') if lot.slots.exists() else []
 
     if request.method == 'POST':
-        # Step 07 trigger: process booking & Razorpay payment
+        
         vehicle_id = request.POST.get('vehicle_id')
         vehicle_reg = request.POST.get('vehicle_reg', '').strip()
         slot_id = request.POST.get('slot_id')
-        razorpay_payment_id = request.POST.get('razorpay_payment_id') or request.POST.get('paypal_payment_id') or request.POST.get('cashfree_payment_id') or f"pay_rzp_{uuid.uuid4().hex[:12]}"
-        razorpay_order_id = request.POST.get('razorpay_order_id') or request.POST.get('paypal_order_id') or request.POST.get('cashfree_order_id') or f"order_rzp_{uuid.uuid4().hex[:12]}"
-        paypal_payment_id = razorpay_payment_id
-        paypal_order_id = razorpay_order_id
-        cashfree_payment_id = razorpay_payment_id
-        cashfree_order_id = razorpay_order_id
+        razorpay_payment_id = request.POST.get('razorpay_payment_id') or f"pay_rzp_{uuid.uuid4().hex[:12]}"
+        razorpay_order_id = request.POST.get('razorpay_order_id') or f"order_rzp_{uuid.uuid4().hex[:12]}"
         
 
         selected_vehicle = None
@@ -520,15 +476,11 @@ def book_lot_view(request, lot_id):
             payment_status='paid',
             booking_status='active',
             qr_code_token=token,
-            paypal_payment_id=paypal_payment_id,
-            paypal_order_id=paypal_order_id,
-            cashfree_payment_id=paypal_payment_id,
-            cashfree_order_id=paypal_order_id,
-            razorpay_payment_id=paypal_payment_id,
-            razorpay_order_id=paypal_order_id,
+            razorpay_payment_id=razorpay_payment_id,
+            razorpay_order_id=razorpay_order_id,
         )
 
-        # Dispatch email with parking ticket pass to user asynchronously
+        
         try:
             import threading
             from parkease.email_service import EmailNotificationService
@@ -536,7 +488,7 @@ def book_lot_view(request, lot_id):
         except Exception:
             pass
 
-        # Dispatch notification to lot owner if lot has an owner
+        
         if lot.owner:
             try:
                 from lot_owner_panel.models import OwnerNotification
@@ -553,16 +505,13 @@ def book_lot_view(request, lot_id):
         messages.success(request, f"Payment confirmed via Razorpay! Space reserved with Booking ID #{booking.id}. Your digital QR entry pass has been generated.")
         return redirect('parking:booking_ticket', booking_id=booking.id)
 
-    # Razorpay Payments Parameters (Primary Official Gateway)
+    
     rzp_key_id = getattr(settings, 'RAZORPAY_KEY_ID', '')
     if not rzp_key_id or rzp_key_id in ('rzp_test_placeholder', 'TEST10000001'):
         rzp_key_id = 'rzp_test_1DP5mmOlF5G5ag'
     amount_paise = int(round(total_amount * 100))
 
-    # Secondary / Legacy Gateway Parameters
-    paypal_client_id = getattr(settings, 'PAYPAL_CLIENT_ID', 'sb')
-    paypal_currency = getattr(settings, 'PAYPAL_CURRENCY', 'USD')
-    paypal_amount_usd = f"{max(0.50, round(float(total_amount) / 85.0, 2)):.2f}"
+
     
 
 
@@ -584,21 +533,16 @@ def book_lot_view(request, lot_id):
         'available_slots': available_slots,
         'razorpay_key_id': rzp_key_id,
         'razorpay_amount_paise': amount_paise,
-        'paypal_client_id': paypal_client_id,
-        'paypal_currency': paypal_currency,
-        'paypal_amount_usd': paypal_amount_usd,
+
     }
     return render(request, 'parking/book_lot.html', context)
 
 
 def booking_ticket_view(request, booking_id):
-    """
-    Step 07: Pay and receive ticket.
-    Complete payment and receive Booking ID, QR code and directions.
-    """
+    
     booking = get_object_or_404(Booking, id=booking_id)
 
-    # Scannable QR Pass data payload
+    
     qr_data = f"PARKEASE|BK-{booking.id}|{booking.qr_code_token}|{booking.parking_lot}|{booking.vehicle.registration_number if booking.vehicle else 'ANPR-GUEST'}"
     qr = qrcode.QRCode(
         version=1,
@@ -613,7 +557,7 @@ def booking_ticket_view(request, booking_id):
     img.save(buf, format='PNG')
     qr_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
 
-    # Find relational lot for coordinates/directions
+    
     lat, lng = 23.0456, 72.5489
     lot = booking.lot
     if not lot:
@@ -624,17 +568,35 @@ def booking_ticket_view(request, booking_id):
 
     google_maps_directions_url = f"https://www.google.com/maps/dir/?api=1&destination={lat},{lng}"
 
-    # Calculate duration and booking summary details for ticket pass & PDF
+    
     duration_hours = 1
     if booking.start_time and booking.end_time:
         duration_hours = max(1, round((booking.end_time - booking.start_time).total_seconds() / 3600))
     tariff_rate = lot.hourly_rate if lot and lot.hourly_rate else (booking.total_amount / duration_hours if duration_hours else booking.total_amount)
     base_charge = booking.total_amount
 
+    
+    lot_name = lot.name if lot else booking.parking_lot.split('(')[0].strip()
+    lot_address = ""
+    if lot:
+        addr_parts = [part.strip() for part in [lot.street_address, lot.area, lot.city] if part and part.strip()]
+        lot_address = ", ".join(addr_parts)
+    elif '(' in booking.parking_lot and ')' in booking.parking_lot:
+        lot_address = booking.parking_lot.split('(')[1].split(')')[0].strip()
+
+    slot_label = ""
+    if booking.slot and hasattr(booking.slot, 'slot_number'):
+        slot_label = booking.slot.slot_number
+    elif 'Slot:' in booking.parking_lot:
+        slot_label = booking.parking_lot.split('Slot:')[1].replace(']', '').replace('Slot:', '').strip()
+
     context = {
         'page_title': f"Booking Ticket #{booking.id} - ParkEase Digital Pass",
         'booking': booking,
         'lot': lot,
+        'lot_name': lot_name,
+        'lot_address': lot_address,
+        'slot_label': slot_label,
         'duration_hours': duration_hours,
         'tariff_rate': tariff_rate,
         'base_charge': base_charge,
@@ -650,11 +612,7 @@ def booking_ticket_view(request, booking_id):
 
 @login_required
 def my_bookings_view(request):
-    """
-    Customer / Driver: View my active reservations and booking history.
-    Renders live database bookings from templates/bookings/my_bookings.html.
-    Supports tabs: 'current' (active/parked/upcoming) vs 'history' (completed/cancelled/refunded).
-    """
+    
     now = timezone.now()
     user_bookings = Booking.objects.filter(user=request.user).select_related('lot', 'vehicle').order_by('-created_at')
     
@@ -662,7 +620,7 @@ def my_bookings_view(request):
     history_bookings = []
     
     for b in user_bookings:
-        # A booking is considered active if it is active or parked, not refunded, and end_time hasn't expired
+        
         if b.booking_status == 'active' and b.payment_status in ('paid', 'pending') and (not b.end_time or b.end_time >= now - timedelta(minutes=15)):
             active_bookings.append(b)
         else:
@@ -670,7 +628,7 @@ def my_bookings_view(request):
 
     active_tab = request.GET.get('tab', '')
     if active_tab not in ('current', 'history', 'all'):
-        # If user has active bookings, default to current; otherwise if they only have history, show history
+        
         if not active_bookings and history_bookings:
             active_tab = 'history'
         else:
@@ -688,11 +646,7 @@ def my_bookings_view(request):
 
 
 def submit_admin_feedback_view(request):
-    """
-    Direct user/motorist feedback submitted from pre-footer card directly to platform admin.
-    Dispatches confirmation email to user ("Thank you for feedback! Hope you liked our service.")
-    and alert email to admin.
-    """
+    
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
         email = request.POST.get('email', '').strip()
@@ -728,7 +682,7 @@ def submit_admin_feedback_view(request):
             message=message,
         )
 
-        # Notify Admin in-app
+        
         try:
             AdminNotification.objects.create(
                 category='feedback',
@@ -739,7 +693,7 @@ def submit_admin_feedback_view(request):
         except Exception:
             pass
 
-        # Dispatches emails via EmailNotificationService
+        
         try:
             from parkease.email_service import EmailNotificationService
             EmailNotificationService.send_user_feedback_acknowledgment(fb)
@@ -759,12 +713,7 @@ def submit_admin_feedback_view(request):
 
 @login_required
 def submit_booking_review_view(request, booking_id):
-    """
-    Motorist rates and reviews their parking experience from booking history.
-    This review directly affects the parking lot's rating and the space owner's total rating.
-    Dispatches confirmation email to motorist ("Thank you for your rating! Hope you liked our service.")
-    and notification alert to the space owner.
-    """
+   
     booking = get_object_or_404(Booking, id=booking_id, user=request.user)
 
     if request.method == 'POST':
@@ -802,7 +751,7 @@ def submit_booking_review_view(request, booking_id):
             }
         )
 
-        # Notify Owner in-app
+        
         if lot.owner:
             try:
                 from django.db.models import Avg
@@ -819,7 +768,7 @@ def submit_booking_review_view(request, booking_id):
             except Exception:
                 pass
 
-        # Dispatches emails via EmailNotificationService
+        
         try:
             from parkease.email_service import EmailNotificationService
             EmailNotificationService.send_user_review_acknowledgment(review)
@@ -839,11 +788,7 @@ def submit_booking_review_view(request, booking_id):
 
 
 def scan_entry_view(request, booking_id):
-    """
-    Scan 1: Entrance Gate Barrier Scan.
-    The QR code is scanned upon vehicle arrival.
-    Records entry_time, marks vehicle as currently parked, opens entrance barrier.
-    """
+    
     booking = get_object_or_404(Booking, id=booking_id)
     now = timezone.now()
 
@@ -861,17 +806,10 @@ def scan_entry_view(request, booking_id):
 
 
 def scan_exit_view(request, booking_id):
-    """
-    Scan 2: Exit Gate Barrier Scan with Overstay Enforcement.
-    The QR code is scanned a second time at the end of parking:
-    - If exit is within booked schedule: Exit barrier opens immediately.
-    - If exit exceeds booked schedule (e.g., 1h booked, exiting at 1.5h):
-      System detects overstay, calculates extra amount, keeps barrier closed,
-      and requires Razorpay payment before exit gate opens.
-    """
+    
     booking = get_object_or_404(Booking, id=booking_id)
     
-    # Check if a simulation parameter was passed (e.g. simulate 30 mins overstay)
+    
     simulate_overstay_mins = (
         request.POST.get('simulate_overstay_minutes') or 
         request.GET.get('simulate_overstay_minutes') or 
@@ -884,18 +822,18 @@ def scan_exit_view(request, booking_id):
     else:
         now = timezone.now()
 
-    # Find parking lot rate
+    
     lot_name_prefix = booking.parking_lot.split('(')[0].strip()
     lot = ParkingLot.objects.filter(name__icontains=lot_name_prefix).first()
     hourly_rate = float(lot.hourly_rate) if lot else 50.0
 
-    # Overstay Check
+    
     if booking.end_time and now > booking.end_time and not booking.overstay_paid:
         diff_seconds = (now - booking.end_time).total_seconds()
         diff_minutes = int(diff_seconds // 60)
         overstay_hours = round(Decimal(str(diff_seconds / 3600)), 2)
         
-        # Calculate extra fine (proportional or hourly)
+        
         extra_fee = round(Decimal(str(float(overstay_hours) * hourly_rate)), 2)
         if extra_fee <= Decimal('0.00'):
             extra_fee = Decimal('20.00')
@@ -909,11 +847,11 @@ def scan_exit_view(request, booking_id):
             request,
             f"⚠️ Overstay Detected! Booked duration ended at {booking.end_time.strftime('%I:%M %p')}. "
             f"Extra stay: {diff_minutes} mins ({overstay_hours} hrs). "
-            f"Additional Fee: ₹{extra_fee}. Gate barrier remains locked until extra fee is paid via Cashfree."
+            f"Additional Fee: ₹{extra_fee}. Gate barrier remains locked until extra fee is paid via Razorpay."
         )
         return redirect(f'/booking/{booking.id}/ticket/?overstay_due=1')
 
-    # On-time exit or overstay already paid: open barrier
+
     booking.exit_time = now
     booking.is_parked = False
     booking.booking_status = 'completed'
@@ -927,13 +865,9 @@ def scan_exit_view(request, booking_id):
 
 
 def pay_overstay_view(request, booking_id):
-    """
-    Overstay Payment via Razorpay.
-    When the driver pays the extra overstay fee, the exit gate barrier opens
-    and the parking session completes.
-    """
+    
     booking = get_object_or_404(Booking, id=booking_id)
-    razorpay_pay_id = request.POST.get('razorpay_payment_id') or request.POST.get('paypal_payment_id') or request.POST.get('cashfree_payment_id') or f"pay_rzp_overstay_{uuid.uuid4().hex[:10]}"
+    razorpay_pay_id = request.POST.get('razorpay_payment_id') or f"pay_rzp_overstay_{uuid.uuid4().hex[:10]}"
 
     paid_fine = booking.overstay_fine or Decimal('20.00')
     booking.overstay_paid = True
@@ -942,8 +876,6 @@ def pay_overstay_view(request, booking_id):
     booking.is_parked = False
     booking.booking_status = 'completed'
     booking.razorpay_payment_id = razorpay_pay_id
-    booking.paypal_payment_id = razorpay_pay_id
-    booking.cashfree_payment_id = razorpay_pay_id
     booking.save()
 
     messages.success(
@@ -954,14 +886,11 @@ def pay_overstay_view(request, booking_id):
 
 
 def gate_scanner_view(request):
-    """
-    Gate Scanner & Barrier Operation Station.
-    Staff or drivers can enter / scan Booking ID or QR token to verify entry and exit.
-    """
+    
     booking = None
     query_token = request.GET.get('token', '').strip()
     if query_token:
-        # Match by id or token
+        
         if query_token.isdigit():
             booking = Booking.objects.filter(id=int(query_token)).first()
         if not booking:
@@ -977,10 +906,7 @@ def gate_scanner_view(request):
 
 
 def browse_cities_view(request):
-    """
-    Explore ParkEase across 7 top metropolitan cities in India.
-    Includes live parking lot counts, available bays, and one-click direct links.
-    """
+    
     city_definitions = [
         {
             'name': 'Mumbai',
@@ -1078,10 +1004,7 @@ def browse_cities_view(request):
 
 
 def browse_airports_view(request):
-    """
-    Airport Parking Directory with terminal valet, long-term bays, and direct search links.
-    Includes all 10 airports featured across search cards and project.
-    """
+    
     airports_list = [
         {
             'code': 'DEL',
@@ -1215,10 +1138,7 @@ def browse_airports_view(request):
 
 
 def policies_view(request):
-    """
-    Unified Legal & Policies page for ParkEase.
-    Houses both Privacy Policy and Overstay Policy with tab and anchor navigation.
-    """
+    
     active_tab = request.GET.get('tab', 'privacy').lower()
     if active_tab not in ['privacy', 'overstay', 'all']:
         active_tab = 'privacy'
@@ -1232,9 +1152,7 @@ def policies_view(request):
 
 @login_required(login_url='accounts:login')
 def cancel_booking_view(request, booking_id):
-    """
-    Cancel an active booking by motorist / driver.
-    """
+    
     booking = get_object_or_404(Booking, id=booking_id, user=request.user)
     if booking.booking_status == 'cancelled':
         messages.info(request, "This booking has already been cancelled.")
@@ -1247,14 +1165,14 @@ def cancel_booking_view(request, booking_id):
         booking.slot.status = 'available'
         booking.slot.save()
     
-    # Notify User via Email
+    
     try:
         from parkease.email_service import EmailNotificationService
         EmailNotificationService.send_booking_cancellation(booking)
     except Exception:
         pass
     
-    # Notify Owner if applicable
+    
     if booking.lot and booking.lot.owner:
         try:
             from lot_owner_panel.models import OwnerNotification
@@ -1274,11 +1192,7 @@ def cancel_booking_view(request, booking_id):
 
 @login_required(login_url='accounts:login')
 def request_refund_view(request, booking_id):
-    """
-    Motorist requests a refund on an active or cancelled booking.
-    Dispatches alert mail to Admin, creates AdminNotification approval queue entry,
-    and awaits Admin approval to complete the transaction.
-    """
+    
     booking = get_object_or_404(Booking, id=booking_id, user=request.user)
     if request.method == 'POST':
         reason = request.POST.get('refund_reason', '').strip()
@@ -1287,7 +1201,7 @@ def request_refund_view(request, booking_id):
         booking.refund_requested_at = timezone.now()
         booking.save()
 
-        # 1. Send Email to Admin
+        
         try:
             from parkease.email_service import EmailNotificationService
             EmailNotificationService.send_admin_alert(
@@ -1312,7 +1226,7 @@ def request_refund_view(request, booking_id):
         except Exception:
             pass
 
-        # 2. Create Admin Approval Notification
+        
         try:
             from admin_panel.models import AdminNotification
             AdminNotification.objects.create(
@@ -1331,11 +1245,7 @@ def request_refund_view(request, booking_id):
 
 @login_required(login_url='accounts:login')
 def extend_booking_view(request, booking_id):
-    """
-    Motorist requests to extend the duration of an active reservation.
-    Creates a BookingExtensionRequest, detects overlaps with other users' bookings,
-    creates an in-app OwnerNotification, and sends an email to the lot owner for approval.
-    """
+    
     from bookings.models import BookingExtensionRequest
     from lot_owner_panel.models import OwnerNotification
 
@@ -1357,7 +1267,7 @@ def extend_booking_view(request, booking_id):
         curr_end = booking.end_time or timezone.now()
         new_end = curr_end + timedelta(hours=add_hours)
 
-        # Conflict Detection: Is this slot or lot already booked and paid by another user during the extension window?
+        
         conflict_booking = None
         conflict_detected = False
         conflict_text = ""
@@ -1399,7 +1309,7 @@ def extend_booking_view(request, booking_id):
                 f"but they have to leave the lot once their time is over."
             )
 
-        # Create extension request
+        
         ext_req = BookingExtensionRequest.objects.create(
             booking=booking,
             requested_by=request.user,
@@ -1413,14 +1323,14 @@ def extend_booking_view(request, booking_id):
             conflict_details=conflict_text,
         )
 
-        # Notify space owner via email
+        
         try:
             from parkease.email_service import EmailNotificationService
             EmailNotificationService.send_owner_extension_request(ext_req)
         except Exception:
             pass
 
-        # Create OwnerNotification in Space Owner Studio
+        
         if booking.lot and booking.lot.owner:
             OwnerNotification.objects.create(
                 owner=booking.lot.owner,

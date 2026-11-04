@@ -58,7 +58,7 @@
                         <li><strong>Vehicle Registration Information:</strong> Vehicle license registration number (e.g. DL 01 AB 1234), vehicle category (two-wheeler, hatchback, sedan, SUV, electric vehicle), make, and model.</li>
                         <li><strong>Reservation & Gate Pass Logs:</strong> Parking lot location, slot assignments, entry/exit scheduled timestamps, digital QR pass authentication tokens, and gate scanner verification events.</li>
                         <li><strong>Location Data:</strong> Search queries (cities, areas, airport codes) and optional browser geolocation used exclusively to compute distances and show nearby parking lots.</li>
-                        <li><strong>Payment Identifiers:</strong> Cashfree transaction IDs, payment status, invoice numbers, and tariff breakdown. We do not store raw credit/debit card numbers or net-banking passwords.</li>
+                        <li><strong>Payment Identifiers:</strong> Razorpay transaction IDs, payment status, invoice numbers, and tariff breakdown. We do not store raw credit/debit card numbers or net-banking passwords.</li>
                     </ul>
 
                     <h4 class="fw-bold text-dark mt-4 mb-3">3. How We Use Your Information</h4>
@@ -78,7 +78,7 @@
 
                     <h4 class="fw-bold text-dark mt-4 mb-3">5. Payment Security</h4>
                     <p>
-                        All financial transactions on ParkEase are encrypted and handled through PCI-DSS Level 1 compliant payment gateways (Cashfree). Sensitive card credentials are tokenized directly with the gateway; ParkEase servers never hold or log your confidential payment card information.
+                        All financial transactions on ParkEase are encrypted and handled through PCI-DSS Level 1 compliant payment gateways (Razorpay). Sensitive card credentials are tokenized directly with the gateway; ParkEase servers never hold or log your confidential payment card information.
                     </p>
 
                     <h4 class="fw-bold text-dark mt-4 mb-3">6. Cookies & Local Session Storage</h4>
@@ -136,7 +136,7 @@
                     </p>
                     <ul class="mb-3">
                         <li><strong>On-Time Exit:</strong> The gate terminal confirms valid status, records departure timestamp, and lifts the exit barrier automatically.</li>
-                        <li><strong>Overstay Detected:</strong> The terminal highlights the elapsed overstay minutes, displays the calculated extra tariff, and presents an instant Cashfree settlement link. The exit barrier remains down until settlement is completed.</li>
+                        <li><strong>Overstay Detected:</strong> The terminal highlights the elapsed overstay minutes, displays the calculated extra tariff, and presents an instant Razorpay settlement link. The exit barrier remains down until settlement is completed.</li>
                     </ul>
 
                     <h4 class="fw-bold text-dark mt-4 mb-3">5. Instant Settlement & Immediate Barrier Release</h4>

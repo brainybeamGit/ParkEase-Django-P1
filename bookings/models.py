@@ -3,10 +3,7 @@ from django.contrib.auth.models import User
 from accounts.models import Vehicle
 
 class Booking(models.Model):
-    """
-    Parking Spot Reservation & Drive-up Booking Model.
-    Tracks motorist, vehicle, parking lot, booking duration, payment, and status.
-    """
+    
     PAYMENT_STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('paid', 'Paid'),
@@ -53,28 +50,20 @@ class Booking(models.Model):
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
     booking_status = models.CharField(max_length=20, choices=BOOKING_STATUS_CHOICES, default='active')
     qr_code_token = models.CharField(max_length=64, blank=True, default='')
+
     
-    # Gate Entry & Exit Scanning (Dual QR Scan System)
     entry_time = models.DateTimeField(null=True, blank=True, verbose_name="Gate Entry Scan Time")
     exit_time = models.DateTimeField(null=True, blank=True, verbose_name="Gate Exit Scan Time")
     is_parked = models.BooleanField(default=False, verbose_name="Vehicle Currently Parked Inside")
-    
-    # Overstay Tracking & Fines
+     
     overstay_hours = models.DecimalField(max_digits=6, decimal_places=2, default=0.00, verbose_name="Overstay Duration (Hours)")
     overstay_fine = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Overstay Extra Fee (INR)")
     overstay_paid = models.BooleanField(default=False, verbose_name="Overstay Fine Settled")
 
-    # PayPal Payment Identification (Primary Gateway)
-    paypal_order_id = models.CharField(max_length=100, blank=True, default='', verbose_name="PayPal Order ID")
-    paypal_payment_id = models.CharField(max_length=100, blank=True, default='', verbose_name="PayPal Payment ID / Capture ID")
-    # Cashfree & Legacy Gateway Fields
-    cashfree_order_id = models.CharField(max_length=100, blank=True, default='', verbose_name="Cashfree Order ID")
-    cashfree_payment_id = models.CharField(max_length=100, blank=True, default='', verbose_name="Cashfree Payment ID")
-    # Legacy gateway fields
-    razorpay_order_id = models.CharField(max_length=100, blank=True, default='')
-    razorpay_payment_id = models.CharField(max_length=100, blank=True, default='')
+    razorpay_order_id = models.CharField(max_length=100, blank=True, default='', verbose_name="Razorpay Order ID")
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, default='', verbose_name="Razorpay Payment ID")
 
-    # Refund Tracking & Dispute Management
+
     refund_reason = models.TextField(blank=True, default='', verbose_name="Cancellation / Refund Reason")
     refund_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Approved Refund Amount (INR)")
     refund_requested_at = models.DateTimeField(null=True, blank=True, verbose_name="Refund Requested Timestamp")
@@ -112,12 +101,7 @@ class Booking(models.Model):
 
 
 class BookingExtensionRequest(models.Model):
-    """
-    Parking Time Extension Request.
-    Created when a motorist requests to extend their active booking.
-    Must be reviewed and approved by the lot owner.
-    Handles conflict detection with subsequent bookings by other motorists.
-    """
+    
     STATUS_CHOICES = [
         ('pending', 'Pending Approval'),
         ('approved', 'Approved'),
@@ -132,7 +116,7 @@ class BookingExtensionRequest(models.Model):
     additional_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Additional Tariff (INR)")
     status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='pending')
 
-    # Conflict Detection with subsequent bookings by other motorists
+    
     conflict_detected = models.BooleanField(default=False, verbose_name="Overlap with subsequent booking")
     conflicting_booking = models.ForeignKey(
         Booking,
@@ -144,7 +128,7 @@ class BookingExtensionRequest(models.Model):
     )
     conflict_details = models.TextField(blank=True, default='', verbose_name="Conflict / Overlap Information")
 
-    # Reassignment / Resolution by Lot Owner
+    
     assigned_lot = models.ForeignKey(
         'lot_owner_panel.ParkingLot',
         on_delete=models.SET_NULL,

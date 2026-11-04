@@ -18,14 +18,14 @@
             <a class="nav-link px-4 py-2 rounded-pill fw-bold {% if active_tab == 'current' %}active text-white shadow-sm{% else %}bg-white text-dark border{% endif %}"
                style="{% if active_tab == 'current' %}background-color: #0284c7; border: none;{% endif %}"
                href="?tab=current">
-                <i class="bi bi-clock-history me-1"></i> Current Bookings ({{ active_bookings|length }})
+                Current Bookings ({{ active_bookings|length }})
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link px-4 py-2 rounded-pill fw-bold {% if active_tab == 'history' %}active text-white shadow-sm{% else %}bg-white text-dark border{% endif %}"
                style="{% if active_tab == 'history' %}background-color: #0284c7; border: none;{% endif %}"
                href="?tab=history">
-                <i class="bi bi-archive-fill me-1"></i> Booking History ({{ history_bookings|length }})
+                Booking History ({{ history_bookings|length }})
             </a>
         </li>
     </ul>

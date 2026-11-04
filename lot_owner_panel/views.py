@@ -18,7 +18,7 @@ from .models import (
 )
 
 
-# ─── HELPER FUNCTIONS ────────────────────────────────────────────────────────
+
 
 def mask_id_number(id_str):
     if not id_str:
@@ -52,11 +52,7 @@ def generate_unique_owner_username(email, name):
 
 
 def ensure_owner_sample_data(user, lot):
-    """
-    Seeds rich sample data for a lot owner so all 12 categories are fully populated
-    with data matching the user's images and specifications.
-    """
-    # 1. Seed Slots if none exist
+    
     if not ParkingSlot.objects.filter(parking_lot=lot).exists():
         sample_slots = [
             ('Basement A', 'C-012', 'Car', 'Available', '6 AM–11 PM', 'Min 1 hr, Max 24 hrs', 'Operational'),
@@ -84,7 +80,7 @@ def ensure_owner_sample_data(user, lot):
                 maintenance_status=maint
             )
 
-    # 2. Seed EV Chargers if none exist
+    
     if not EVCharger.objects.filter(parking_lot=lot).exists():
         EVCharger.objects.create(
             parking_lot=lot,
@@ -120,7 +116,7 @@ def ensure_owner_sample_data(user, lot):
             parking_fee_included=True
         )
 
-    # 3. Seed Notifications if none exist
+    
     if not OwnerNotification.objects.filter(owner=user).exists():
         sample_notifs = [
             ('booking', 'New Booking Confirmed (#BK-1042)', 'Driver Rohit Sharma booked Bay C-012 for today 02:00 PM – 05:00 PM. ₹150.00 pre-paid.'),
@@ -132,7 +128,7 @@ def ensure_owner_sample_data(user, lot):
         for cat, title, msg in sample_notifs:
             OwnerNotification.objects.create(owner=user, category=cat, title=title, message=msg, is_read=False)
 
-    # 4. Seed Reviews if none exist
+    
     if not LotReview.objects.filter(parking_lot=lot).exists():
         LotReview.objects.create(
             parking_lot=lot,
@@ -158,7 +154,7 @@ def ensure_owner_sample_data(user, lot):
             comment='Good security guard and clear bay numbering. Height clearance was ample for my SUV.'
         )
 
-    # 5. Seed Payouts if none exist
+    
     if not OwnerPayout.objects.filter(owner=user).exists():
         OwnerPayout.objects.create(
             owner=user,
@@ -185,13 +181,11 @@ def ensure_owner_sample_data(user, lot):
 
 
 def get_owner_context(request, active_tab='dashboard'):
-    """
-    Builds the core context required by the owner panel master layout (Image 5 style).
-    """
+    
     user = request.user
     lots = ParkingLot.objects.filter(owner=user).order_by('-created_at')
     
-    # If owner has no lots, get or create a demo lot for them
+    m
     primary_lot = lots.first()
     if not primary_lot:
         primary_lot = ParkingLot.objects.create(
@@ -214,7 +208,7 @@ def get_owner_context(request, active_tab='dashboard'):
         )
         lots = ParkingLot.objects.filter(owner=user)
 
-    # Ensure sample data exists for this lot
+    
     ensure_owner_sample_data(user, primary_lot)
 
     owner_name = user.get_full_name() or user.username
@@ -246,7 +240,7 @@ def get_owner_context(request, active_tab='dashboard'):
     }
 
 
-# ─── AUTHENTICATION VIEWS ────────────────────────────────────────────────────
+
 
 def owner_login_view(request):
     if request.user.is_authenticated:
@@ -307,7 +301,7 @@ def owner_logout_view(request):
     return redirect('lot_owner_panel:login')
 
 
-# ─── REGISTRATION STEPS ──────────────────────────────────────────────────────
+
 
 def owner_register_step1_view(request):
     if request.method == 'POST':
@@ -455,7 +449,7 @@ def owner_register_step2_view(request):
         access_instructions = request.POST.get('access_instructions', '').strip()
         hourly_rate = request.POST.get('hourly_rate', '50.00').strip()
 
-        # Bank Details from Image 4
+
         bank_account_holder = request.POST.get('bank_account_holder', '').strip()
         bank_name = request.POST.get('bank_name', '').strip()
         bank_account_number = request.POST.get('bank_account_number', '').strip()
@@ -600,7 +594,7 @@ def owner_register_step3_view(request):
         profile.mobile_number = step1_data['mobile_number']
         profile.save()
 
-        # Create LotOwnerProfile with Bank details from Step 2
+        
         owner_profile = LotOwnerProfile.objects.create(
             user=user,
             owner_type=step1_data['owner_type'],
@@ -651,10 +645,10 @@ def owner_register_step3_view(request):
             confirmed_declaration=True
         )
 
-        # Seed sample slots, chargers, notifications for this new owner's lot
+        
         ensure_owner_sample_data(user, parking_lot)
 
-        # Dispatch owner application receipt & admin notification (Central Email Notification Service)
+        
         try:
             from parkease.email_service import EmailNotificationService
             EmailNotificationService.send_owner_registration_receipt(owner_profile)
@@ -700,14 +694,11 @@ def owner_register_success_view(request):
     return render(request, 'lot_owner_panel/register_success.html', {'parking_lot': lot})
 
 
-# ─── 12 CATEGORY VIEWS (SPACE OWNER STUDIO) ──────────────────────────────────
+
 
 @login_required
 def owner_dashboard_view(request):
-    """
-    1. Dashboard: Top KPI metrics matching Image 1 & Image 5,
-    Action center, Today's activity.
-    """
+    
     ctx = get_owner_context(request, active_tab='dashboard')
     ctx.update({
         'today_revenue': "18,450",
@@ -721,9 +712,7 @@ def owner_dashboard_view(request):
 
 @login_required
 def owner_parking_lots_view(request):
-    """
-    2. My Parking Lots: List of registered properties matching Image 2.
-    """
+    
     if request.method == 'POST':
         name = request.POST.get('parking_lot_name', '').strip()
         space_type = request.POST.get('space_type', 'commercial')
@@ -792,10 +781,7 @@ def owner_parking_lots_view(request):
 
 @login_required
 def owner_lot_detail_view(request, lot_id):
-    """
-    Dedicated Lot Details View: All required parameters, approved rates,
-    operating rules, critical vs ordinary edit audit log.
-    """
+    
     lot = get_object_or_404(ParkingLot, id=lot_id, owner=request.user)
     
     if request.method == 'POST':
@@ -823,9 +809,7 @@ def owner_lot_detail_view(request, lot_id):
 
 @login_required
 def owner_toggle_pause_lot_view(request, lot_id):
-    """
-    One-click pause/resume bookings action matching Image 2 button.
-    """
+    
     lot = get_object_or_404(ParkingLot, id=lot_id, owner=request.user)
     lot.is_paused = not lot.is_paused
     lot.save()
@@ -836,22 +820,17 @@ def owner_toggle_pause_lot_view(request, lot_id):
 
 @login_required
 def owner_bookings_view(request):
-    """
-    3. Bookings: List of driver reservations, check-in, check-out gate verification.
-    Live database-driven multi-owner filtering:
-    Only lots owned by request.user are queried.
-    """
+    
     from bookings.models import Booking
     ctx = get_owner_context(request, active_tab='bookings')
     owner = request.user
     
-    # Query all lots owned by this logged-in owner
     owner_lots = ParkingLot.objects.filter(owner=owner)
     
-    # Live database query strictly for this owner's facilities
+    
     live_bookings_qs = Booking.objects.filter(lot__in=owner_lots).select_related('user', 'vehicle', 'lot', 'slot').order_by('-created_at')
     
-    # Search query filter (Booking ID, plate, token, motorist name)
+    
     search_q = request.GET.get('q', '').strip()
     if search_q:
         live_bookings_qs = live_bookings_qs.filter(
@@ -878,7 +857,7 @@ def owner_bookings_view(request):
     else:
         filtered_qs = live_bookings_qs
 
-    # Convert live bookings into clean formatted items for the template
+    
     formatted_bookings = []
     for b in filtered_qs:
         driver_name = b.user.get_full_name() or b.user.username
@@ -962,7 +941,7 @@ def owner_verify_exit_view(request, booking_id):
             booking.overstay_fine = fine_amount
             booking.overstay_paid = False
             booking.save()
-            messages.warning(request, f"⚠️ Overstay Detected for Booking #{booking_id}: Stay exceeded by {overstay_hours}h. Extra fee of ₹{fine_amount} due via Cashfree before exit barrier opens.")
+            messages.warning(request, f"⚠️ Overstay Detected for Booking #{booking_id}: Stay exceeded by {overstay_hours}h. Extra fee of ₹{fine_amount} due via Razorpay before exit barrier opens.")
             return redirect('lot_owner_panel:bookings')
 
         booking.exit_time = now
@@ -977,10 +956,7 @@ def owner_verify_exit_view(request, booking_id):
 
 @login_required
 def owner_slots_view(request):
-    """
-    4. Slot & Availability Management: Table matching Image 3 with zone,
-    slot number, status, schedule, booking restrictions, maintenance.
-    """
+    
     ctx = get_owner_context(request, active_tab='slots')
     lot = ctx['primary_lot']
 
@@ -1042,10 +1018,7 @@ def owner_toggle_slot_maintenance_view(request, slot_id):
 
 @login_required
 def owner_pricing_view(request):
-    """
-    5. Pricing & Offers: Duration rates, vehicle rates, peak-surge,
-    monthly pass rules, platform commission breakdown.
-    """
+    
     ctx = get_owner_context(request, active_tab='pricing')
     lot = ctx['primary_lot']
 
@@ -1080,10 +1053,7 @@ def owner_pricing_view(request):
 
 @login_required
 def owner_ev_charging_view(request):
-    """
-    6. EV Charging Management: Charger ID, connector type, power in kW,
-    sessions log, tariff, fault reporting.
-    """
+    
     ctx = get_owner_context(request, active_tab='ev_charging')
     lot = ctx['primary_lot']
 
@@ -1169,10 +1139,7 @@ def owner_ev_charging_view(request):
 
 @login_required
 def owner_earnings_view(request):
-    """
-    7. Earnings & Payouts: Gross revenue, platform commission, refunds,
-    net payable, settlement history, discrepancy report.
-    """
+    
     ctx = get_owner_context(request, active_tab='earnings')
     profile = ctx['profile']
     payouts = OwnerPayout.objects.filter(owner=request.user).order_by('-created_at')
@@ -1199,9 +1166,7 @@ def owner_earnings_view(request):
 
 @login_required
 def owner_download_statement_view(request):
-    """
-    Downloads an official, professionally styled PDF Settlement Statement for the owner.
-    """
+    
     from reportlab.lib.pagesizes import A4
     from reportlab.lib import colors
     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
@@ -1225,15 +1190,15 @@ def owner_download_statement_view(request):
 
     styles = getSampleStyleSheet()
 
-    # Brand Colors matching ParkEase Project
-    c_primary = colors.HexColor('#0f2942')      # Dark Navy
-    c_accent = colors.HexColor('#0284c7')       # Brand Blue
-    c_dark = colors.HexColor('#0f172a')         # Slate Dark
-    c_muted = colors.HexColor('#64748b')        # Slate Muted
-    c_light_bg = colors.HexColor('#f8fafc')     # Off-white / light slate
-    c_border = colors.HexColor('#cbd5e1')       # Border light
-    c_green = colors.HexColor('#16a34a')        # Forest Green
-    c_red = colors.HexColor('#dc2626')          # Amber Red
+    
+    c_primary = colors.HexColor('#0f2942')   
+    c_accent = colors.HexColor('#0284c7') 
+    c_dark = colors.HexColor('#0f172a')   
+    c_muted = colors.HexColor('#64748b')      
+    c_light_bg = colors.HexColor('#f8fafc')    
+    c_border = colors.HexColor('#cbd5e1')  
+    c_green = colors.HexColor('#16a34a')  
+    c_red = colors.HexColor('#dc2626')      
 
     title_style = ParagraphStyle(
         'DocTitle',
@@ -1294,7 +1259,7 @@ def owner_download_statement_view(request):
 
     story = []
 
-    # 1. Header with Company Branding & Statement Title
+    
     header_data = [
         [
             Paragraph("<b>ParkEase Technologies</b><br/><font color='#64748b' size='8'>Official Space Partner Studio - Payout Statement</font>", title_style),
@@ -1312,7 +1277,7 @@ def owner_download_statement_view(request):
     story.append(Spacer(1, 10))
     story.append(HRFlowable(width="100%", thickness=1.5, color=c_primary, spaceBefore=0, spaceAfter=12))
 
-    # 2. Two-Column Info Box: Facility Info vs Bank Settlement Account
+    
     owner_name = user.get_full_name() or user.username
     bank_name = profile.bank_name if profile and profile.bank_name else "State Bank of India"
     acc_num = profile.bank_account_number if profile and profile.bank_account_number else "XXXXXXXX8741"
@@ -1357,7 +1322,7 @@ def owner_download_statement_view(request):
     story.append(t_meta)
     story.append(Spacer(1, 12))
 
-    # 3. Financial Summary Box (4 Metrics)
+    
     summary_data = [
         [
             Paragraph("<b>GROSS REVENUE</b><br/><font size='7' color='#64748b'>Customer Bookings</font><br/><br/><font size='12' color='#0f172a'><b>INR 34,200.00</b></font>", body_muted),
@@ -1381,7 +1346,7 @@ def owner_download_statement_view(request):
     story.append(t_summary)
     story.append(Spacer(1, 14))
 
-    # 4. Itemized Settlement Ledger Table
+
     story.append(Paragraph("<b>SETTLEMENT TRANSACTION LEDGER</b>", h2_style))
     story.append(Spacer(1, 6))
 
@@ -1465,7 +1430,7 @@ def owner_download_statement_view(request):
     story.append(t_ledger)
     story.append(Spacer(1, 16))
 
-    # 5. Terms & Compliance Footer Note
+    
     footer_text = (
         "<b>Electronic Statement Authentication:</b> This settlement statement is an authenticated digital PDF record issued "
         "by ParkEase Technologies Pvt. Ltd. pursuant to the Space Partner Agreement. Direct NEFT/RTGS/IMPS electronic remittances "
@@ -1488,10 +1453,7 @@ def owner_download_statement_view(request):
 
 @login_required
 def owner_reports_view(request):
-    """
-    8. Reports & Analytics: Reserved vs Physical Occupancy distinction,
-    revenue by period, vehicle demand, peak hours, cancellations.
-    """
+    
     ctx = get_owner_context(request, active_tab='reports')
     period = request.GET.get('period', '30d')
     ctx['period'] = period
@@ -1500,13 +1462,10 @@ def owner_reports_view(request):
 
 @login_required
 def owner_reviews_view(request):
-    """
-    9. Reviews & Ratings: Overall score, driver feedback, owner reply, report.
-    Calculates live dynamic scores and review distribution across owner's lots.
-    """
+    
     ctx = get_owner_context(request, active_tab='reviews')
     lot = ctx['primary_lot']
-    # All reviews for the owner
+    
     reviews = LotReview.objects.filter(parking_lot__owner=request.user).order_by('-created_at')
     
     total_reviews = reviews.count()
@@ -1571,9 +1530,7 @@ def owner_report_review_view(request, review_id):
 
 @login_required
 def owner_notifications_view(request):
-    """
-    10. Notifications: Single unified list of all alerts.
-    """
+    
     ctx = get_owner_context(request, active_tab='notifications')
     notifs = OwnerNotification.objects.filter(owner=request.user).order_by('-created_at')
     ctx['all_notifications'] = notifs
@@ -1582,9 +1539,7 @@ def owner_notifications_view(request):
 
 @login_required
 def owner_mark_notifications_read_view(request):
-    """
-    Marks all notifications as read.
-    """
+    
     OwnerNotification.objects.filter(owner=request.user, is_read=False).update(is_read=True)
     if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
         from django.http import JsonResponse
@@ -1595,10 +1550,7 @@ def owner_mark_notifications_read_view(request):
 
 @login_required
 def owner_profile_settings_view(request):
-    """
-    11. Profile & Settings: All personal details from registration +
-    Bank & Settlement Account Details form (Image 4 exact design).
-    """
+    
     ctx = get_owner_context(request, active_tab='profile')
     profile = ctx['profile']
     user = request.user
@@ -1607,7 +1559,7 @@ def owner_profile_settings_view(request):
     if request.method == 'POST':
         section = request.POST.get('section')
         if section == 'bank':
-            # Save Bank & Settlement Details (Image 4)
+            
             profile.bank_account_holder = request.POST.get('bank_account_holder', '').strip()
             profile.bank_name = request.POST.get('bank_name', '').strip()
             profile.bank_account_number = request.POST.get('bank_account_number', '').strip()
@@ -1622,7 +1574,7 @@ def owner_profile_settings_view(request):
                 pass
             messages.success(request, "Bank & Settlement Account details saved successfully. Notifications sent to owner and admin.")
         else:
-            # Save Personal Details
+            
             full_name = request.POST.get('full_name', '').strip()
             if full_name:
                 parts = full_name.split(' ', 1)
@@ -1653,10 +1605,7 @@ def owner_profile_settings_view(request):
 
 @login_required
 def owner_support_view(request):
-    """
-    12. Help & Support: Create support tickets, issue description, file attachment,
-    admin resolution tracking.
-    """
+    
     ctx = get_owner_context(request, active_tab='support')
     lot = ctx['primary_lot']
 
@@ -1687,22 +1636,17 @@ def owner_support_view(request):
     return render(request, 'lot_owner_panel/support.html', ctx)
 
 
-# ─── PARKING EXTENSIONS MANAGEMENT ──────────────────────────────────────────
+
 
 @login_required(login_url='lot_owner_panel:login')
 def owner_extensions_view(request):
-    """
-    Parking Extensions Management:
-    Lists motorist requests to extend active reservations for lots owned by this owner.
-    Highlights overlapping bookings by subsequent motorists where another user has booked & paid.
-    Allows owner to approve (in same slot or reassigning to alternative slot/lot) or reject.
-    """
+    
     from bookings.models import BookingExtensionRequest, Booking
     ctx = get_owner_context(request, active_tab='extensions')
     owner = request.user
     owner_lots = ParkingLot.objects.filter(owner=owner)
 
-    # Base queryset for this owner's facilities
+
     ext_qs = BookingExtensionRequest.objects.filter(
         booking__lot__in=owner_lots
     ).select_related(
@@ -1711,12 +1655,12 @@ def owner_extensions_view(request):
         'assigned_slot', 'assigned_lot'
     ).order_by('-created_at')
 
-    # Status filter
+    
     status_filter = request.GET.get('status', 'all').strip().lower()
     if status_filter in ['pending', 'approved', 'rejected']:
         ext_qs = ext_qs.filter(status=status_filter)
 
-    # Search filter (booking ID, motorist name, vehicle registration)
+    
     q = request.GET.get('q', '').strip()
     if q:
         ext_qs = ext_qs.filter(
@@ -1728,12 +1672,12 @@ def owner_extensions_view(request):
             models.Q(booking__parking_lot__icontains=q)
         )
 
-    # Lot filter
+
     lot_id = request.GET.get('lot_id', '').strip()
     if lot_id and lot_id.isdigit():
         ext_qs = ext_qs.filter(booking__lot_id=int(lot_id))
 
-    # Calculate status counts for filter tabs
+    
     base_owner_requests = BookingExtensionRequest.objects.filter(booking__lot__in=owner_lots)
     counts = {
         'all': base_owner_requests.count(),
@@ -1743,7 +1687,7 @@ def owner_extensions_view(request):
         'conflicts': base_owner_requests.filter(status='pending', conflict_detected=True).count(),
     }
 
-    # Gather available operational slots across the owner's lots for reassignment
+    
     all_operational_slots = ParkingSlot.objects.filter(
         parking_lot__in=owner_lots,
         maintenance_status='Operational'
@@ -1763,11 +1707,7 @@ def owner_extensions_view(request):
 
 @login_required(login_url='lot_owner_panel:login')
 def owner_approve_extension_view(request, ext_id):
-    """
-    Approves a motorist's parking extension request.
-    Can reassign the motorist to an alternative available slot or lot.
-    Dispatches approval email notification to the motorist with vacate instructions.
-    """
+    
     from bookings.models import BookingExtensionRequest
     ext_req = get_object_or_404(
         BookingExtensionRequest,
@@ -1787,7 +1727,7 @@ def owner_approve_extension_view(request, ext_id):
         booking = ext_req.booking
         reassigned_text = ""
 
-        # Check if reassigned to an alternative slot
+        
         if reassign_slot_id and reassign_slot_id.isdigit():
             new_slot = ParkingSlot.objects.filter(
                 id=int(reassign_slot_id),
@@ -1798,7 +1738,7 @@ def owner_approve_extension_view(request, ext_id):
                 ext_req.assigned_slot = new_slot
                 reassigned_text = f" Reassigned to Bay: {new_slot.slot_number} ({new_slot.zone})."
 
-        # Check if reassigned to an alternative lot
+        
         if reassign_lot_id and reassign_lot_id.isdigit():
             new_lot = ParkingLot.objects.filter(
                 id=int(reassign_lot_id),
@@ -1810,19 +1750,19 @@ def owner_approve_extension_view(request, ext_id):
                 ext_req.assigned_lot = new_lot
                 reassigned_text += f" Reassigned facility: {new_lot.name}."
 
-        # Update booking duration and total amount
+        
         booking.end_time = ext_req.requested_new_end_time
         booking.total_amount += ext_req.additional_fee
         booking.save()
 
-        # Update extension request status
+        
         ext_req.status = 'approved'
         default_note = "Extension approved by lot owner. Please ensure your vehicle vacates the space promptly when your extended time expires."
         ext_req.owner_note = owner_note if owner_note else default_note
         ext_req.resolved_at = timezone.now()
         ext_req.save()
 
-        # Dispatch email to user informing of approved extension
+        
         try:
             from parkease.email_service import EmailNotificationService
             EmailNotificationService.send_driver_extension_approved(ext_req)
@@ -1840,9 +1780,7 @@ def owner_approve_extension_view(request, ext_id):
 
 @login_required(login_url='lot_owner_panel:login')
 def owner_reject_extension_view(request, ext_id):
-    """
-    Rejects a motorist's parking extension request (e.g. when space is unavailable due to conflicting bookings).
-    """
+
     from bookings.models import BookingExtensionRequest
     ext_req = get_object_or_404(
         BookingExtensionRequest,

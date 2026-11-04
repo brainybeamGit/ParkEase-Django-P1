@@ -1,13 +1,4 @@
-"""
-ParkEase Central Email Notification Service
-============================================
-Architecture based on ParkEase Technical Blueprint (Image 1, 2, 3, 7).
-Provides a single, unified, reusable notification pipeline for:
-  - User / Driver workflows (18 events)
-  - Space Owner workflows (18 events)
-  - Admin & Staff workflows (15 events)
-  - Delivery logging and audit tracking (EmailDeliveryLog)
-"""
+
 
 import os
 import sys
@@ -23,14 +14,9 @@ logger = logging.getLogger(__name__)
 
 
 class EmailNotificationService:
-    """
-    Central Reusable Email Notification Service for ParkEase.
-    Handles recipient selection, templating, event mapping, delivery, and audit logging.
-    """
 
-    # Event Configuration Directory
     EVENT_CONFIG = {
-        # ─── USER / DRIVER EVENTS (18) ──────────────────────────────────────────
+        
         'user_registration': {
             'role': 'driver',
             'badge': 'WELCOME TO PARKEASE',
@@ -227,7 +213,7 @@ class EmailNotificationService:
             'security_note': 'Please note that you must vacate the parking space promptly when your extended time expires.',
         },
 
-        # ─── LOT OWNER EVENTS (18) ──────────────────────────────────────────────
+    
         'owner_registration': {
             'role': 'owner',
             'badge': 'OWNER APPLICATION RECEIVED',
@@ -385,7 +371,7 @@ class EmailNotificationService:
             'security_note': 'Check slot availability and subsequent motorist reservations before approving.',
         },
 
-        # ─── ADMIN SIDE EVENTS (15) ─────────────────────────────────────────────
+        
         'admin_security_alert': {
             'role': 'admin',
             'badge': 'ADMIN SECURITY NOTICE',
@@ -507,7 +493,7 @@ class EmailNotificationService:
             'cta_path': '/admin-panel/logs/',
         },
 
-        # ─── COMMON WORKFLOWS (Image 1, 2) ──────────────────────────────────────
+        
         'contact_us_inquiry': {
             'role': 'driver',
             'badge': 'INQUIRY ACKNOWLEDGEMENT',
@@ -665,11 +651,7 @@ class EmailNotificationService:
         recipient_role=None,
         fail_silently=True
     ):
-        """
-        Main entry point for dispatching any notification in ParkEase.
-        Builds branded HTML, attaches text alternative, sends via SMTP (or simulates safely in dev),
-        and records the delivery audit log in EmailDeliveryLog.
-        """
+        
         from accounts.models import EmailDeliveryLog
 
         if not recipient_email:
@@ -679,22 +661,22 @@ class EmailNotificationService:
         config = cls.EVENT_CONFIG.get(event_type, {})
         ctx = context.copy() if context else {}
 
-        # Resolve fields
+    
         subject = ctx.get('custom_subject') or config.get('subject', f'ParkEase Notification: {event_type.replace("_", " ").title()}')
         badge_text = ctx.get('badge_text') or config.get('badge', 'PARKEASE NOTIFICATION')
         headline = ctx.get('headline') or config.get('headline', subject)
         role = recipient_role or config.get('role', 'driver')
 
-        # Site URL configuration
+        
         site_url = ctx.get('site_url') or os.getenv('SITE_URL', 'http://127.0.0.1:8000')
 
-        # CTA link resolution
+        
         cta_text = ctx.get('cta_text') or config.get('cta_text')
         cta_url = ctx.get('cta_url')
         if not cta_url and config.get('cta_path'):
             cta_url = f"{site_url.rstrip('/')}{config['cta_path']}"
 
-        # Template rendering context
+        
         template_context = {
             'subject': subject,
             'badge_text': badge_text,
@@ -709,7 +691,7 @@ class EmailNotificationService:
             'site_url': site_url,
         }
 
-        # Render HTML and plain text
+        
         try:
             html_content = render_to_string('emails/notification.html', template_context)
             text_content = strip_tags(html_content)
@@ -722,7 +704,7 @@ class EmailNotificationService:
         smtp_user = getattr(settings, 'EMAIL_HOST_USER', '')
         smtp_password = getattr(settings, 'EMAIL_HOST_PASSWORD', '')
 
-        # Determine delivery mode: real SMTP vs dev simulation
+        
         has_real_smtp = bool(
             smtp_user and 
             smtp_password and 
@@ -735,7 +717,7 @@ class EmailNotificationService:
         msg_id = f"pe_msg_{timezone.now().strftime('%Y%m%d%H%M%S')}_{os.urandom(4).hex()}"
 
         if has_real_smtp:
-            # Send live email via configured SMTP host
+            
             try:
                 email = EmailMultiAlternatives(
                     subject=subject,
@@ -753,7 +735,7 @@ class EmailNotificationService:
                 if not fail_silently:
                     raise e
         else:
-            # Simulated Dev Mode: log clearly to terminal / delivery log
+            
             delivery_status = 'simulated'
             logger.info(
                 f"[DEV SIMULATED EMAIL]\n"
@@ -764,7 +746,7 @@ class EmailNotificationService:
                 f"  Status: Recorded in EmailDeliveryLog (Configure .env for live SMTP delivery)"
             )
 
-        # Audit and Delivery Logging (Image 2 & 3)
+        
         try:
             EmailDeliveryLog.objects.create(
                 recipient=recipient_email,
@@ -782,11 +764,11 @@ class EmailNotificationService:
         is_success = (delivery_status in ('sent', 'simulated'))
         return is_success, delivery_status
 
-    # ─── HIGH-LEVEL SHORTCUT METHODS ──────────────────────────────────────────
+    
 
     @classmethod
     def send_user_welcome(cls, user):
-        """Send welcome email when user registers."""
+        
         full_name = f"{user.first_name} {user.last_name}".strip() or user.username
         context = {
             'message_body': (
@@ -805,7 +787,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_forgot_password_otp(cls, user, otp_code):
-        """Send 6-digit OTP for password reset."""
+        
         full_name = f"{user.first_name} {user.last_name}".strip() or user.username
         context = {
             'otp_code': str(otp_code),
@@ -823,7 +805,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_password_reset_success(cls, user):
-        """Send security confirmation after password has been changed."""
+        
         full_name = f"{user.first_name} {user.last_name}".strip() or user.username
         context = {
             'message_body': (
@@ -839,7 +821,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_booking_confirmation(cls, booking):
-        """Send booking confirmation with QR token details."""
+        
         user = booking.user
         full_name = f"{user.first_name} {user.last_name}".strip() or user.username
         reg_num = booking.vehicle.registration_number if booking.vehicle else 'Registered Plate'
@@ -861,7 +843,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_booking_cancellation(cls, booking):
-        """Send booking cancellation and refund policy breakdown."""
+        
         user = booking.user
         full_name = f"{user.first_name} {user.last_name}".strip() or user.username
         context = {
@@ -880,7 +862,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_owner_registration_receipt(cls, owner_profile):
-        """Send application confirmation to prospective space owner."""
+
         user = owner_profile.user
         context = {
             'message_body': (
@@ -898,7 +880,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_owner_payout_notice(cls, payout):
-        """Send bank payout notification to space owner."""
+        
         lot = payout.parking_lot
         owner_user = lot.owner
         context = {
@@ -918,7 +900,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_admin_alert(cls, event_type, subject, message_body, details_dict=None):
-        """Send administrative system alerts to the platform admin."""
+        
         admin_email = getattr(settings, 'ADMIN_EMAIL', 'bharvadiyasavan96@gmail.com')
         context = {
             'custom_subject': subject,
@@ -930,7 +912,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_user_login_alert(cls, user, ip='127.0.0.1'):
-        """Send login alert email to user."""
+        
         full_name = f"{user.first_name} {user.last_name}".strip() or user.username
         context = {
             'headline': 'New Sign-In to Your ParkEase Account',
@@ -951,7 +933,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_owner_login_alert(cls, user, ip='127.0.0.1'):
-        """Send login alert email to space owner."""
+        
         full_name = f"{user.first_name} {user.last_name}".strip() or user.username
         context = {
             'headline': 'New Sign-In to Your Space Owner Studio',
@@ -972,7 +954,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_vehicle_added(cls, user, vehicle):
-        """Send email when user registers a vehicle."""
+        
         full_name = f"{user.first_name} {user.last_name}".strip() or user.username
         context = {
             'message_body': (
@@ -992,7 +974,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_profile_updated(cls, user, mobile=''):
-        """Send email when user profile details are updated."""
+        
         full_name = f"{user.first_name} {user.last_name}".strip() or user.username
         context = {
             'message_body': (
@@ -1011,7 +993,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_owner_slots_added(cls, owner_user, lot, count):
-        """Send email when owner adds slots/spaces."""
+        
         full_name = f"{owner_user.first_name} {owner_user.last_name}".strip() or owner_user.username
         context = {
             'message_body': (
@@ -1031,7 +1013,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_admin_price_change_alert(cls, lot, old_price, new_price, owner_user=None):
-        """Send email to admin when owner updates pricing."""
+        
         admin_email = getattr(settings, 'ADMIN_EMAIL', 'bharvadiyasavan96@gmail.com')
         owner_name = (f"{owner_user.first_name} {owner_user.last_name}".strip() if owner_user else None) or (lot.owner.username if lot.owner else 'Space Owner')
         context = {
@@ -1053,18 +1035,14 @@ class EmailNotificationService:
 
     @classmethod
     def send_refund_approved(cls, booking):
-        """
-        Send refund approval notifications:
-        - To User: With date, time, name, amount, and transaction ID.
-        - To Admin: Audit notification of refund confirmation.
-        """
+        
         user = booking.user
         user_name = f"{user.first_name} {user.last_name}".strip() or user.username
-        tx_id = booking.refund_transaction_id or booking.paypal_payment_id or booking.cashfree_payment_id or booking.razorpay_payment_id or f"RFND_{booking.id}"
+        tx_id = booking.refund_transaction_id or getattr(booking, 'razorpay_payment_id', '') or f"RFND_{booking.id}"
         refund_amt = f"₹{booking.refund_amount if booking.refund_amount > 0 else booking.total_amount:.2f}"
         now_dt = booking.refund_processed_at or timezone.now()
 
-        # 1. Email to User
+        
         user_context = {
             'message_body': (
                 f"Dear {user_name},<br><br>"
@@ -1084,7 +1062,7 @@ class EmailNotificationService:
         }
         cls.send_notification('refund_approved_user', user.email, user_name, user_context, 'driver')
 
-        # 2. Email to Admin
+        
         admin_email = getattr(settings, 'ADMIN_EMAIL', 'bharvadiyasavan96@gmail.com')
         admin_context = {
             'message_body': (
@@ -1102,11 +1080,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_ev_maintenance_alert(cls, charger, lot, set_by='owner'):
-        """
-        Send EV Charger maintenance email:
-        - If set by owner -> Mail sent to Admin about specific EV charger in maintenance.
-        - If set by admin -> Mail sent to Space Owner that admin maintained/set charger to maintenance.
-        """
+        
         charger_code = getattr(charger, 'charger_id', None) or getattr(charger, 'charger_code', None) or f"CHG-BAY-{charger.id}"
         power_rating = f"{charger.power_kw} kW" if hasattr(charger, 'power_kw') else 'Fast Charger'
         facility_name = lot.name
@@ -1151,7 +1125,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_review_response(cls, review, response_text):
-        """Send email to user when space owner responds to their review."""
+        
         user = review.user
         user_name = f"{user.first_name} {user.last_name}".strip() or user.username
         lot_name = review.parking_lot.name if hasattr(review, 'parking_lot') and review.parking_lot else (review.lot.name if hasattr(review, 'lot') else 'Parking Facility')
@@ -1174,13 +1148,13 @@ class EmailNotificationService:
 
     @classmethod
     def send_owner_bank_updated(cls, owner_profile):
-        """Send email to both Owner and Admin when personal/bank details are updated."""
+        
         user = owner_profile.user
         owner_name = f"{user.first_name} {user.last_name}".strip() or owner_profile.business_name or user.username
         masked_account = f"••••••{owner_profile.bank_account_number[-4:]}" if owner_profile.bank_account_number and len(owner_profile.bank_account_number) >= 4 else "Updated"
         now_str = timezone.now().strftime('%B %d, %Y at %I:%M %p')
 
-        # 1. To Owner
+        
         owner_context = {
             'message_body': (
                 f"Hi {owner_name},<br><br>"
@@ -1199,7 +1173,7 @@ class EmailNotificationService:
         }
         cls.send_notification('owner_bank_updated', user.email, owner_name, owner_context, 'owner')
 
-        # 2. To Admin
+        
         admin_email = getattr(settings, 'ADMIN_EMAIL', 'bharvadiyasavan96@gmail.com')
         admin_context = {
             'message_body': (
@@ -1219,7 +1193,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_user_deleted(cls, user_email, user_name):
-        """Send email to user when their account is deleted by admin."""
+        
         context = {
             'message_body': (
                 f"Dear {user_name},<br><br>"
@@ -1236,7 +1210,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_owner_verification_approved(cls, owner_profile):
-        """Send email to owner when KYC verification is approved by admin."""
+       
         user = owner_profile.user
         owner_name = f"{user.first_name} {user.last_name}".strip() or owner_profile.business_name or user.username
         context = {
@@ -1257,7 +1231,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_owner_lot_paused(cls, lot):
-        """Send email to owner when a parking lot is paused."""
+        
         owner_user = lot.owner
         if not owner_user:
             return False, "No owner"
@@ -1279,7 +1253,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_owner_notification_email(cls, owner_user, title, message):
-        """Send email to owner when any notification is received in Space Owner Studio."""
+        
         owner_name = f"{owner_user.first_name} {owner_user.last_name}".strip() or owner_user.username
         context = {
             'headline': title,
@@ -1294,7 +1268,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_admin_notification_email(cls, title, message):
-        """Send email to admin when any notification is received in Admin Studio."""
+        
         admin_email = getattr(settings, 'ADMIN_EMAIL', 'bharvadiyasavan96@gmail.com')
         context = {
             'headline': title,
@@ -1309,7 +1283,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_owner_extension_request(cls, ext_req):
-        """Send email alert to space owner when a motorist requests extended parking time."""
+        
         booking = ext_req.booking
         owner_user = None
         if booking.lot and booking.lot.owner:
@@ -1351,7 +1325,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_driver_extension_approved(cls, ext_req):
-        """Send email alert to motorist when space owner approves the time extension."""
+        
         booking = ext_req.booking
         driver = ext_req.requested_by
         driver_email = driver.email or getattr(settings, 'USER_EMAIL', 'saavanbaems@gmail.com')
@@ -1386,7 +1360,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_user_feedback_acknowledgment(cls, feedback):
-        """Send confirmation email to user when they submit direct feedback to admin."""
+        
         recipient_email = feedback.email or getattr(settings, 'USER_EMAIL', 'saavanbaems@gmail.com')
         recipient_name = feedback.name or 'Valued Motorist'
         cat_display = feedback.get_category_display() if hasattr(feedback, 'get_category_display') else feedback.category
@@ -1413,7 +1387,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_admin_new_feedback_alert(cls, feedback):
-        """Send alert email to admin when user submits direct feedback."""
+        
         admin_email = getattr(settings, 'ADMIN_EMAIL', 'bharvadiyasavan96@gmail.com')
         cat_display = feedback.get_category_display() if hasattr(feedback, 'get_category_display') else feedback.category
         stars = "★" * feedback.rating + "☆" * (5 - feedback.rating)
@@ -1444,7 +1418,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_user_review_acknowledgment(cls, review):
-        """Send confirmation email to user when they rate and review a parking lot service."""
+        
         user = review.user
         recipient_email = user.email if (user and user.email) else getattr(settings, 'USER_EMAIL', 'saavanbaems@gmail.com')
         recipient_name = review.driver_name or (f"{user.first_name} {user.last_name}".strip() if user else 'Valued Motorist')
@@ -1476,7 +1450,7 @@ class EmailNotificationService:
 
     @classmethod
     def send_owner_new_review_alert(cls, review):
-        """Send notification email to space owner when driver rates their lot."""
+        
         lot = review.parking_lot
         owner = lot.owner if lot else None
         owner_email = owner.email if (owner and owner.email) else getattr(settings, 'LOT_OWNER_EMAIL', 'savaniiictiu62@gmail.com')

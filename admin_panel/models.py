@@ -3,9 +3,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 class PlatformSetting(models.Model):
-    """
-    Platform-wide global settings and thresholds.
-    """
+    
     commission_rate_pct = models.DecimalField(max_digits=5, decimal_places=2, default=15.00)
     overstay_fine_hourly = models.DecimalField(max_digits=7, decimal_places=2, default=100.00)
     min_hourly_rate = models.DecimalField(max_digits=6, decimal_places=2, default=20.00)
@@ -20,9 +18,7 @@ class PlatformSetting(models.Model):
 
 
 class PlatformCoupon(models.Model):
-    """
-    9. Promotional coupons and discount rules.
-    """
+    
     code = models.CharField(max_length=50, unique=True)
     discount_pct = models.PositiveIntegerField(default=20)
     max_discount_amount = models.DecimalField(max_digits=7, decimal_places=2, default=150.00)
@@ -36,9 +32,7 @@ class PlatformCoupon(models.Model):
 
 
 class PlatformComplaint(models.Model):
-    """
-    12. Complaints & Disputes between drivers and lot owners.
-    """
+    
     STATUS_CHOICES = [
         ('open', 'Open / New'),
         ('investigating', 'In Investigation'),
@@ -65,9 +59,7 @@ class PlatformComplaint(models.Model):
 
 
 class PlatformAnnouncement(models.Model):
-    """
-    13. Notifications & Announcements broadcast by platform administrators.
-    """
+    
     AUDIENCE_CHOICES = [
         ('all', 'All Users & Owners'),
         ('drivers', 'Drivers Only'),
@@ -87,9 +79,7 @@ class PlatformAnnouncement(models.Model):
 
 
 class AdminAuditLog(models.Model):
-    """
-    14. Immutable Admin Audit Trail.
-    """
+    
     admin_user = models.CharField(max_length=100)
     action = models.CharField(max_length=200)
     target_object = models.CharField(max_length=200)
@@ -103,9 +93,7 @@ class AdminAuditLog(models.Model):
 
 
 class PlatformFeedback(models.Model):
-    """
-    Direct user/motorist feedback submitted from the pre-footer card directly to platform admin.
-    """
+    
     CATEGORY_CHOICES = [
         ('general', 'General Platform Feedback'),
         ('booking', 'Booking & Parking Experience'),
@@ -134,9 +122,7 @@ class PlatformFeedback(models.Model):
 
 
 class AdminNotification(models.Model):
-    """
-    Admin bell notifications and system alerts.
-    """
+    
     category = models.CharField(max_length=50, default='system')  # owner_verification, lot_approval, dispute, payment, overstay
     title = models.CharField(max_length=200)
     message = models.TextField()

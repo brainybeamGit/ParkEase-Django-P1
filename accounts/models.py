@@ -5,14 +5,7 @@ from django.dispatch import receiver
 import re
 
 def normalize_registration_number(reg_str):
-    """
-    Normalizes a vehicle registration number:
-    - Strips leading/trailing whitespace
-    - Converts to uppercase
-    - Collapses multiple hyphens/spaces into clean single space
-    Example: 'dl-01-ab-1234' -> 'DL 01 AB 1234'
-             'mh12cd5678' -> 'MH 12 CD 5678' (if spaced) or preserved clean
-    """
+    
     if not reg_str:
         return ""
     cleaned = reg_str.strip().upper()
@@ -21,9 +14,7 @@ def normalize_registration_number(reg_str):
 
 
 class UserProfile(models.Model):
-    """
-    Extended user profile for contact details and parking account settings.
-    """
+    
     ROLE_CHOICES = [
         ('driver', 'Driver / Customer'),
         ('owner', 'Parking Lot Owner'),
@@ -47,11 +38,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 
 class Vehicle(models.Model):
-    """
-    Motorist Registered Vehicle Model.
-    Supports primary vehicle tracking, multiple vehicles per user,
-    EV charging preferences, and type categorization.
-    """
+    
     VEHICLE_TYPE_CHOICES = [
         ('two_wheeler', 'Two-wheeler (Bike / Scooter)'),
         ('car', 'Car (Hatchback / Sedan)'),
@@ -91,10 +78,7 @@ class Vehicle(models.Model):
 
 
 class PasswordResetOTP(models.Model):
-    """
-    6-Digit One-Time Password (OTP) for Secure Driver & Owner Password Reset.
-    Valid for 10 minutes.
-    """
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='password_otps')
     email = models.EmailField(db_index=True)
     otp_code = models.CharField(max_length=6, db_index=True)
@@ -117,10 +101,7 @@ class PasswordResetOTP(models.Model):
 
 
 class EmailDeliveryLog(models.Model):
-    """
-    Comprehensive Email Delivery Tracking & Audit Log.
-    Tracks all platform notifications across Drivers, Space Owners, and Administrators.
-    """
+    
     ROLE_CHOICES = [
         ('driver', 'Driver / Customer'),
         ('owner', 'Parking Owner'),

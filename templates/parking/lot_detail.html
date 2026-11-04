@@ -5,8 +5,7 @@
 
 {% block extra_css %}
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-<link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet" />
+
 <style>
     .lot-detail-wrapper {
         background-color: #f8fafc;
@@ -109,7 +108,7 @@
         border-radius: 10px;
     }
 
-    /* Tablet Responsiveness (768px - 1023px) */
+    
     @media (min-width: 768px) and (max-width: 1023.98px) {
         .sticky-booking-sidebar {
             position: static !important;
@@ -123,7 +122,7 @@
         }
     }
 
-    /* Smartphone Responsiveness (< 768px) */
+
     @media (max-width: 767.98px) {
         .lot-header-card {
             padding: 1rem 0 !important;
@@ -467,140 +466,56 @@
 
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
-<script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"></script>
 
 <script>
-    const lotLat = {{ lat }};
-    const lotLng = {{ lng }};
-    const lotName = "{{ lot.name|escapejs }}";
-    const lotRate = "₹{{ rate|floatformat:0 }}/hr";
-
-    let activeLotMapMode = 'none';
-    let gMiniMap = null;
-    let lMiniMap = null;
-
-    window.gm_authFailure = function() {
-        console.warn('Google Maps Auth Restricted on lot detail. Activating Leaflet fallback.');
-        if (activeLotMapMode !== 'leaflet') {
-            initLeafletMiniMap('RefererNotAllowed');
-        }
-    };
-
     function initGoogleLotMap() {
-        if (activeLotMapMode === 'leaflet') return;
         if (typeof google === 'undefined' || !google.maps) {
-            initLeafletMiniMap('Google Maps not available');
+            console.error('Google Maps not available');
             return;
         }
 
-        try {
-            const mapContainer = document.getElementById('lotMiniMap');
-            if (!mapContainer) return;
+        const lotLat = {{ lat }};
+        const lotLng = {{ lng }};
+        const lotName = "{{ lot.name|escapejs }}";
+        const lotRate = "₹{{ rate|floatformat:0 }}/hr";
 
-            gMiniMap = new google.maps.Map(mapContainer, {
-                center: { lat: lotLat, lng: lotLng },
-                zoom: 16,
-                mapTypeControl: true,
-                mapTypeControlOptions: {
-                    style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
-                    position: google.maps.ControlPosition.TOP_LEFT
-                },
-                streetViewControl: false,
-                fullscreenControl: true,
-                zoomControl: true,
-                zoomControlOptions: {
-                    position: google.maps.ControlPosition.RIGHT_CENTER
-                }
-            });
+        const mapContainer = document.getElementById('lotMiniMap');
+        if (!mapContainer) return;
 
-            activeLotMapMode = 'google';
-
-            const marker = new google.maps.Marker({
-                position: { lat: lotLat, lng: lotLng },
-                map: gMiniMap,
-                title: lotName,
-                animation: google.maps.Animation.DROP
-            });
-
-            const info = new google.maps.InfoWindow({
-                content: `
-                    <div style="font-family: inherit; padding: 4px;">
-                        <strong style="color: #0B3B60; font-size: 0.95rem;">${lotName}</strong>
-                        <div style="color: #64748b; font-size: 0.8rem; margin-top: 2px;">Rate: ${lotRate}</div>
-                    </div>
-                `
-            });
-            info.open(gMiniMap, marker);
-            marker.addListener('click', () => info.open(gMiniMap, marker));
-
-        } catch (err) {
-            console.error('Google MiniMap failed, falling back:', err);
-            initLeafletMiniMap(err.message);
-        }
-    }
-
-    function initLeafletMiniMap(reason) {
-        if (activeLotMapMode === 'leaflet') return;
-        activeLotMapMode = 'leaflet';
-        console.log('Leaflet lot mini-map active. Reason:', reason);
-
-        const container = document.getElementById('lotMiniMap');
-        if (!container) return;
-        container.innerHTML = '';
-
-        lMiniMap = L.map('lotMiniMap', {
+        const map = new google.maps.Map(mapContainer, {
+            center: { lat: lotLat, lng: lotLng },
+            zoom: 16,
+            mapTypeControl: true,
+            mapTypeControlOptions: {
+                style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+                position: google.maps.ControlPosition.TOP_LEFT
+            },
+            streetViewControl: false,
+            fullscreenControl: true,
             zoomControl: true,
-            scrollWheelZoom: false,
-            attributionControl: false
-        }).setView([lotLat, lotLng], 15);
-
-        const OPENFREEMAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
-        if (typeof L.maplibreGL !== 'undefined') {
-            try {
-                L.maplibreGL({
-                    style: OPENFREEMAP_STYLE,
-                    attribution: '&copy; OpenFreeMap &copy; OpenStreetMap'
-                }).addTo(lMiniMap);
-            } catch (err) {
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                    maxZoom: 19,
-                    subdomains: 'abcd',
-                    attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
-                }).addTo(lMiniMap);
+            zoomControlOptions: {
+                position: google.maps.ControlPosition.RIGHT_CENTER
             }
-        } else {
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                maxZoom: 19,
-                subdomains: 'abcd',
-                attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
-            }).addTo(lMiniMap);
-        }
-
-        const pinIcon = L.divIcon({
-            className: 'custom-lot-pin',
-            html: `
-                <div style="background-color: #0B3B60; color: #ffffff; padding: 6px 12px; border-radius: 9999px; font-weight: 800; font-size: 0.85rem; box-shadow: 0 4px 12px rgba(11, 59, 96, 0.4); border: 2px solid #ffffff; white-space: nowrap; transform: translate(-50%, -100%);">
-                    ${lotRate}
-                </div>
-            `,
-            iconSize: [0, 0],
-            iconAnchor: [0, 0]
         });
 
-        L.marker([lotLat, lotLng], { icon: pinIcon }).addTo(lMiniMap);
+        const marker = new google.maps.Marker({
+            position: { lat: lotLat, lng: lotLng },
+            map: map,
+            title: lotName,
+            animation: google.maps.Animation.DROP
+        });
 
-        setTimeout(() => {
-            lMiniMap.invalidateSize();
-        }, 200);
+        const info = new google.maps.InfoWindow({
+            content: `
+                <div style="font-family: inherit; padding: 4px;">
+                    <strong style="color: #0B3B60; font-size: 0.95rem;">${lotName}</strong>
+                    <div style="color: #64748b; font-size: 0.8rem; margin-top: 2px;">Rate: ${lotRate}</div>
+                </div>
+            `
+        });
+        info.open(map, marker);
+        marker.addListener('click', () => info.open(map, marker));
     }
-
-    setTimeout(() => {
-        if (activeLotMapMode === 'none') {
-            initLeafletMiniMap('Timeout');
-        }
-    }, 2800);
 </script>
 
 <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&libraries=places,geometry&callback=initGoogleLotMap" async defer></script>

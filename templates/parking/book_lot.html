@@ -127,26 +127,16 @@
                         <input type="hidden" name="vehicle_type" value="{{ vehicle_type }}">
                         <input type="hidden" id="selectedSlotInput" name="slot_id" value="{% if available_slots %}{{ available_slots.0.id }}{% endif %}">
                         <input type="hidden" id="selectedVehicleIdInput" name="vehicle_id" value="{% if user_vehicles %}{{ user_vehicles.0.id }}{% else %}MH 02 PE 2026{% endif %}">
-                        <input type="hidden" id="paypalPaymentId" name="paypal_payment_id" value="">
-                        <input type="hidden" id="paypalOrderId" name="paypal_order_id" value="">
-                        <input type="hidden" id="cashfreePaymentId" name="cashfree_payment_id" value="">
-                        <input type="hidden" id="cashfreeOrderId" name="cashfree_order_id" value="">
-                        <input type="hidden" id="razorpayPaymentId" name="razorpay_payment_id" value="">
+                                                                                                        <input type="hidden" id="razorpayPaymentId" name="razorpay_payment_id" value="">
                         <input type="hidden" id="razorpayOrderId" name="razorpay_order_id" value="">
 
                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                             <div>
-                                <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-1 mb-2">
-                                    Slot Reservation & Razorpay Secure Checkout
-                                </span>
                                 <h3 class="fw-bold text-dark mb-1">{{ lot.name }}</h3>
                                 <p class="text-muted small mb-0">
                                     {{ lot.street_address }}, {{ lot.area }}, {{ lot.city }}
                                 </p>
                             </div>
-                            <span class="badge bg-success bg-opacity-10 text-success fw-bold px-3 py-2 border border-success border-opacity-25">
-                                Space Guaranteed
-                            </span>
                         </div>
 
                         <div class="form-section-divider"></div>
@@ -267,11 +257,6 @@
                                         <i class="bi bi-shield-check text-info me-1"></i> Razorpay
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="d-flex align-items-center gap-2 text-muted small">
-                                <i class="bi bi-shield-lock-fill text-primary"></i>
-                                <span>100% 256-bit encrypted transaction processed via official Razorpay Gateway.</span>
                             </div>
                         </div>
 

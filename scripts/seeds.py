@@ -17,7 +17,7 @@ User = get_user_model()
 def seed_data():
     print("[*] Seeding initial demo data for ParkEase...")
 
-    # 1. Create / Verify Standard Demo Credentials
+    
     users_data = [
         {
             'username': 'admin',
@@ -71,7 +71,7 @@ def seed_data():
             print(f"  [+] Verified user: {u_info['username']}")
         created_users[u_info['username']] = u
 
-    # 2. Seed Sample Parking Facilities
+
     owner = created_users['owner@gmail.com']
     sample_lots = [
         {

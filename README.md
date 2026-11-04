@@ -65,10 +65,9 @@ The platform is engineered using Django's Model-View-Template (MVT) architecture
 * **Vanilla JavaScript (ES6+)** 
 
 ### Mapping, GIS & Routing
-* **Leaflet.js (v1.9.4)**
-* **MapLibre GL**
-* **OpenFreeMap Liberty**
-* **OSRM (Open Source Routing Machine)**
+* **Google Maps JavaScript API**
+* **Google Places API (Autocomplete & Geocoding)**
+* **Google Routes & Directions API**
 
 ### Payment Gateway
 * **Razorpay Official Checkout SDK (`https://checkout.razorpay.com/v1/checkout.js`)**

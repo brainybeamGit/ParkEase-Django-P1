@@ -127,11 +127,7 @@
                         <input type="hidden" name="vehicle_type" value="{{ vehicle_type }}">
                         <input type="hidden" id="selectedSlotInput" name="slot_id" value="{% if available_slots %}{{ available_slots.0.id }}{% endif %}">
                         <input type="hidden" id="selectedVehicleIdInput" name="vehicle_id" value="{% if user_vehicles %}{{ user_vehicles.0.id }}{% else %}MH 02 PE 2026{% endif %}">
-                        <input type="hidden" id="paypalPaymentId" name="paypal_payment_id" value="">
-                        <input type="hidden" id="paypalOrderId" name="paypal_order_id" value="">
-                        <input type="hidden" id="cashfreePaymentId" name="cashfree_payment_id" value="">
-                        <input type="hidden" id="cashfreeOrderId" name="cashfree_order_id" value="">
-                        <input type="hidden" id="razorpayPaymentId" name="razorpay_payment_id" value="">
+                                                                                                        <input type="hidden" id="razorpayPaymentId" name="razorpay_payment_id" value="">
                         <input type="hidden" id="razorpayOrderId" name="razorpay_order_id" value="">
 
                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">

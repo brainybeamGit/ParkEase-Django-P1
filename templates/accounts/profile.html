@@ -3,6 +3,22 @@
 
 {% block title %}My Profile - ParkEase{% endblock %}
 
+{% block extra_css %}
+<style>
+    #current_password.is-valid,
+    #current_password.is-invalid,
+    #new_password.is-valid,
+    #new_password.is-invalid,
+    #confirm_password.is-valid,
+    #confirm_password.is-invalid,
+    .position-relative > .form-control.is-valid,
+    .position-relative > .form-control.is-invalid {
+        background-image: none !important;
+        padding-right: 3rem !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <section class="py-5" style="background-color: #f8fafc; min-height: 85vh;">
     <div class="container">
@@ -16,7 +32,7 @@
             </div>
             <div class="d-flex align-items-center gap-2">
                 <a href="{% url 'accounts:vehicles' %}" class="btn btn-outline-primary fw-semibold px-3 py-2 rounded-3" id="myVehiclesTopBtn">
-                    <i class="bi bi-car-front me-1"></i>My Vehicles ({{ vehicles_count }})
+                    My Vehicles ({{ vehicles_count }})
                 </a>
             </div>
         </div>
@@ -42,7 +58,7 @@
                         </span>
                     </div>
 
-                    <form method="POST" action="{% url 'accounts:profile' %}">
+                    <form method="POST" action="{% url 'accounts:profile' %}" id="profileInfoForm" novalidate>
                         {% csrf_token %}
                         <input type="hidden" name="action" value="update_profile">
 
@@ -57,7 +73,12 @@
                                     id="first_name"
                                     name="first_name"
                                     value="{{ user.first_name }}"
+                                    minlength="2"
+                                    maxlength="30"
+                                    placeholder="Enter your first name"
                                     required>
+                                <div class="invalid-feedback small" id="firstNameFeedback">First name must contain letters only (2 to 30 characters).</div>
+                                <div class="valid-feedback small" id="firstNameValidFeedback">Looks good ✓</div>
                             </div>
                             <div class="col-md-6">
                                 <label for="last_name" class="form-label fw-bold small text-dark">
@@ -69,23 +90,30 @@
                                     id="last_name"
                                     name="last_name"
                                     value="{{ user.last_name }}"
+                                    minlength="2"
+                                    maxlength="30"
+                                    placeholder="Enter your last name"
                                     required>
+                                <div class="invalid-feedback small" id="lastNameFeedback">Last name must contain letters only (2 to 30 characters).</div>
+                                <div class="valid-feedback small" id="lastNameValidFeedback">Looks good ✓</div>
                             </div>
                         </div>
 
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label for="email" class="form-label fw-bold small text-dark">
-                                    Email Address
+                                    Email Address <span class="text-danger">*</span>
                                 </label>
                                 <input
                                     type="email"
-                                    class="form-control reg-input py-2 bg-light text-muted"
+                                    class="form-control reg-input py-2"
                                     id="email"
+                                    name="email"
                                     value="{{ user.email }}"
-                                    readonly
-                                    title="Email address is linked to your notifications and login">
-                                <div class="form-text small text-muted">Official notification & login email address.</div>
+                                    placeholder="yourname@gmail.com"
+                                    required>
+                                <div class="invalid-feedback small" id="emailFeedback">Email must end with @gmail.com (e.g. user@gmail.com).</div>
+                                <div class="valid-feedback small" id="emailValidFeedback">Valid Gmail address ✓</div>
                             </div>
                             <div class="col-md-6">
                                 <label for="username" class="form-label fw-bold small text-dark">
@@ -104,16 +132,19 @@
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
                                 <label for="mobile_number" class="form-label fw-bold small text-dark">
-                                    Mobile Phone Number
+                                    Mobile Phone Number <span class="text-danger">*</span>
                                 </label>
                                 <input
                                     type="tel"
                                     class="form-control reg-input py-2"
                                     id="mobile_number"
                                     name="mobile_number"
-                                    placeholder="+91 98765 43210"
-                                    value="{{ profile.mobile_number }}">
-                                <div class="form-text small text-muted">Used for real-time gate entry SMS and emergency alerts.</div>
+                                    placeholder="9820012345"
+                                    value="{{ profile.mobile_number }}"
+                                    maxlength="10"
+                                    required>
+                                <div class="invalid-feedback small" id="mobileFeedback">Mobile number must be exactly 10 digits.</div>
+                                <div class="valid-feedback small" id="mobileValidFeedback">Valid 10-digit mobile number ✓</div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold small text-dark">
@@ -129,7 +160,7 @@
                         </div>
 
                         <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-theme-primary px-4 py-2 rounded-3 fw-bold">
+                            <button type="submit" class="btn btn-theme-primary px-4 py-2 rounded-3 fw-bold" id="btnSaveProfile">
                                 Save Profile Changes
                             </button>
                         </div>
@@ -142,7 +173,7 @@
                         <span class="text-muted small">Update your account password or trigger a password reset.</span>
                     </div>
 
-                    <form method="POST" action="{% url 'accounts:profile' %}">
+                    <form method="POST" action="{% url 'accounts:profile' %}" id="changePasswordForm" novalidate>
                         {% csrf_token %}
                         <input type="hidden" name="action" value="change_password">
 
@@ -169,6 +200,7 @@
                                     </svg>
                                 </button>
                             </div>
+                            <div class="invalid-feedback small" id="currentPassFeedback">Please enter your current account password.</div>
                         </div>
 
                         <div class="row g-3 mb-4">
@@ -182,8 +214,9 @@
                                         class="form-control reg-input py-2 pe-5"
                                         id="new_password"
                                         name="new_password"
-                                        placeholder="Minimum 6 characters"
+                                        placeholder="6 to 15 characters"
                                         minlength="6"
+                                        maxlength="15"
                                         required>
                                     <button type="button"
                                             class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-muted text-decoration-none px-3 py-1 password-toggle-btn"
@@ -196,6 +229,9 @@
                                         </svg>
                                     </button>
                                 </div>
+                                <div class="form-text small text-muted"><strong>Minimum 6 & maximum 15 characters only</strong>.</div>
+                                <div class="invalid-feedback small" id="newPassFeedback">New password must be between 6 and 15 characters.</div>
+                                <div class="valid-feedback small" id="newPassValidFeedback">Valid password length ✓</div>
                             </div>
                             <div class="col-md-6">
                                 <label for="confirm_password" class="form-label fw-bold small text-dark">
@@ -209,6 +245,7 @@
                                         name="confirm_password"
                                         placeholder="Re-type new password"
                                         minlength="6"
+                                        maxlength="15"
                                         required>
                                     <button type="button"
                                             class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-muted text-decoration-none px-3 py-1 password-toggle-btn"
@@ -221,6 +258,9 @@
                                         </svg>
                                     </button>
                                 </div>
+                                <div class="form-text small text-muted">Must match new password.</div>
+                                <div class="invalid-feedback small" id="confirmPassFeedback">Passwords do not match.</div>
+                                <div class="valid-feedback small" id="confirmPassValidFeedback">Passwords match ✓</div>
                             </div>
                         </div>
 
@@ -231,7 +271,7 @@
                                 </a>
                             </div>
                             <div>
-                                <button type="submit" class="btn btn-theme-primary px-4 py-2 rounded-3 fw-bold">
+                                <button type="submit" class="btn btn-theme-primary px-4 py-2 rounded-3 fw-bold" id="btnUpdatePassword">
                                     Update Password
                                 </button>
                             </div>
@@ -293,7 +333,7 @@
                     {% endif %}
 
                     <a href="{% url 'accounts:vehicles' %}" class="btn btn-outline-primary w-100 fw-bold py-2 rounded-3">
-                        <i class="bi bi-car-front me-1"></i> View All Registered Vehicles
+                        View All Registered Vehicles
                     </a>
                 </div>
 
@@ -354,5 +394,241 @@
             btn.setAttribute('title', 'Show password');
         }
     }
+
+    
+    function validateNameField(input, feedbackEl, validFeedbackEl, label) {
+        const val = (input.value || '').trim();
+        if (!val) {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            feedbackEl.textContent = `${label} is required.`;
+            return false;
+        }
+        if (val.length < 2) {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            feedbackEl.textContent = `${label} must be at least 2 characters.`;
+            return false;
+        }
+        if (val.length > 30) {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            feedbackEl.textContent = `${label} cannot exceed 30 characters.`;
+            return false;
+        }
+        if (!/^[A-Za-z\s'\-]+$/.test(val)) {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            feedbackEl.textContent = `${label} must contain letters only (no numbers or special characters).`;
+            return false;
+        }
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+        return true;
+    }
+
+    function validateEmailField(input, feedbackEl, validFeedbackEl) {
+        const val = (input.value || '').trim();
+        if (!val) {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            feedbackEl.textContent = 'Email address is required.';
+            return false;
+        }
+        
+        const pattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
+        if (!pattern.test(val)) {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            feedbackEl.textContent = "Email must end with @gmail.com (e.g. user@gmail.com).";
+            return false;
+        }
+        const userPart = val.split('@')[0];
+        if (userPart.length < 3) {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            feedbackEl.textContent = "Username before @gmail.com must be at least 3 characters.";
+            return false;
+        }
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+        return true;
+    }
+
+    function validateMobileField(input, feedbackEl, validFeedbackEl) {
+        const val = (input.value || '').trim();
+        if (!val) {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            feedbackEl.textContent = 'Mobile phone number is required.';
+            return false;
+        }
+        let digits = val.replace(/\D/g, '');
+        if (digits.startsWith('91') && digits.length === 12) {
+            digits = digits.substring(2);
+        } else if (digits.startsWith('0') && digits.length === 11) {
+            digits = digits.substring(1);
+        }
+
+        
+        if (digits.length < 10) {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            feedbackEl.textContent = `Mobile number must be exactly 10 digits (currently ${digits.length}/10 digits).`;
+            return false;
+        }
+        if (digits.length > 10) {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            feedbackEl.textContent = `Mobile number must be exactly 10 digits (currently ${digits.length} digits entered; max 10 allowed).`;
+            return false;
+        }
+        if (!/^[6-9]\d{9}$/.test(digits)) {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            feedbackEl.textContent = "Mobile number must start with 6, 7, 8, or 9.";
+            return false;
+        }
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+        return true;
+    }
+
+    function validatePasswordField(input, feedbackEl, validFeedbackEl) {
+        const val = input.value || '';
+        if (!val) {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            feedbackEl.textContent = 'Password is required.';
+            return false;
+        }
+        
+        if (val.length < 6) {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            feedbackEl.textContent = `Password is too short (minimum 6 characters required, currently ${val.length}).`;
+            return false;
+        }
+        if (val.length > 15) {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            feedbackEl.textContent = `Password cannot exceed 15 characters (currently ${val.length}).`;
+            return false;
+        }
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+        return true;
+    }
+
+    function validateConfirmPasswordField(input, newPassInput, feedbackEl, validFeedbackEl) {
+        const val = input.value || '';
+        const newPassVal = newPassInput.value || '';
+        if (!val) {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            feedbackEl.textContent = 'Please confirm your new password.';
+            return false;
+        }
+        if (val !== newPassVal) {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            feedbackEl.textContent = 'Passwords do not match.';
+            return false;
+        }
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+        return true;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        
+        const fnInput = document.getElementById('first_name');
+        const lnInput = document.getElementById('last_name');
+        const emInput = document.getElementById('email');
+        const mobInput = document.getElementById('mobile_number');
+        const profileForm = document.getElementById('profileInfoForm');
+
+        if (fnInput) {
+            fnInput.addEventListener('input', () => validateNameField(fnInput, document.getElementById('firstNameFeedback'), null, 'First Name'));
+            fnInput.addEventListener('blur', () => validateNameField(fnInput, document.getElementById('firstNameFeedback'), null, 'First Name'));
+        }
+        if (lnInput) {
+            lnInput.addEventListener('input', () => validateNameField(lnInput, document.getElementById('lastNameFeedback'), null, 'Last Name'));
+            lnInput.addEventListener('blur', () => validateNameField(lnInput, document.getElementById('lastNameFeedback'), null, 'Last Name'));
+        }
+        if (emInput) {
+            emInput.addEventListener('input', () => validateEmailField(emInput, document.getElementById('emailFeedback'), null));
+            emInput.addEventListener('blur', () => validateEmailField(emInput, document.getElementById('emailFeedback'), null));
+        }
+        if (mobInput) {
+            mobInput.addEventListener('input', () => validateMobileField(mobInput, document.getElementById('mobileFeedback'), null));
+            mobInput.addEventListener('blur', () => validateMobileField(mobInput, document.getElementById('mobileFeedback'), null));
+        }
+
+        if (profileForm) {
+            profileForm.addEventListener('submit', function (e) {
+                const v1 = validateNameField(fnInput, document.getElementById('firstNameFeedback'), null, 'First Name');
+                const v2 = validateNameField(lnInput, document.getElementById('lastNameFeedback'), null, 'Last Name');
+                const v3 = validateEmailField(emInput, document.getElementById('emailFeedback'), null);
+                const v4 = validateMobileField(mobInput, document.getElementById('mobileFeedback'), null);
+                if (!v1 || !v2 || !v3 || !v4) {
+                    e.preventDefault();
+                    if (!v1) fnInput.focus();
+                    else if (!v2) lnInput.focus();
+                    else if (!v3) emInput.focus();
+                    else if (!v4) mobInput.focus();
+                }
+            });
+        }
+
+        
+        const curPassInput = document.getElementById('current_password');
+        const newPassInput = document.getElementById('new_password');
+        const confPassInput = document.getElementById('confirm_password');
+        const passForm = document.getElementById('changePasswordForm');
+
+        if (curPassInput) {
+            curPassInput.addEventListener('input', function () {
+                if (!curPassInput.value) {
+                    curPassInput.classList.remove('is-valid');
+                    curPassInput.classList.add('is-invalid');
+                } else {
+                    curPassInput.classList.remove('is-invalid');
+                    curPassInput.classList.add('is-valid');
+                }
+            });
+        }
+        if (newPassInput) {
+            newPassInput.addEventListener('input', function () {
+                validatePasswordField(newPassInput, document.getElementById('newPassFeedback'), null);
+                if (confPassInput.value) {
+                    validateConfirmPasswordField(confPassInput, newPassInput, document.getElementById('confirmPassFeedback'), null);
+                }
+            });
+            newPassInput.addEventListener('blur', () => validatePasswordField(newPassInput, document.getElementById('newPassFeedback'), null));
+        }
+        if (confPassInput) {
+            confPassInput.addEventListener('input', () => validateConfirmPasswordField(confPassInput, newPassInput, document.getElementById('confirmPassFeedback'), null));
+            confPassInput.addEventListener('blur', () => validateConfirmPasswordField(confPassInput, newPassInput, document.getElementById('confirmPassFeedback'), null));
+        }
+
+        if (passForm) {
+            passForm.addEventListener('submit', function (e) {
+                let valid = true;
+                if (!curPassInput.value) {
+                    curPassInput.classList.add('is-invalid');
+                    valid = false;
+                }
+                const vNew = validatePasswordField(newPassInput, document.getElementById('newPassFeedback'), null);
+                const vConf = validateConfirmPasswordField(confPassInput, newPassInput, document.getElementById('confirmPassFeedback'), null);
+                if (!valid || !vNew || !vConf) {
+                    e.preventDefault();
+                    if (!curPassInput.value) curPassInput.focus();
+                    else if (!vNew) newPassInput.focus();
+                    else if (!vConf) confPassInput.focus();
+                }
+            });
+        }
+    });
 </script>
 {% endblock %}

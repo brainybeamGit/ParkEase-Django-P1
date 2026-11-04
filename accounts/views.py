@@ -7,40 +7,81 @@ from django.contrib import messages
 from django.utils.http import url_has_allowed_host_and_scheme
 from .models import UserProfile, Vehicle, normalize_registration_number
 
+
+def validate_name(name, field_label="Name"):
+    val = (name or '').strip()
+    if not val:
+        return False, f"{field_label} is required."
+    if len(val) < 2:
+        return False, f"{field_label} must be at least 2 characters long."
+    if len(val) > 30:
+        return False, f"{field_label} cannot exceed 30 characters."
+    if not re.match(r"^[A-Za-z\s'\-]+$", val):
+        return False, f"{field_label} can only contain alphabetic letters (no numbers or special symbols)."
+    return True, val
+
+
+def validate_email_address(email):
+    raw = (email or '').strip()
+    if not raw:
+        return False, "Email address is required."
+    pattern = r'^[a-zA-Z0-9._%+-]+@gmail\.com$'
+    if not re.match(pattern, raw, re.IGNORECASE):
+        return False, "Email address must be a valid Gmail address ending with '@gmail.com' (e.g. user@gmail.com)."
+    user_part = raw.split('@')[0]
+    if len(user_part) < 3:
+        return False, "Email username must be at least 3 characters before @gmail.com."
+    if len(raw) > 60:
+        return False, "Email address is too long (maximum 60 characters)."
+    return True, raw.lower()
+
+
+def validate_mobile_number(mobile):
+    raw = (mobile or '').strip()
+    if not raw:
+        return False, "Mobile phone number is required."
+    cleaned = re.sub(r'[\s\-\(\)]+', '', raw)
+    digits_only = re.sub(r'\D', '', cleaned)
+    if digits_only.startswith('91') and len(digits_only) == 12:
+        digits_only = digits_only[2:]
+    elif digits_only.startswith('0') and len(digits_only) == 11:
+        digits_only = digits_only[1:]
+    if len(digits_only) < 10:
+        return False, f"Mobile number must be exactly 10 digits (you entered {len(digits_only)} digits; minimum 10 required)."
+    if len(digits_only) > 10:
+        return False, f"Mobile number must be exactly 10 digits (you entered {len(digits_only)} digits; maximum 10 allowed)."
+    if not re.match(r'^[6-9]\d{9}$', digits_only):
+        return False, "Mobile number must be a valid 10-digit number starting with 6, 7, 8, or 9."
+    formatted = f"+91 {digits_only[:5]} {digits_only[5:]}"
+    return True, formatted
+
+
+def validate_password_strength(password):
+    if not password:
+        return False, "Password is required."
+    if len(password) < 6:
+        return False, f"Password is too short (minimum 6 characters required, you entered {len(password)})."
+    if len(password) > 15:
+        return False, f"Password is too long (maximum 15 characters allowed, you entered {len(password)})."
+    return True, password
+
+
 def validate_registration_number(raw_reg):
-    """
-    Validates vehicle registration number:
-    - Normalizes the string
-    - Checks length: 4 to 16 characters
-    - Must contain alphanumeric characters (at least one letter and one number)
-    - Allows flexible Indian (DL 01 AB 1234, BH 22 AA 1234 A) and international formats
-    """
     normalized = normalize_registration_number(raw_reg)
     if not normalized:
         return False, "Vehicle registration number is required."
-    
     compact = re.sub(r'\s+', '', normalized)
     if len(compact) < 4:
         return False, "Registration number is too short (minimum 4 characters)."
     if len(compact) > 16:
         return False, "Registration number is too long (maximum 16 characters)."
-    
     if not re.match(r'^[A-Z0-9\s\-]+$', normalized):
         return False, "Registration number contains invalid characters. Use letters, numbers, and spaces."
-    
     has_digit = any(c.isdigit() for c in compact)
     has_letter = any(c.isalpha() for c in compact)
     if not (has_digit and has_letter):
         return False, "Registration number must contain both letters and digits (e.g. DL 01 AB 1234)."
-        
     return True, normalized
-
-
-def validate_mobile_number(mobile):
-    cleaned = re.sub(r'[\s\-\(\)]+', '', mobile.strip())
-    if not re.match(r'^\+?[0-9]{7,15}$', cleaned):
-        return False, "Please enter a valid mobile number (7 to 15 digits)."
-    return True, cleaned
 
 
 def generate_unique_username(email, first_name):
@@ -48,7 +89,6 @@ def generate_unique_username(email, first_name):
     base = re.sub(r'[^a-zA-Z0-9_]', '', base)
     if not base or len(base) < 3:
         base = "driver"
-    
     username = base
     counter = 1
     while User.objects.filter(username__iexact=username).exists():
@@ -58,11 +98,6 @@ def generate_unique_username(email, first_name):
 
 
 def login_view(request):
-    """
-    Driver & Space Owner Login View.
-    Supports login via username or email, remember-me session handling,
-    and safe redirect to 'next' destination.
-    """
     if request.user.is_authenticated:
         return redirect('parking:home')
 
@@ -106,7 +141,7 @@ def login_view(request):
                 display_name = user.first_name if user.first_name else user.username
                 messages.success(request, f"Welcome back, {display_name}!")
 
-                # Send Login Security Alert Email
+
                 try:
                     from parkease.email_service import EmailNotificationService
                     client_ip = request.META.get('REMOTE_ADDR', '127.0.0.1')
@@ -119,8 +154,8 @@ def login_view(request):
 
                 if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
                     return redirect(next_url)
+
                 
-                # Contextual destination based on role
                 if hasattr(user, 'lot_owner_profile') or (hasattr(user, 'profile') and user.profile.role == 'owner'):
                     return redirect('lot_owner_panel:dashboard')
                 elif user.is_superuser or (hasattr(user, 'profile') and user.profile.role == 'admin'):
@@ -142,17 +177,12 @@ def login_view(request):
 
 
 def register_view(request):
-    """
-    Driver Registration View.
-    Single-page form combining:
-    1. Personal Information (First Name, Last Name, Email, Mobile, Password, Confirm Password)
-    2. Vehicle details (Reg Number, Vehicle Type with Other text input, Make, Model, EV Status, Terms)
-    """
+
     if request.user.is_authenticated:
         return redirect('parking:home')
 
     if request.method == 'POST':
-        # Section 1: Personal Information
+
         first_name = request.POST.get('first_name', '').strip()
         last_name = request.POST.get('last_name', '').strip()
         email = request.POST.get('email', '').strip()
@@ -160,7 +190,7 @@ def register_view(request):
         password = request.POST.get('password', '')
         confirm_password = request.POST.get('confirm_password', '')
 
-        # Section 2: Vehicle Details
+
         vehicle_reg = request.POST.get('vehicle_reg', '').strip()
         vehicle_type = request.POST.get('vehicle_type', 'car').strip()
         other_vehicle_type = request.POST.get('other_vehicle_type', '').strip()
@@ -183,14 +213,23 @@ def register_view(request):
             'agree_terms': agree_terms,
         }
 
-        # 1. Personal Information Validation
-        if not first_name or not last_name:
-            messages.error(request, "Please enter both your First Name and Last Name.")
+        fn_valid, fn_result = validate_name(first_name, "First Name")
+        if not fn_valid:
+            messages.error(request, fn_result)
             return render(request, 'accounts/register.html', form_data)
+        first_name = fn_result
 
-        if not email:
-            messages.error(request, "Email address is required.")
+        ln_valid, ln_result = validate_name(last_name, "Last Name")
+        if not ln_valid:
+            messages.error(request, ln_result)
             return render(request, 'accounts/register.html', form_data)
+        last_name = ln_result
+
+        em_valid, em_result = validate_email_address(email)
+        if not em_valid:
+            messages.error(request, em_result)
+            return render(request, 'accounts/register.html', form_data)
+        email = em_result
 
         if User.objects.filter(email__iexact=email).exists():
             messages.error(request, f"An account with email '{email}' already exists. Please log in or use another email.")
@@ -201,15 +240,16 @@ def register_view(request):
             messages.error(request, mobile_result)
             return render(request, 'accounts/register.html', form_data)
 
-        if len(password) < 6:
-            messages.error(request, "Password must be at least 6 characters long.")
+        pwd_valid, pwd_result = validate_password_strength(password)
+        if not pwd_valid:
+            messages.error(request, pwd_result)
             return render(request, 'accounts/register.html', form_data)
 
         if password != confirm_password:
             messages.error(request, "Passwords do not match. Please re-enter identical passwords.")
             return render(request, 'accounts/register.html', form_data)
 
-        # 2. Vehicle Details Validation
+
         reg_valid, reg_result = validate_registration_number(vehicle_reg)
         if not reg_valid:
             messages.error(request, reg_result)
@@ -229,7 +269,7 @@ def register_view(request):
             messages.error(request, "You must agree to the Terms and Conditions and Privacy Policy.")
             return render(request, 'accounts/register.html', form_data)
 
-        # Create User
+
         username = generate_unique_username(email, first_name)
         user = User.objects.create_user(
             username=username,
@@ -239,12 +279,12 @@ def register_view(request):
             last_name=last_name
         )
 
-        # Update or create UserProfile
+
         profile, _ = UserProfile.objects.get_or_create(user=user)
         profile.mobile_number = mobile_result
         profile.save()
 
-        # Create Primary Vehicle
+
         vehicle = Vehicle.objects.create(
             user=user,
             registration_number=reg_result,
@@ -255,14 +295,14 @@ def register_view(request):
             is_primary=True
         )
 
-        # Dispatch registration confirmation email (Central Email Notification Service)
+
         try:
             from parkease.email_service import EmailNotificationService
             EmailNotificationService.send_user_welcome(user)
-        except Exception as e:
+        except Exception:
             pass
 
-        # Log user in
+
         login(request, user)
         messages.success(
             request, 
@@ -275,10 +315,7 @@ def register_view(request):
 
 @login_required(login_url='accounts:login')
 def vehicles_view(request):
-    """
-    My Vehicles Management Page.
-    Lists all registered vehicles for the logged-in user and allows adding new vehicles.
-    """
+
     user_vehicles = request.user.vehicles.all()
     return render(request, 'accounts/vehicles.html', {
         'vehicles': user_vehicles,
@@ -287,9 +324,7 @@ def vehicles_view(request):
 
 @login_required(login_url='accounts:login')
 def add_vehicle_view(request):
-    """
-    Add a new vehicle to the user's account.
-    """
+
     if request.method == 'POST':
         vehicle_reg = request.POST.get('vehicle_reg', '').strip()
         vehicle_type = request.POST.get('vehicle_type', 'car').strip()
@@ -342,9 +377,7 @@ def add_vehicle_view(request):
 
 @login_required(login_url='accounts:login')
 def set_primary_vehicle_view(request, vehicle_id):
-    """
-    Sets the specified vehicle as the primary vehicle.
-    """
+
     vehicle = get_object_or_404(Vehicle, id=vehicle_id, user=request.user)
     vehicle.is_primary = True
     vehicle.save()
@@ -355,9 +388,7 @@ def set_primary_vehicle_view(request, vehicle_id):
 
 @login_required(login_url='accounts:login')
 def delete_vehicle_view(request, vehicle_id):
-    """
-    Deletes a vehicle from the user's account.
-    """
+    
     vehicle = get_object_or_404(Vehicle, id=vehicle_id, user=request.user)
     was_primary = vehicle.is_primary
     reg_num = vehicle.registration_number
@@ -376,19 +407,20 @@ def delete_vehicle_view(request, vehicle_id):
 
 @login_required(login_url='accounts:login')
 def profile_view(request):
-    """
-    User Profile View.
-    Displays user registration details:
-    - Personal info entered at registration (First Name, Last Name, Email, Mobile Number, Username)
-    - Primary vehicle & registered vehicles summary
-    - Ability to update personal details (First Name, Last Name, Mobile Number)
-    - Password Change / Reset option at the bottom with confirmation and optional OTP reset.
-    """
     user = request.user
     profile, _ = UserProfile.objects.get_or_create(user=user)
     primary_vehicle = user.vehicles.filter(is_primary=True).first() or user.vehicles.first()
-    vehicles_count = user.vehicles.count()
+    vehicles = user.vehicles.all().order_by('-is_primary', '-created_at')
+    vehicles_count = vehicles.count()
     bookings_count = user.bookings.count() if hasattr(user, 'bookings') else 0
+
+    profile_context = {
+        'profile': profile,
+        'primary_vehicle': primary_vehicle,
+        'vehicles': vehicles,
+        'vehicles_count': vehicles_count,
+        'bookings_count': bookings_count,
+    }
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -396,38 +428,53 @@ def profile_view(request):
         if action == 'update_profile':
             first_name = request.POST.get('first_name', '').strip()
             last_name = request.POST.get('last_name', '').strip()
+            email = request.POST.get('email', '').strip()
             mobile_number = request.POST.get('mobile_number', '').strip()
 
-            if not first_name or not last_name:
-                messages.error(request, "First Name and Last Name are required.")
+            fn_valid, fn_result = validate_name(first_name, "First Name")
+            if not fn_valid:
+                messages.error(request, fn_result)
+                return render(request, 'accounts/profile.html', profile_context)
+            first_name = fn_result
+
+            ln_valid, ln_result = validate_name(last_name, "Last Name")
+            if not ln_valid:
+                messages.error(request, ln_result)
+                return render(request, 'accounts/profile.html', profile_context)
+            last_name = ln_result
+
+            if email:
+                em_valid, em_result = validate_email_address(email)
+                if not em_valid:
+                    messages.error(request, em_result)
+                    return render(request, 'accounts/profile.html', profile_context)
+                if User.objects.filter(email__iexact=em_result).exclude(id=user.id).exists():
+                    messages.error(request, f"An account with email '{em_result}' already exists.")
+                    return render(request, 'accounts/profile.html', profile_context)
+                user.email = em_result
+
+            if mobile_number:
+                mobile_valid, mobile_result = validate_mobile_number(mobile_number)
+                if not mobile_valid:
+                    messages.error(request, mobile_result)
+                    return render(request, 'accounts/profile.html', profile_context)
+                profile.mobile_number = mobile_result
             else:
-                if mobile_number:
-                    is_valid_mobile, cleaned_mobile = validate_mobile_number(mobile_number)
-                    if not is_valid_mobile:
-                        messages.error(request, cleaned_mobile)
-                        return render(request, 'accounts/profile.html', {
-                            'profile': profile,
-                            'primary_vehicle': primary_vehicle,
-                            'vehicles_count': vehicles_count,
-                            'bookings_count': bookings_count,
-                        })
-                    profile.mobile_number = cleaned_mobile
-                else:
-                    profile.mobile_number = ''
+                profile.mobile_number = ''
 
-                user.first_name = first_name
-                user.last_name = last_name
-                user.save()
-                profile.save()
+            user.first_name = first_name
+            user.last_name = last_name
+            user.save()
+            profile.save()
 
-                try:
-                    from parkease.email_service import EmailNotificationService
-                    EmailNotificationService.send_profile_updated(user, mobile=profile.mobile_number)
-                except Exception:
-                    pass
+            try:
+                from parkease.email_service import EmailNotificationService
+                EmailNotificationService.send_profile_updated(user, mobile=profile.mobile_number)
+            except Exception:
+                pass
 
-                messages.success(request, "Your profile information has been updated successfully. A confirmation email has been sent.")
-                return redirect('accounts:profile')
+            messages.success(request, "Your profile information has been updated successfully. A confirmation email has been sent.")
+            return redirect('accounts:profile')
 
         elif action == 'change_password':
             current_password = request.POST.get('current_password', '')
@@ -436,25 +483,33 @@ def profile_view(request):
 
             if not current_password or not new_password or not confirm_password:
                 messages.error(request, "Please fill in all password fields.")
-            elif not user.check_password(current_password):
-                messages.error(request, "Your current password is incorrect. If you have forgotten it, click 'Send Password Reset OTP' below.")
-            elif new_password != confirm_password:
+                return render(request, 'accounts/profile.html', profile_context)
+
+            if not user.check_password(current_password):
+                messages.error(request, "Your current password is incorrect. If you have forgotten it, click 'Forgot password?' below.")
+                return render(request, 'accounts/profile.html', profile_context)
+
+            pwd_valid, pwd_result = validate_password_strength(new_password)
+            if not pwd_valid:
+                messages.error(request, pwd_result)
+                return render(request, 'accounts/profile.html', profile_context)
+
+            if new_password != confirm_password:
                 messages.error(request, "New password and confirm password do not match.")
-            elif len(new_password) < 6:
-                messages.error(request, "New password must be at least 6 characters in length.")
-            else:
-                user.set_password(new_password)
-                user.save()
-                update_session_auth_hash(request, user)
+                return render(request, 'accounts/profile.html', profile_context)
 
-                try:
-                    from parkease.email_service import EmailNotificationService
-                    EmailNotificationService.send_password_reset_success(user)
-                except Exception:
-                    pass
+            user.set_password(new_password)
+            user.save()
+            update_session_auth_hash(request, user)
 
-                messages.success(request, "Your password has been reset successfully. A confirmation email has been dispatched.")
-                return redirect('accounts:profile')
+            try:
+                from parkease.email_service import EmailNotificationService
+                EmailNotificationService.send_password_reset_success(user)
+            except Exception:
+                pass
+
+            messages.success(request, "Your password has been updated successfully. A confirmation email has been dispatched.")
+            return redirect('accounts:profile')
 
         elif action == 'request_otp_reset':
             import random
@@ -477,29 +532,16 @@ def profile_view(request):
             messages.success(request, f"A 6-digit password reset OTP has been dispatched to {user.email}.")
             return redirect(f"/accounts/verify-otp/?email={user.email}")
 
-    vehicles = user.vehicles.all().order_by('-is_primary', '-created_at')
-    return render(request, 'accounts/profile.html', {
-        'profile': profile,
-        'primary_vehicle': primary_vehicle,
-        'vehicles': vehicles,
-        'vehicles_count': vehicles.count(),
-        'bookings_count': bookings_count,
-    })
+    return render(request, 'accounts/profile.html', profile_context)
 
 
 def logout_view(request):
-    """
-    Logs out the current user and redirects to home.
-    """
     logout(request)
     messages.info(request, "You have been logged out successfully.")
     return redirect('parking:home')
 
 
 def forgot_password_view(request):
-    """
-    Forgot Password view: generates and dispatches a 6-digit OTP to the user's email.
-    """
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
         if not email:
@@ -516,13 +558,8 @@ def forgot_password_view(request):
             from .models import PasswordResetOTP
             from parkease.email_service import EmailNotificationService
 
-            # Generate secure 6-digit numeric OTP
             otp_code = f"{random.randint(100000, 999999)}"
-
-            # Deactivate any previous unused OTPs for this user
             PasswordResetOTP.objects.filter(user=user, is_used=False).update(is_used=True)
-
-            # Store new 6-digit OTP (10 minutes validity)
             PasswordResetOTP.objects.create(
                 user=user,
                 email=user.email,
@@ -530,10 +567,7 @@ def forgot_password_view(request):
                 expires_at=timezone.now() + timedelta(minutes=10),
                 is_used=False
             )
-
-            # Send OTP email from host
             EmailNotificationService.send_forgot_password_otp(user, otp_code)
-
             request.session['reset_email'] = user.email
             messages.success(request, f"A 6-digit verification OTP has been dispatched to {user.email}.")
             return redirect(f"/accounts/verify-otp/?email={user.email}")
@@ -545,9 +579,6 @@ def forgot_password_view(request):
 
 
 def verify_password_otp_view(request):
-    """
-    Verifies 6-digit OTP and resets the user's password.
-    """
     email = request.GET.get('email') or request.POST.get('email') or request.session.get('reset_email', '')
 
     if request.method == 'POST':
@@ -563,8 +594,9 @@ def verify_password_otp_view(request):
             messages.error(request, "Please enter a valid 6-digit numeric OTP code.")
             return render(request, 'accounts/verify_password_otp.html', {'email': email})
 
-        if len(new_password) < 6:
-            messages.error(request, "New password must be at least 6 characters long.")
+        pwd_valid, pwd_result = validate_password_strength(new_password)
+        if not pwd_valid:
+            messages.error(request, pwd_result)
             return render(request, 'accounts/verify_password_otp.html', {'email': email})
 
         if new_password != confirm_password:
@@ -575,7 +607,6 @@ def verify_password_otp_view(request):
         from .models import PasswordResetOTP
         from parkease.email_service import EmailNotificationService
 
-        # Find valid OTP
         otp_record = PasswordResetOTP.objects.filter(
             email__iexact=email,
             otp_code=otp_code,
@@ -587,16 +618,13 @@ def verify_password_otp_view(request):
             messages.error(request, "Invalid or expired 6-digit OTP code. Please request a new one.")
             return render(request, 'accounts/verify_password_otp.html', {'email': email})
 
-        # Valid OTP: reset password
         user = otp_record.user
         user.set_password(new_password)
         user.save()
 
-        # Mark OTP as used
         otp_record.is_used = True
         otp_record.save()
 
-        # Send security notification
         EmailNotificationService.send_password_reset_success(user)
 
         if 'reset_email' in request.session:
@@ -612,9 +640,6 @@ def verify_password_otp_view(request):
 
 
 def resend_password_otp_view(request):
-    """
-    Resends a fresh 6-digit OTP to the user's email.
-    """
     email = request.GET.get('email') or request.session.get('reset_email', '')
     if not email:
         messages.error(request, "Please enter your email to request an OTP.")

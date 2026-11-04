@@ -21,7 +21,7 @@ from .models import (
 )
 
 
-# ─── AUDIT HELPER & DECORATOR ───────────────────────────────────────────────
+
 
 def log_audit(admin_user, action, target_object, ip_address="127.0.0.1"):
     try:
@@ -37,11 +37,7 @@ def log_audit(admin_user, action, target_object, ip_address="127.0.0.1"):
 
 
 def admin_required(view_func):
-    """
-    Strict access decorator for platform administrators.
-    Allows only users with is_superuser=True, is_staff=True, or profile.role == 'admin'.
-    Denies regular drivers and space owners.
-    """
+    
     def _wrapped_view(request, *args, **kwargs):
         if not request.user.is_authenticated:
             messages.warning(request, "Please log in with administrator credentials.")
@@ -61,14 +57,11 @@ def admin_required(view_func):
     return _wrapped_view
 
 
-# ─── SEED SAMPLE DATA FOR ADMIN PORTAL ───────────────────────────────────────
+
 
 def ensure_admin_sample_data():
-    """
-    Ensures baseline settings, announcements, coupons, complaints, and audit logs
-    exist so the platform admin studio is fully operational on launch.
-    """
-    # 1. Platform Settings
+    
+
     setting = PlatformSetting.objects.first()
     if not setting:
         setting = PlatformSetting.objects.create(
@@ -81,7 +74,7 @@ def ensure_admin_sample_data():
             auto_payout_enabled=True
         )
 
-    # 2. Coupons
+    
     if not PlatformCoupon.objects.exists():
         PlatformCoupon.objects.create(
             code="PARKEASE20",
@@ -108,7 +101,7 @@ def ensure_admin_sample_data():
             usage_count=64
         )
 
-    # 3. Complaints & Disputes
+    
     if not PlatformComplaint.objects.exists():
         PlatformComplaint.objects.create(
             ticket_id="TKT-2026-9041",
@@ -150,7 +143,7 @@ def ensure_admin_sample_data():
             status="resolved"
         )
 
-    # 4. Announcements
+    
     if not PlatformAnnouncement.objects.exists():
         PlatformAnnouncement.objects.create(
             title="GST & Automated TDS Settlement Update",
@@ -165,7 +158,7 @@ def ensure_admin_sample_data():
             is_active=True
         )
 
-    # 5. Admin Notifications
+    
     if not AdminNotification.objects.exists():
         sample_alerts = [
             ("owner_verification", "New Owner Application Received", "Store 'Shree Complex Parking' (Ramesh Patel) submitted registration documents. Awaiting admin review.", "/admin-panel/owners/"),
@@ -183,14 +176,14 @@ def ensure_admin_sample_data():
                 is_read=False
             )
 
-    # 6. Audit Trail
+    
     if not AdminAuditLog.objects.exists():
         AdminAuditLog.objects.create(admin_user="admin", action="Verified Owner Application", target_object="LotOwnerProfile: Ramesh Patel")
         AdminAuditLog.objects.create(admin_user="admin", action="Approved Parking Lot", target_object="ParkingLot: Shree Complex Parking")
         AdminAuditLog.objects.create(admin_user="admin", action="Updated Platform Commission", target_object="PlatformSetting: 15.00%")
         AdminAuditLog.objects.create(admin_user="admin", action="Processed Settlement Payout", target_object="OwnerPayout: UTR9847291847192")
 
-    # 7. Seed Bookings if none exist
+    
     if not Booking.objects.exists():
         driver = User.objects.filter(is_staff=False).exclude(lot_owner_profile__isnull=False).first()
         if not driver:
@@ -254,9 +247,7 @@ def ensure_admin_sample_data():
 
 
 def get_admin_common_context(request, active_tab):
-    """
-    Provides common branding, navigation, and topbar stats across all 15 Admin pages.
-    """
+    
     ensure_admin_sample_data()
 
     admin_name = request.user.get_full_name() or request.user.username
@@ -282,14 +273,10 @@ def get_admin_common_context(request, active_tab):
     }
 
 
-# ─── AUTHENTICATION VIEWS ────────────────────────────────────────────────────
+
 
 def admin_login_view(request):
-    """
-    Dedicated Admin Login View.
-    Strictly authenticates only platform administrators.
-    Rejects drivers and lot owners with an explicit error message.
-    """
+    
     if request.user.is_authenticated:
         if request.user.is_superuser or request.user.is_staff or (hasattr(request.user, 'profile') and request.user.profile.role == 'admin'):
             return redirect('admin_panel:dashboard')
@@ -302,7 +289,7 @@ def admin_login_view(request):
             messages.error(request, "Please enter both administrator username and password.")
             return render(request, 'admin_panel/login.html', {'identifier': identifier})
 
-        # Resolve username if email or alias entered
+        
         auth_username = identifier
         candidates = list(User.objects.filter(email__iexact=identifier))
         if not candidates and identifier.lower() == 'admin':
@@ -316,7 +303,7 @@ def admin_login_view(request):
                     break
 
         if user is not None:
-            # Strictly verify admin privileges
+            
             is_admin = (
                 user.is_superuser or
                 user.is_staff or
@@ -350,7 +337,7 @@ def admin_logout_view(request):
     return redirect('admin_panel:login')
 
 
-# ─── 1. DASHBOARD ────────────────────────────────────────────────────────────
+
 
 @admin_required
 def admin_dashboard_view(request):
@@ -368,7 +355,7 @@ def admin_dashboard_view(request):
     total_bookings = Booking.objects.count()
     active_bookings = Booking.objects.filter(booking_status='active').count()
 
-    # Financial turnover
+    
     gross_revenue = 34200.00
     platform_commission = 5130.00
     settled_payouts = 28620.00
@@ -399,7 +386,7 @@ def admin_dashboard_view(request):
     return render(request, 'admin_panel/dashboard.html', ctx)
 
 
-# ─── 2. USER MANAGEMENT ──────────────────────────────────────────────────────
+
 
 @admin_required
 def admin_users_view(request):
@@ -494,7 +481,7 @@ def admin_delete_user_view(request, user_id):
 
 
 
-# ─── 3. OWNER VERIFICATION ───────────────────────────────────────────────────
+
 
 @admin_required
 def admin_owner_verification_view(request):
@@ -530,7 +517,7 @@ def admin_approve_owner_view(request, owner_id):
     except Exception:
         pass
 
-    # Send in-app notification to the owner
+    
     OwnerNotification.objects.create(
         owner=owner_profile.user,
         category='approval',
@@ -582,7 +569,7 @@ def admin_reject_owner_view(request, owner_id):
     return redirect('admin_panel:owner_verification')
 
 
-# ─── 4. PARKING LOT MANAGEMENT ───────────────────────────────────────────────
+
 
 @admin_required
 def admin_parking_lots_view(request):
@@ -684,7 +671,7 @@ def admin_toggle_lot_status_view(request, lot_id):
     return redirect('admin_panel:parking_lots')
 
 
-# ─── 5. BOOKING MANAGEMENT ───────────────────────────────────────────────────
+
 
 @admin_required
 def admin_bookings_view(request):
@@ -722,7 +709,7 @@ def admin_bookings_view(request):
     return render(request, 'admin_panel/bookings.html', ctx)
 
 
-# ─── 6. PAYMENTS & REFUNDS ───────────────────────────────────────────────────
+
 
 @admin_required
 def admin_payments_view(request):
@@ -783,11 +770,11 @@ def admin_process_refund_view(request, tx_id):
         pass
 
     log_audit(request.user, "Processed Gateway Refund", f"Booking #{booking.id} - INR {booking.total_amount}")
-    messages.success(request, f"Refund of INR {booking.total_amount} for Booking #{booking.id} approved and credited via Cashfree. User and Admin notified.")
+    messages.success(request, f"Refund of INR {booking.total_amount} for Booking #{booking.id} approved and credited via Razorpay. User and Admin notified.")
     return redirect('admin_panel:payments')
 
 
-# ─── 7. COMMISSION & PAYOUT MANAGEMENT ───────────────────────────────────────
+
 
 @admin_required
 def admin_payouts_view(request):
@@ -818,7 +805,7 @@ def admin_mark_payout_paid_view(request, payout_id):
     return redirect('admin_panel:payouts')
 
 
-# ─── 8. EV CHARGING MANAGEMENT ───────────────────────────────────────────────
+
 
 @admin_required
 def admin_ev_charging_view(request):
@@ -858,7 +845,7 @@ def admin_toggle_charger_view(request, charger_id):
     return redirect('admin_panel:ev_charging')
 
 
-# ─── 9. PRICING, FINES & OFFERS ──────────────────────────────────────────────
+
 
 @admin_required
 def admin_pricing_view(request):
@@ -925,7 +912,7 @@ def admin_toggle_coupon_view(request, coupon_id):
     return redirect('admin_panel:pricing')
 
 
-# ─── 10. REPORTS & ANALYTICS ─────────────────────────────────────────────────
+
 
 @admin_required
 def admin_reports_view(request):
@@ -1041,7 +1028,7 @@ def admin_export_reports_view(request):
     return response
 
 
-# ─── 11. REVIEWS & RATINGS ───────────────────────────────────────────────────
+
 
 @admin_required
 def admin_reviews_view(request):
@@ -1076,7 +1063,7 @@ def admin_moderate_review_view(request, review_id):
     return redirect('admin_panel:reviews')
 
 
-# ─── 12. COMPLAINTS & DISPUTES ───────────────────────────────────────────────
+
 
 @admin_required
 def admin_complaints_view(request):
@@ -1117,7 +1104,7 @@ def admin_resolve_complaint_view(request, complaint_id):
     return redirect('admin_panel:complaints')
 
 
-# ─── 13. NOTIFICATIONS & ANNOUNCEMENTS ───────────────────────────────────────
+
 
 @admin_required
 def admin_notifications_view(request):
@@ -1149,7 +1136,7 @@ def admin_broadcast_announcement_view(request):
                 created_by=request.user
             )
 
-            # If sent to owners, seed into OwnerNotification table as well
+
             if audience in ['all', 'owners']:
                 for owner in LotOwnerProfile.objects.select_related('user'):
                     OwnerNotification.objects.create(
@@ -1185,7 +1172,7 @@ def admin_dismiss_notification_view(request, notif_id):
     return redirect(request.META.get('HTTP_REFERER', 'admin_panel:notifications'))
 
 
-# ─── 14. SYSTEM SETTINGS & AUDIT LOGS ────────────────────────────────────────
+
 
 @admin_required
 def admin_settings_view(request):
@@ -1245,7 +1232,7 @@ def admin_audit_logs_view(request):
     return render(request, 'admin_panel/audit_logs.html', ctx)
 
 
-# ─── 15. HELP & SUPPORT ──────────────────────────────────────────────────────
+
 
 @admin_required
 def admin_support_view(request):
@@ -1261,7 +1248,7 @@ def admin_support_view(request):
     return render(request, 'admin_panel/support.html', ctx)
 
 
-# ─── 16. USER FEEDBACKS ───────────────────────────────────────────────────────
+
 
 @admin_required
 def admin_feedbacks_view(request):
