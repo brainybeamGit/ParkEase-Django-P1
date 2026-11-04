@@ -1,21 +1,35 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.files.storage import default_storage
 from django.utils import timezone
+from django.db import models
+from decimal import Decimal
 from datetime import timedelta
 import re
 import csv
 import io
 
 from accounts.models import UserProfile
+from bookings.models import Booking, BookingExtensionRequest
+from parkease.email_service import EmailNotificationService
 from .models import (
     LotOwnerProfile, ParkingLot, ParkingSlot, EVCharger,
     OwnerPayout, OwnerNotification, OwnerSupportTicket, LotReview
 )
+
+try:
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib import colors
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.platypus.flowables import HRFlowable
+    HAS_REPORTLAB = True
+except ImportError:
+    HAS_REPORTLAB = False
 
 
 
@@ -185,7 +199,6 @@ def get_owner_context(request, active_tab='dashboard'):
     user = request.user
     lots = ParkingLot.objects.filter(owner=user).order_by('-created_at')
     
-    m
     primary_lot = lots.first()
     if not primary_lot:
         primary_lot = ParkingLot.objects.create(

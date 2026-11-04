@@ -13,7 +13,6 @@
             <div>
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <span class="metric-title mb-0">TOTAL REGISTERED USERS</span>
-                    <span class="badge bg-light text-primary border">Platform</span>
                 </div>
                 <div class="metric-value">{{ total_users }}</div>
             </div>
@@ -45,7 +44,6 @@
             <div>
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <span class="metric-title mb-0">TOTAL BOOKINGS</span>
-                    <span class="badge bg-light text-info border">Live</span>
                 </div>
                 <div class="metric-value">{{ total_bookings }}</div>
             </div>
@@ -60,7 +58,6 @@
             <div>
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <span class="metric-title mb-0">PLATFORM COMMISSION</span>
-                    <span class="badge bg-light text-success border">15% Cut</span>
                 </div>
                 <div class="metric-value text-success">₹{{ platform_commission|floatformat:2 }}</div>
             </div>
@@ -79,7 +76,6 @@
             <div>
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <span class="metric-title mb-0">EV FAST CHARGERS</span>
-                    <span class="badge bg-light text-primary border">Online</span>
                 </div>
                 <div class="metric-value">{{ total_chargers }} <span class="fs-5 fw-normal text-muted">Stations</span></div>
             </div>
@@ -94,7 +90,6 @@
             <div>
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <span class="metric-title mb-0">SETTLED BANK PAYOUTS</span>
-                    <span class="badge bg-light text-success border">Dispatched</span>
                 </div>
                 <div class="metric-value">₹{{ settled_payouts|floatformat:0 }}</div>
             </div>

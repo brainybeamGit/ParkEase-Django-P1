@@ -64,7 +64,6 @@
                 BANK
             </div>
             <div>
-                <span class="badge bg-success-subtle text-success fw-bold mb-1">Direct Deposit Account Active</span>
                 <div class="fw-bold text-dark">{{ bank_profile.bank_name|default:"State Bank of India" }} •••• {{ bank_profile.last_digits|default:"8741" }}</div>
                 <div class="text-muted small">IFSC: {{ bank_profile.ifsc|default:"SBIHR656565" }} · Account Holder: {{ bank_profile.holder|default:request.user.get_full_name|default:request.user.username }}</div>
             </div>

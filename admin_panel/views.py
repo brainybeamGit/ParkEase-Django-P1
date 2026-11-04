@@ -5,11 +5,14 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.utils import timezone
+from django.db import models
 from datetime import timedelta
 import csv
 import json
 
-from accounts.models import UserProfile, Vehicle
+from accounts.models import UserProfile, Vehicle, EmailDeliveryLog
+from parkease.email_service import EmailNotificationService
+import uuid
 from lot_owner_panel.models import (
     LotOwnerProfile, ParkingLot, ParkingSlot, EVCharger,
     OwnerPayout, OwnerNotification, OwnerSupportTicket, LotReview
@@ -17,7 +20,7 @@ from lot_owner_panel.models import (
 from bookings.models import Booking
 from .models import (
     PlatformSetting, PlatformCoupon, PlatformComplaint,
-    PlatformAnnouncement, AdminAuditLog, AdminNotification
+    PlatformAnnouncement, AdminAuditLog, AdminNotification, PlatformFeedback
 )
 
 
