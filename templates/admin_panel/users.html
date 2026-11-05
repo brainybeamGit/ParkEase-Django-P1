@@ -59,11 +59,11 @@
                         </td>
                         <td>
                             {% if "Admin" in item.role_label %}
-                                <span class="badge" style="background-color: #f3e8ff; color: #7e22ce; border: 1px solid #d8b4fe;">{{ item.role_label }}</span>
+                                {{ item.role_label }}
                             {% elif "Owner" in item.role_label %}
-                                <span class="badge" style="background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;">{{ item.role_label }}</span>
+                                {{ item.role_label }}
                             {% else %}
-                                <span class="badge" style="background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;">{{ item.role_label }}</span>
+                                {{ item.role_label }}
                             {% endif %}
                         </td>
                         <td>

@@ -67,7 +67,7 @@
                 {% for tx in transactions %}
                     <tr>
                         <td>
-                            <code class="text-primary fw-bold">{{ tx.tx_ref }}</code>
+                            {{ tx.tx_ref }}
                         </td>
                         <td>
                             <div class="fw-bold text-dark">#BK-{{ tx.booking.id }}</div>
@@ -80,18 +80,17 @@
                             <span class="fw-bold text-dark">₹{{ tx.amount|floatformat:2 }}</span>
                         </td>
                         <td>
-                            <span class="badge" style="background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;">{{ tx.gateway }}</span>
+                            {{ tx.gateway }}
                         </td>
                         <td>
                             {% if tx.status == 'paid' %}
-                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Paid</span>
+                                Paid
                             {% elif tx.status == 'refunded' %}
-                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25">Refunded</span>
+                                Refunded
                             {% elif tx.status == 'refund_requested' %}
-                                <span class="badge bg-warning text-dark border border-warning fw-bold">
-                                    <i class="bi bi-clock-history me-1"></i>Approval Required
-                                </span>
-                                {% if tx.booking.refund_reason %}
+                                    Approval Required
+
+                                    {% if tx.booking.refund_reason %}
                                     <div class="small text-muted mt-1" style="font-size: 0.74rem;">
                                         <strong>Reason:</strong> {{ tx.booking.refund_reason|truncatechars:35 }}
                                     </div>
@@ -123,32 +122,32 @@
                     </tr>
                 {% empty %}
                     <tr>
-                        <td><code class="text-primary fw-bold">pay_razor_001042</code></td>
+                        <td>pay_razor_001042</td>
                         <td><div class="fw-bold text-dark">#BK-1042</div><small class="text-muted">Rohit Sharma</small></td>
                         <td><span class="small text-dark">Shree Complex Parking</span></td>
                         <td><span class="fw-bold text-dark">₹150.00</span></td>
-                        <td><span class="badge" style="background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;">Razorpay UPI</span></td>
-                        <td><span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Paid</span></td>
+                        <td>Razorpay UPI</td>
+                        <td>Paid</td>
                         <td><span class="small text-muted">Oct 29, 2026 13:45</span></td>
                         <td class="text-end"><span class="text-muted small">—</span></td>
                     </tr>
                     <tr>
-                        <td><code class="text-primary fw-bold">pay_razor_001041</code></td>
+                        <td>pay_razor_001041</td>
                         <td><div class="fw-bold text-dark">#BK-1041</div><small class="text-muted">Pooja Verma</small></td>
                         <td><span class="small text-dark">Shree Complex Parking</span></td>
                         <td><span class="fw-bold text-dark">₹4,500.00</span></td>
-                        <td><span class="badge" style="background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;">Razorpay NetBanking</span></td>
-                        <td><span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Paid</span></td>
+                        <td>Razorpay NetBanking</td>
+                        <td>Paid</span></td>
                         <td><span class="small text-muted">Oct 29, 2026 09:12</span></td>
                         <td class="text-end"><span class="text-muted small">—</span></td>
                     </tr>
                     <tr>
-                        <td><code class="text-primary fw-bold">pay_razor_001040</code></td>
+                        <td>pay_razor_001040</td>
                         <td><div class="fw-bold text-dark">#BK-1040</div><small class="text-muted">Ankit Shah</small></td>
                         <td><span class="small text-dark">Shree Complex Parking</span></td>
                         <td><span class="fw-bold text-dark">₹420.00</span></td>
-                        <td><span class="badge" style="background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;">Razorpay Card</span></td>
-                        <td><span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25">Refund Requested</span></td>
+                        <td>Razorpay Card</td>
+                        <td>Refund Requested</td>
                         <td><span class="small text-muted">Oct 29, 2026 10:50</span></td>
                         <td class="text-end"><button class="btn btn-sm btn-outline-danger py-1 px-2 fw-semibold" style="font-size: 0.76rem;">Refund</button></td>
                     </tr>

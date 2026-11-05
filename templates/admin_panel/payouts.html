@@ -75,7 +75,7 @@
                 {% for p in payouts %}
                     <tr>
                         <td>
-                            <code class="text-primary fw-bold">{{ p.reference }}</code>
+                            {{ p.reference }}
                         </td>
                         <td>
                             <span class="small fw-semibold text-dark">{{ p.period }}</span>
@@ -94,9 +94,9 @@
                         </td>
                         <td>
                             {% if p.status == 'Paid' %}
-                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Paid</span>
+                                Paid
                             {% else %}
-                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25">Pending</span>
+                                Pending
                             {% endif %}
                         </td>
                         <td>

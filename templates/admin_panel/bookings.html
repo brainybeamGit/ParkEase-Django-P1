@@ -95,10 +95,10 @@
                         </td>
                         <td>
                             {% if b.vehicle %}
-                                <div class="badge bg-light text-dark border font-monospace">{{ b.vehicle.registration_number }}</div>
+                                {{ b.vehicle.registration_number }}
                                 <div class="text-muted" style="font-size: 0.76rem;">{{ b.vehicle.make }} {{ b.vehicle.model }}</div>
                             {% else %}
-                                <span class="badge bg-light text-dark border font-monospace">GJ-01-AB-1234</span>
+                                GJ-01-AB-1234
                                 <div class="text-muted" style="font-size: 0.76rem;">Hyundai Creta (Car)</div>
                             {% endif %}
                         </td>
@@ -118,11 +118,11 @@
                         </td>
                         <td>
                             {% if b.booking_status == 'active' %}
-                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">Parked / Active</span>
+                                Parked
                             {% elif b.booking_status == 'completed' %}
-                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Completed</span>
+                                Completed
                             {% else %}
-                                <span class="badge bg-secondary bg-opacity-10 text-secondary border">Cancelled</span>
+                                Cancelled
                             {% endif %}
                         </td>
                     </tr>

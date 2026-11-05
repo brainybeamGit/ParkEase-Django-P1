@@ -58,7 +58,7 @@
                 {% for chg in chargers %}
                     <tr>
                         <td>
-                            <code class="text-primary fw-bold">{{ chg.charger_id }}</code>
+                            {{ chg.charger_id }}
                         </td>
                         <td>
                             <div class="fw-bold text-dark">{{ chg.parking_lot.name }}</div>
@@ -86,7 +86,7 @@
                     </tr>
                 {% empty %}
                     <tr>
-                        <td><code class="text-primary fw-bold">CHG-B1-01</code></td>
+                        <td>CHG-B1-01</td>
                         <td><div class="fw-bold text-dark">Shree Complex Parking</div><small class="text-muted">Basement Level 1 (Zone A)</small></td>
                         <td><span class="small text-dark">Type 2 AC / CCS2 DC Fast</span></td>
                         <td><span class="fw-bold text-dark">50.0 kW</span></td>
@@ -94,7 +94,7 @@
                         <td class="text-end"><button class="btn btn-sm btn-outline-warning py-1 px-2 fw-semibold" style="font-size: 0.78rem;">Set Maintenance</button></td>
                     </tr>
                     <tr>
-                        <td><code class="text-primary fw-bold">CHG-B1-02</code></td>
+                        <td>CHG-B1-02</td>
                         <td><div class="fw-bold text-dark">Shree Complex Parking</div><small class="text-muted">Basement Level 1 (Zone B)</small></td>
                         <td><span class="small text-dark">Type 2 AC</span></td>
                         <td><span class="fw-bold text-dark">22.0 kW</span></td>
@@ -102,7 +102,7 @@
                         <td class="text-end"><button class="btn btn-sm btn-outline-warning py-1 px-2 fw-semibold" style="font-size: 0.78rem;">Set Maintenance</button></td>
                     </tr>
                     <tr>
-                        <td><code class="text-primary fw-bold">CHG-G0-03</code></td>
+                        <td>CHG-G0-03</td>
                         <td><div class="fw-bold text-dark">Shree Complex Parking</div><small class="text-muted">Ground Floor Entrance Bay</small></td>
                         <td><span class="small text-dark">Bharat AC-001 / Type 2</span></td>
                         <td><span class="fw-bold text-dark">7.4 kW</span></td>
@@ -136,10 +136,10 @@
             <tbody>
                 <tr>
                     <td>
-                        <div class="badge bg-light text-dark border font-monospace">GJ-01-EV-8821</div>
+                        GJ-01-EV-8821
                         <div class="text-muted" style="font-size: 0.76rem;">Tata Nexon EV</div>
                     </td>
-                    <td><code class="text-primary fw-bold">CHG-B1-01</code></td>
+                    <td>CHG-B1-01</td>
                     <td><span class="small fw-semibold text-dark">Shree Complex Parking</span></td>
                     <td><span class="fw-bold text-dark">18.5 kWh</span></td>
                     <td><span class="small text-muted">45 mins</span></td>
@@ -148,10 +148,10 @@
                 </tr>
                 <tr>
                     <td>
-                        <div class="badge bg-light text-dark border font-monospace">MH-02-EV-4412</div>
+                        MH-02-EV-4412
                         <div class="text-muted" style="font-size: 0.76rem;">MG ZS EV</div>
                     </td>
-                    <td><code class="text-primary fw-bold">CHG-G0-03</code></td>
+                    <td>CHG-G0-03</td>
                     <td><span class="small fw-semibold text-dark">Shree Complex Parking</span></td>
                     <td><span class="fw-bold text-dark">12.2 kWh</span></td>
                     <td><span class="small text-muted">35 mins</span></td>

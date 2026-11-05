@@ -117,21 +117,13 @@
                             </td>
                             <td>
                                 {% if p.status == 'Paid' %}
-                                    <span class="badge bg-success-subtle text-success fw-bold px-2 py-1">
                                         Paid
-                                    </span>
                                 {% elif p.status == 'Processing' %}
-                                    <span class="badge bg-warning-subtle text-dark fw-bold px-2 py-1">
                                         Processing
-                                    </span>
                                 {% elif p.status == 'Pending' %}
-                                    <span class="badge bg-secondary-subtle text-secondary fw-bold px-2 py-1">
                                         Pending Cycle
-                                    </span>
                                 {% else %}
-                                    <span class="badge bg-danger-subtle text-danger fw-bold px-2 py-1">
                                         Failed
-                                    </span>
                                 {% endif %}
                             </td>
                             <td>

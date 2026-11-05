@@ -105,7 +105,7 @@
                         <td>{{ c.lots }}</td>
                         <td>{{ c.bays }}</td>
                         <td><span class="fw-bold text-dark">₹{{ c.turnover|floatformat:2 }}</span></td>
-                        <td><span class="badge bg-success bg-opacity-10 text-success border">{{ c.occupancy }}</span></td>
+                        <td>{{ c.occupancy }}</td>
                         <td>{{ c.ev }}</td>
                     </tr>
                 {% empty %}
@@ -114,7 +114,7 @@
                         <td>12 Facilities</td>
                         <td>680 Bays</td>
                         <td><span class="fw-bold text-dark">₹{{ total_turnover|floatformat:2 }}</span></td>
-                        <td><span class="badge bg-success bg-opacity-10 text-success border">82%</span></td>
+                        <td>82%</td>
                         <td>6 Chargers</td>
                     </tr>
                 {% endfor %}

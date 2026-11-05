@@ -13,7 +13,6 @@
             <div class="owner-card-metric">
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <span class="metric-title">Today's Revenue</span>
-                    <span class="badge bg-light text-dark border small fw-bold">12.4%</span>
                 </div>
                 <div class="metric-value">₹{{ today_revenue|default:"18,450" }}</div>
                 <p class="metric-subtitle">Gross turnover from today's bookings</p>
@@ -24,7 +23,6 @@
             <div class="owner-card-metric">
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <span class="metric-title">Today's Bookings</span>
-                    <span class="badge bg-light text-dark border small fw-bold">Active</span>
                 </div>
                 <div class="metric-value">{{ today_bookings_count|default:"24" }}</div>
                 <p class="metric-subtitle">8 awaiting driver check-in</p>
@@ -35,7 +33,6 @@
             <div class="owner-card-metric">
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <span class="metric-title">Total Spaces</span>
-                    <span class="badge bg-light text-dark border small fw-bold">Approved</span>
                 </div>
                 <div class="metric-value">{{ total_spaces|default:"86" }}</div>
                 <p class="metric-subtitle">7 running low on capacity</p>
@@ -46,8 +43,7 @@
             <div class="owner-card-metric">
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <span class="metric-title">Available Balance</span>
-                    <span class="badge bg-light text-dark border small fw-bold">Settled</span>
-                </div>
+                 </div>
                 <div class="metric-value">₹42,680</div>
                 <p class="metric-subtitle">Next direct payout: <strong>10 Nov</strong></p>
             </div>

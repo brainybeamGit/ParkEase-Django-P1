@@ -107,13 +107,13 @@
                             <span class="small text-muted">{{ c.valid_until|date:"M d, Y" }}</span>
                         </td>
                         <td>
-                            <span class="badge bg-light text-dark border">{{ c.usage_count }} redeemed</span>
+                            {{ c.usage_count }} redeemed
                         </td>
                         <td>
                             {% if c.is_active %}
-                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Active</span>
+                                Active
                             {% else %}
-                                <span class="badge bg-secondary bg-opacity-10 text-secondary border">Disabled</span>
+                                Disabled
                             {% endif %}
                         </td>
                         <td class="text-end">
