@@ -31,8 +31,8 @@
     }
 
     .jp-control-box:focus-within {
-        border-color: #0284c7;
-        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
     }
 
     .jp-control-label {
@@ -171,8 +171,8 @@
 
     .parking-result-card:hover,
     .parking-result-card.highlighted {
-        border-color: #0284c7;
-        box-shadow: 0 8px 24px rgba(2, 132, 199, 0.12);
+        border-color: #3b82f6;
+        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.12);
         transform: translateY(-2px);
     }
 
@@ -228,15 +228,15 @@
 
     .gmap-price-pin:hover,
     .gmap-price-pin.active-pin {
-        background: #0284c7;
+        background: #3b82f6;
         transform: scale(1.18);
-        box-shadow: 0 6px 18px rgba(2, 132, 199, 0.55);
+        box-shadow: 0 6px 18px rgba(59, 130, 246, 0.55);
         z-index: 9999 !important;
     }
 
     .gmap-price-pin.active-pin::after,
     .gmap-price-pin:hover::after {
-        border-top-color: #0284c7;
+        border-top-color: #3b82f6;
     }
 
     .gmap-destination-pin {
@@ -340,7 +340,7 @@
             z-index: 1040;
         }
         .jp-mobile-view-toggle .btn {
-            background-color: #0f2942;
+            background-color: #111827;
             color: #ffffff;
             border: 2px solid #38bdf8;
             font-size: 0.88rem;
@@ -404,7 +404,7 @@
     }
     .nominatim-item:hover {
         background-color: #f0f7ff;
-        color: #0284c7;
+        color: #3b82f6;
     }
 
     .gmap-route-banner {
@@ -413,10 +413,10 @@
         left: 50%;
         transform: translateX(-50%);
         background: #ffffff;
-        border: 1.5px solid #0284c7;
+        border: 1.5px solid #3b82f6;
         border-radius: 9999px;
         padding: 0.45rem 1.15rem;
-        box-shadow: 0 6px 18px rgba(2, 132, 199, 0.22);
+        box-shadow: 0 6px 18px rgba(59, 130, 246, 0.22);
         z-index: 1000;
         font-size: 0.82rem;
         font-weight: 700;
@@ -704,7 +704,7 @@
             suppressMarkers: false,
             preserveViewport: false,
             polylineOptions: {
-                strokeColor: '#0284c7',
+                strokeColor: '#3b82f6',
                 strokeWeight: 5,
                 strokeOpacity: 0.85
             }
@@ -821,7 +821,7 @@
                         <span style="font-size: 0.7rem; color: #64748b; display: block;">Final Total</span>
                         <strong style="color: #0B3B60; font-size: 1.05rem;">${lot.total_price}</strong>
                     </div>
-                    <span style="background-color: #e0f2fe; color: #0284c7; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px;">
+                    <span style="background-color: #e0f2fe; color: #3b82f6; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px;">
                         ${lot.available_slots} bays free
                     </span>
                 </div>
@@ -841,7 +841,7 @@
 
                 <button type="button"
                         onclick="drawGoogleRoute(${centerLat}, ${centerLng}, ${lot.lat}, ${lot.lng}, '${lot.name.replace(/'/g, "\\'")}')"
-                        style="width: 100%; margin-top: 6px; background: none; border: 1px solid #0284c7; color: #0284c7; border-radius: 6px; font-weight: 700; font-size: 0.74rem; padding: 5px 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                        style="width: 100%; margin-top: 6px; background: none; border: 1px solid #3b82f6; color: #3b82f6; border-radius: 6px; font-weight: 700; font-size: 0.74rem; padding: 5px 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
                     <i class="bi bi-compass"></i> Show Driving Route
                 </button>
             </div>

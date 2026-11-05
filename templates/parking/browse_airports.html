@@ -27,11 +27,11 @@
                         data-bs-toggle="modal"
                         data-bs-target="#airportModal{{ airport.code }}">
                     <div class="d-flex align-items-center gap-3">
-                        <span class="badge text-white px-2.5 py-1.5 rounded-2 fw-bold" style="background-color: #0284c7; min-width: 52px; font-size: 0.95rem;">
+                        <span class="badge text-white px-2.5 py-1.5 rounded-2 fw-bold" style="background-color: #3b82f6; min-width: 52px; font-size: 0.95rem;">
                             {{ airport.code }}
                         </span>
                         <div class="text-start">
-                            <h5 class="fw-bold mb-1 text-dark airport-name-title" style="color: #0f2942;">
+                            <h5 class="fw-bold mb-1 text-dark airport-name-title" style="color: #111827;">
                                 {{ airport.name }}
                             </h5>
                             <div class="small text-muted">{{ airport.city }}, {{ airport.state }} &bull; {{ airport.terminals }}</div>
@@ -39,14 +39,14 @@
                     </div>
                     <div class="text-end d-none d-sm-block">
                         <div class="small text-muted">Daily from</div>
-                        <div class="fw-bold fs-5" style="color: #0284c7;">₹{{ airport.daily_rate }}/day</div>
+                        <div class="fw-bold fs-5" style="color: #3b82f6;">₹{{ airport.daily_rate }}/day</div>
                     </div>
                 </button>
                 {% endfor %}
             </div>
         </div>
 
-        <div class="p-4 p-md-5 rounded-4 text-white shadow-lg" style="background: linear-gradient(135deg, #0f2942 0%, #1e40af 100%);">
+        <div class="p-4 p-md-5 rounded-4 text-white shadow-lg" style="background: linear-gradient(135deg, #111827 0%, #1e40af 100%);">
             <div class="row align-items-center">
                 <div class="col-lg-8 mb-3 mb-lg-0">
                     <h3 class="fw-bold text-white mb-2">Never miss a flight circling for parking</h3>
@@ -70,10 +70,10 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 540px;">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
 
-            <div class="modal-header border-bottom p-4" style="background: linear-gradient(135deg, #0f2942 0%, #183d63 100%); color: #ffffff;">
+            <div class="modal-header border-bottom p-4" style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%); color: #ffffff;">
                 <div class="w-100">
                     <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="badge text-white px-2.5 py-1 rounded-2 fw-bold small" style="background-color: #0284c7;">
+                        <span class="badge text-white px-2.5 py-1 rounded-2 fw-bold small" style="background-color: #3b82f6;">
                             {{ airport.code }}
                         </span>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -90,7 +90,7 @@
                 <div class="d-flex justify-content-between align-items-center p-3 mb-3 bg-light rounded-3">
                     <div>
                         <div class="small text-muted fw-semibold">Daily Tariff</div>
-                        <div class="fs-4 fw-extrabold" style="color: #0284c7;">
+                        <div class="fs-4 fw-extrabold" style="color: #3b82f6;">
                             ₹{{ airport.daily_rate }}<span class="fs-6 fw-normal text-muted">/day</span>
                         </div>
                     </div>
@@ -130,7 +130,7 @@
 
                 <a href="{% url 'parking:search' %}?q={{ airport.name }}&airport={{ airport.code }}&mode=airport"
                    class="btn btn-primary fw-bold w-100 py-2.5 rounded-3 text-white text-center"
-                   style="background-color: #0284c7; border-color: #0284c7;">
+                   style="background-color: #3b82f6; border-color: #3b82f6;">
                     Book {{ airport.code }} Parking
                 </a>
 
@@ -151,7 +151,7 @@
 }
 
 .airport-list-row:hover .airport-name-title {
-    color: #0284c7 !important;
+    color: #3b82f6 !important;
 }
 </style>
 {% endblock %}

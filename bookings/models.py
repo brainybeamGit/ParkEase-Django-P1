@@ -91,6 +91,19 @@ class Booking(models.Model):
         return self.extension_requests.filter(status='pending').exists()
 
     @property
+    def is_service_over(self):
+        from django.utils import timezone
+        if self.exit_time is not None:
+            return True
+        if self.booking_status in ('completed', 'cancelled'):
+            return True
+        if self.payment_status == 'refunded':
+            return True
+        if self.end_time and self.end_time <= timezone.now() and not self.is_parked:
+            return True
+        return False
+
+    @property
     def user_review(self):
         from lot_owner_panel.models import LotReview
         ref = f"PE-BK-{self.id}"

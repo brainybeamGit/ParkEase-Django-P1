@@ -75,7 +75,7 @@
     .step-badge {
         width: 28px;
         height: 28px;
-        background: #0B3B60;
+        background: #3b82f6;
         color: #ffffff;
         font-weight: 700;
         font-size: 0.82rem;
@@ -91,7 +91,7 @@
     }
     .booking-summary-card {
         background: #ffffff;
-        border: 2px solid #0B3B60;
+        border: 2px solid #3b82f6;
         border-radius: 14px;
         padding: 1.75rem;
         box-shadow: 0 10px 25px rgba(11, 59, 96, 0.08);
@@ -99,7 +99,7 @@
     .rate-highlight {
         font-size: 2.2rem;
         font-weight: 800;
-        color: #0B3B60;
+        color: #111827;
         line-height: 1;
     }
     #lotMiniMap {
@@ -432,7 +432,7 @@
 
                         <a href="{% url 'parking:book_lot' lot.id %}?from_date={{ from_date }}&from_time={{ from_time }}&until_date={{ until_date }}&until_time={{ until_time }}&vehicle_type={{ vehicle_type }}"
                            class="btn btn-theme-primary w-100 py-3 fw-bold fs-6 shadow-sm mb-3"
-                           style="background-color: #0B3B60; border: none; border-radius: 10px;">
+                           style="background-color: #3b82f6; border: none; border-radius: 10px;">
                             Proceed to Slot & Booking <i class="bi bi-arrow-right ms-1"></i>
                         </a>
                     </div>
@@ -486,7 +486,7 @@
         const info = new google.maps.InfoWindow({
             content: `
                 <div style="font-family: inherit; padding: 4px;">
-                    <strong style="color: #0B3B60; font-size: 0.95rem;">${lotName}</strong>
+                    <strong style="color: #111827; font-size: 0.95rem;">${lotName}</strong>
                     <div style="color: #64748b; font-size: 0.8rem; margin-top: 2px;">Rate: ${lotRate}</div>
                 </div>
             `

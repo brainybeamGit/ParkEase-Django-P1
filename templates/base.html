@@ -81,7 +81,7 @@
                 <div class="d-flex align-items-center flex-wrap gap-2 mt-3 mt-lg-0 navbar-auth-buttons">
                     {% if user.is_authenticated %}
                         {% if user.lot_owner_profile or user.profile.role == 'owner' or user.is_staff %}
-                            <a href="{% url 'lot_owner_panel:dashboard' %}" class="btn btn-sm text-white fw-bold me-2" style="background-color: #2A1810; border-radius: 6px;">
+                            <a href="{% url 'lot_owner_panel:dashboard' %}" class="btn btn-sm text-white fw-bold me-2" style="background-color: #111827; border-radius: 6px;">
                                 Owner Studio
                             </a>
                         {% endif %}
@@ -184,7 +184,7 @@
                 <rect x="-27" y="18" width="6" height="18" rx="3" fill="#0f172a"/>
                 <rect x="21" y="18" width="6" height="18" rx="3" fill="#0f172a"/>
 
-                <rect x="-23" y="-45" width="46" height="90" rx="16" fill="#0284c7"/>
+                <rect x="-23" y="-45" width="46" height="90" rx="16" fill="#3b82f6"/>
                 <path d="M -23 -20 Q -23 -43 0 -45 Q 23 -43 23 -20 L 23 25 Q 23 43 0 45 Q -23 43 -23 25 Z" fill="#38bdf8"/>
 
                 <path d="M -17 -12 L -14 -31 Q 0 -35 14 -31 L 17 -12 Q 0 -15 -17 -12 Z" fill="#0f172a"/>

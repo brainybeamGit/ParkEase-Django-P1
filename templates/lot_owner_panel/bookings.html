@@ -113,7 +113,7 @@
                                 <span class="text-muted small">{{ b.driver_phone }}</span>
                             </td>
                             <td>
-                                <span class="badge bg-light text-dark border font-monospace">{{ b.vehicle_plate }}</span>
+                                {{ b.vehicle_plate }}
                                 <span class="d-block text-muted" style="font-size: 0.75rem;">{{ b.vehicle_type }}</span>
                             </td>
                             <td>
@@ -137,13 +137,13 @@
                                     <span class="badge bg-danger text-white border fw-semibold mb-1 d-block">Overstay ₹{{ b.overstay_fine }}</span>
                                 {% endif %}
                                 {% if b.status == 'Parked' or b.status == 'Active' %}
-                                    <span class="badge bg-info text-dark border fw-semibold">Parked Inside</span>
+                                    Parked
                                 {% elif b.status == 'Confirmed' %}
-                                    <span class="badge bg-light text-dark border fw-semibold">Confirmed</span>
+                                    Confirmed
                                 {% elif b.status == 'Done' or b.status == 'Completed' %}
-                                    <span class="badge bg-light text-muted border fw-semibold">Completed</span>
+                                    Completed
                                 {% else %}
-                                    <span class="badge bg-light text-danger border fw-semibold">Cancelled</span>
+                                    Cancelled
                                 {% endif %}
                             </td>
                             <td class="text-end">

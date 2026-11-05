@@ -42,9 +42,9 @@
         border-color: #94a3b8;
     }
     .vehicle-choice-card.selected {
-        border-color: #0284c7;
+        border-color: #3b82f6;
         background-color: #f0f9ff;
-        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.12);
+        box-shadow: 0 4px 14px rgba(59, 130, 246, 0.12);
     }
     .slot-pill {
         border: 1.5px solid #cbd5e1;
@@ -58,15 +58,15 @@
         text-align: center;
     }
     .slot-pill:hover {
-        border-color: #0284c7;
+        border-color: #3b82f6;
     }
     .slot-pill.active {
-        background: #0284c7;
+        background: #3b82f6;
         color: #ffffff;
-        border-color: #0284c7;
+        border-color: #3b82f6;
     }
     .razorpay-checkout-box {
-        border: 2px solid #0284c7;
+        border: 2px solid #3b82f6;
         background: #f0f9ff;
         border-radius: 14px;
         padding: 1.25rem 1.5rem;
@@ -242,7 +242,7 @@
                                 4. Payment Method
                             </h4>
 
-                            <div class="razorpay-checkout-box mb-3 p-3 rounded-3" style="background: #f0f9ff; border: 2px solid #0284c7;">
+                            <div class="razorpay-checkout-box mb-3 p-3 rounded-3" style="background: #f0f9ff; border: 2px solid #3b82f6;">
                                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="form-check mb-0">
@@ -259,7 +259,7 @@
                                             </span>
                                         </div>
                                     </div>
-                                    <div class="razorpay-badge-logo px-3 py-1 rounded-2 fw-bold text-white d-flex align-items-center gap-1" style="background: #0B3B60;">
+                                    <div class="razorpay-badge-logo px-3 py-1 rounded-2 fw-bold text-white d-flex align-items-center gap-1" style="background: #3b82f6;">
                                         <i class="bi bi-shield-check text-info me-1"></i> Razorpay
                                     </div>
                                 </div>
@@ -395,7 +395,7 @@
                     "contact": "{{ request.user.profile.phone|default:'9876543210'|escapejs }}"
                 },
                 "theme": {
-                    "color": "#0B3B60"
+                    "color": "#3b82f6"
                 },
                 "modal": {
                     "ondismiss": function() {
@@ -417,7 +417,6 @@
             }
         }
 
-        // Direct completion fallback if external CDN script is blocked
         document.getElementById('razorpayPaymentId').value = 'pay_rzp_' + Math.random().toString(36).substring(2, 12);
         document.getElementById('lotBookingForm').submit();
     }

@@ -17,22 +17,36 @@
 
     <style>
         :root {
-            --owner-primary: #0f2942;
-            --owner-primary-hover: #183d63;
-            --owner-brand-blue: #0284c7;
-            --owner-brand-blue-hover: #0369a1;
+            --background: #ffffff;
+            --foreground: #333333;
+            --primary: #3b82f6;
+            --primary-foreground: #ffffff;
+            --secondary: #f3f4f6;
+            --accent: #e0f2fe;
+            --muted: #f9fafb;
+            --muted-foreground: #6b7280;
+            --card: #ffffff;
+            --border: #e5e7eb;
+            --ring: #3b82f6;
+            --destructive: #ef4444;
+            --radius: 0.375rem;
+
+            --owner-primary: #171717;
+            --owner-primary-hover: #262626;
+            --owner-brand-blue: #3b82f6;
+            --owner-brand-blue-hover: #2563eb;
 
             --owner-sidebar-bg: #0f2942;
             --owner-sidebar-hover: rgba(255, 255, 255, 0.09);
-            --owner-sidebar-active: #0284c7;
+            --owner-sidebar-active: #3b82f6;
             --owner-sidebar-active-text: #ffffff;
             --owner-sidebar-text: #ffffff;
             --owner-sidebar-heading: #94a3b8;
 
-            --owner-dark: #0f172a;
-            --owner-body-bg: #f8fafc;
-            --owner-card-border: #e2e8f0;
-            --owner-muted: #64748b;
+            --owner-dark: #171717;
+            --owner-body-bg: #f9fafb;
+            --owner-card-border: #e5e7eb;
+            --owner-muted: #6b7280;
         }
 
         body {
@@ -244,7 +258,7 @@
         .owner-card {
             background: #ffffff;
             border: 1px solid var(--owner-card-border);
-            border-radius: 12px;
+            border-radius: 8px;
             padding: 24px;
             box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
             margin-bottom: 24px;
@@ -253,7 +267,7 @@
         .owner-card-metric {
             background: #ffffff;
             border: 1px solid var(--owner-card-border);
-            border-radius: 12px;
+            border-radius: 8px;
             padding: 20px 22px;
             height: 100%;
             transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -392,7 +406,7 @@
             overflow-y: auto;
             border: 1px solid var(--owner-card-border);
             box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1);
-            border-radius: 12px;
+            border-radius: 8px;
             padding: 0;
             background-color: #ffffff;
         }
@@ -683,7 +697,7 @@
                         </div>
 
                         <div class="p-3 text-center border-top bg-light bg-opacity-50">
-                            <a href="{% url 'lot_owner_panel:notifications' %}" class="small text-decoration-none fw-semibold" style="color: var(--owner-brand-blue, #0284c7);">
+                            <a href="{% url 'lot_owner_panel:notifications' %}" class="small text-decoration-none fw-semibold" style="color: var(--owner-brand-blue, #3b82f6);">
                                 View all notifications in Studio →
                             </a>
                         </div>

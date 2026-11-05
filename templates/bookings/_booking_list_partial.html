@@ -29,23 +29,15 @@
                         Ref: #PE-BK-{{ b.id }}
 
                         {% if b.payment_status == 'refunded' %}
-                            <span class="badge bg-purple px-3 py-1 small fw-bold" style="background-color: #8b5cf6; color: #ffffff;">
-                                REFUNDED
-                            </span>
+                            
                         {% elif b.payment_status == 'refund_requested' %}
-                            <span class="badge bg-warning text-dark px-3 py-1 small fw-bold">
-                                REFUND REQUESTED
-                            </span>
+                            
                         {% elif b.booking_status == 'active' and b.is_parked %}
-                            <span class="badge bg-info text-dark px-3 py-1 small fw-bold">
-                                PARKED INSIDE
-                            </span>
+                            
                         {% elif b.booking_status == 'active' %}
                             
                         {% elif b.booking_status == 'completed' %}
-                            <span class="badge bg-secondary px-3 py-1 small fw-bold">
-                                COMPLETED
-                            </span>
+                            
                         {% else %}
                             <span class="badge bg-danger px-3 py-1 small fw-bold">
                                 CANCELLED
@@ -67,7 +59,7 @@
                 </div>
 
                 <div class="text-md-end">
-                    <span class="fs-3 fw-extrabold text-primary d-block fw-bold" style="color: #0284c7 !important;">
+                    <span class="fs-3 fw-extrabold text-primary d-block fw-bold" style="color: #3b82f6 !important;">
                         ₹{{ b.total_amount }}
                     </span>
                     <span class="badge bg-light text-muted border small">
@@ -108,31 +100,16 @@
                 </div>
             </div>
 
-            {% if b.refund_reason %}
-                <div class="p-2 px-3 mt-2 rounded-2 bg-warning bg-opacity-10 border border-warning text-dark small">
-                    <strong>Refund Reason:</strong> {{ b.refund_reason }}
-                </div>
-            {% endif %}
-
             {% if b.latest_extension_request %}
                 {% if b.latest_extension_request.status == 'pending' %}
-                    <div class="p-2 px-3 mt-2 rounded-2 bg-warning bg-opacity-10 border border-warning text-dark small d-flex flex-wrap align-items-center justify-content-between gap-2">
-                        <div>
-                            <i class="bi bi-clock-history me-1 text-warning-emphasis"></i>
-                            <strong>Extension Requested:</strong> +{{ b.latest_extension_request.additional_hours|floatformat:0 }} hr(s) until {{ b.latest_extension_request.requested_new_end_time|date:"d M Y, h:i A" }} (Extra fee: &#8377;{{ b.latest_extension_request.additional_fee }}).
-                        </div>
-                        <span class="badge bg-warning text-dark px-2 py-1 rounded-pill fw-bold">Awaiting Owner Approval</span>
-                    </div>
                 {% elif b.latest_extension_request.status == 'approved' %}
                     <div class="p-2 px-3 mt-2 rounded-2 bg-success bg-opacity-10 border border-success border-opacity-25 text-success-emphasis small d-flex flex-wrap align-items-center justify-content-between gap-2">
                         <div>
-                            <i class="bi bi-check-circle-fill me-1 text-success"></i>
                             <strong>Extension Approved:</strong> +{{ b.latest_extension_request.additional_hours|floatformat:0 }} hr(s) granted by space owner. Valid until {{ b.end_time|date:"d M Y, h:i A" }}.
                             {% if b.latest_extension_request.owner_note %}
                                 <div class="small mt-1 text-muted"><strong>Owner Note:</strong> {{ b.latest_extension_request.owner_note }}</div>
                             {% endif %}
                         </div>
-                        <span class="badge bg-success px-2 py-1 rounded-pill fw-bold">Approved</span>
                     </div>
                 {% elif b.latest_extension_request.status == 'rejected' %}
                     <div class="p-2 px-3 mt-2 rounded-2 bg-danger bg-opacity-10 border border-danger border-opacity-25 text-danger small">
@@ -145,33 +122,10 @@
                 {% endif %}
             {% endif %}
 
-            {% if b.user_review %}
-                <div class="p-3 bg-light rounded-3 border mt-3">
-                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-1">
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-success-subtle text-success fw-bold px-2 py-1">Your Verified Service Rating</span>
-                            <span class="small text-muted">Owner: <strong class="text-dark">{{ b.lot.owner.get_full_name|default:b.lot.owner.username }}</strong></span>
-                        </div>
-                        <div class="text-warning fs-6">
-                            <span class="fw-bold text-dark me-1">{{ b.user_review.rating }}.0</span>
-                            {% if b.user_review.rating == 5 %}★★★★★{% elif b.user_review.rating == 4 %}★★★★☆{% elif b.user_review.rating == 3 %}★★★☆☆{% elif b.user_review.rating == 2 %}★★☆☆☆{% else %}★☆☆☆☆{% endif %}
-                        </div>
-                    </div>
-                    <p class="small text-secondary mb-0 fst-italic">"{{ b.user_review.comment }}"</p>
-                    {% if b.user_review.owner_reply %}
-                        <div class="mt-2 pt-2 border-top bg-white p-2 rounded">
-                            <span class="badge bg-dark me-1">Space Owner Response</span>
-                            <small class="text-dark">{{ b.user_review.owner_reply }}</small>
-                        </div>
-                    {% endif %}
-                </div>
-            {% endif %}
-
             <div class="d-flex flex-wrap justify-content-end align-items-center gap-2 pt-3 booking-action-buttons">
 
-                {% if is_history or b.booking_status == 'completed' or b.booking_status == 'cancelled' or b.payment_status == 'refunded' %}
+                {% if is_history or b.is_service_over or b.booking_status == 'completed' or b.booking_status == 'cancelled' or b.payment_status == 'refunded' %}
                     {% if not b.user_review %}
-
                         <button type="button" class="btn btn-sm btn-outline-warning text-dark fw-bold px-3 py-2" style="border-radius: 6px;" data-bs-toggle="modal" data-bs-target="#rateServiceModal{{ b.id }}">
                             Rate Service
                         </button>
@@ -182,7 +136,7 @@
                     View Ticket
                 </a>
 
-                {% if b.booking_status == 'active' %}
+                {% if not is_history and not b.is_service_over and b.booking_status == 'active' %}
                     {% if b.has_pending_extension %}
                         <button type="button"
                                 class="btn btn-sm btn-outline-warning text-dark fw-bold px-3 py-2"
@@ -210,16 +164,16 @@
                             Cancel Booking
                         </button>
                     {% endif %}
-                {% endif %}
 
-                {% if b.payment_status not in 'refunded refund_requested' %}
-                    <button type="button"
-                            class="btn btn-sm btn-outline-warning text-dark fw-bold px-3 py-2"
-                            style="border-radius: 6px;"
-                            data-bs-toggle="modal"
-                            data-bs-target="#refundModal{{ b.id }}">
-                        Request Refund
-                    </button>
+                    {% if b.payment_status not in 'refunded refund_requested' %}
+                        <button type="button"
+                                class="btn btn-sm btn-outline-warning text-dark fw-bold px-3 py-2"
+                                style="border-radius: 6px;"
+                                data-bs-toggle="modal"
+                                data-bs-target="#refundModal{{ b.id }}">
+                            Request Refund
+                        </button>
+                    {% endif %}
                 {% endif %}
 
             </div>
@@ -424,7 +378,7 @@
                         </div>
                         <div class="modal-footer px-4 pb-4 pt-2 border-0">
                             <button type="button" class="btn btn-light rounded-3 px-3" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary fw-bold rounded-3 px-4 py-2" style="background-color: #0284c7; border: none;">
+                            <button type="submit" class="btn btn-primary fw-bold rounded-3 px-4 py-2" style="background-color: #3b82f6; border: none;">
                                 Submit Rating & Review
                             </button>
                         </div>

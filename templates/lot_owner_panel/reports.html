@@ -86,35 +86,42 @@
     </div>
 
     <div class="owner-card mb-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
             <div>
                 <h3 class="fw-bold fs-6 text-dark mb-0">Occupancy Report: Reserved vs Physically Present</h3>
                 <p class="text-muted small mb-0">Critical distinction between spaces booked in advance vs vehicles currently detected on site.</p>
             </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="small fw-semibold text-muted d-flex align-items-center gap-1">
+                    <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background-color:#3b82f6;"></span> Reserved (76%)
+                </span>
+                <span class="small fw-semibold text-muted d-flex align-items-center gap-1">
+                    <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background-color:#10b981;"></span> Physically Present (64%)
+                </span>
+            </div>
         </div>
 
         <div class="row g-4 align-items-center">
-            <div class="col-md-6">
-                <div class="p-3 bg-light rounded-2 border mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="col-12 col-lg-7">
+                <div style="height: 220px; position: relative;">
+                    <canvas id="occupancyBarChart"></canvas>
+                </div>
+            </div>
+            <div class="col-12 col-lg-5">
+                <div class="p-3 bg-light rounded-3 border mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
                         <span class="fw-bold text-dark small">Reserved Capacity</span>
-                        <span class="fw-bold fs-5 text-dark">76%</span>
+                        <span class="fw-bold fs-5 text-primary">76%</span>
                     </div>
-                    <div class="progress" style="height: 10px;">
-                        <div class="progress-bar bg-primary" role="progressbar" style="width: 76%;" aria-valuenow="76" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <span class="text-muted small mt-1 d-block">38 of 50 spaces committed via advance online reservations & monthly passes.</span>
+                    <span class="text-muted small d-block">38 of 50 spaces committed via advance online reservations & monthly passes.</span>
                 </div>
 
-                <div class="p-3 bg-light rounded-2 border">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="p-3 bg-light rounded-3 border">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
                         <span class="fw-bold text-dark small">Physically Present Vehicles</span>
-                        <span class="fw-bold fs-5 text-dark">64%</span>
+                        <span class="fw-bold fs-5 text-success">64%</span>
                     </div>
-                    <div class="progress" style="height: 10px;">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: 64%;" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <span class="text-muted small mt-1 d-block">32 vehicles currently checked in inside parking barrier gates. (6 reserved vehicles arriving shortly).</span>
+                    <span class="text-muted small d-block">32 vehicles currently checked in inside parking barrier gates. (6 reserved vehicles arriving shortly).</span>
                 </div>
             </div>
         </div>
@@ -126,43 +133,43 @@
             <div class="owner-card h-100 mb-0">
                 <h3 class="fw-bold fs-6 text-dark mb-3">Vehicle-Category Demand Breakdown</h3>
 
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between small fw-bold mb-1">
-                        <span>Cars (Sedan / Hatchback)</span>
-                        <span>62%</span>
+                <div class="row g-3 align-items-center">
+                    <div class="col-12 col-sm-6 text-center">
+                        <div style="height: 200px; position: relative;">
+                            <canvas id="vehicleDemandPieChart"></canvas>
+                        </div>
                     </div>
-                    <div class="progress" style="height: 8px;">
-                        <div class="progress-bar bg-primary" style="width: 62%;"></div>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between small fw-bold mb-1">
-                        <span>Two-Wheelers (Bikes)</span>
-                        <span>24%</span>
-                    </div>
-                    <div class="progress" style="height: 8px;">
-                        <div class="progress-bar bg-success" style="width: 24%;"></div>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between small fw-bold mb-1">
-                        <span>SUVs & MUVs</span>
-                        <span>10%</span>
-                    </div>
-                    <div class="progress" style="height: 8px;">
-                        <div class="progress-bar bg-dark" style="width: 10%;"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="d-flex justify-content-between small fw-bold mb-1">
-                        <span>Electric Vehicles (EVs)</span>
-                        <span>4%</span>
-                    </div>
-                    <div class="progress" style="height: 8px;">
-                        <div class="progress-bar bg-warning" style="width: 4%;"></div>
+                    <div class="col-12 col-sm-6">
+                        <div class="d-flex flex-column gap-2">
+                            <div class="d-flex justify-content-between align-items-center p-2 px-3 rounded-2 bg-light border">
+                                <span class="small fw-semibold d-flex align-items-center gap-2">
+                                    <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background-color:#3b82f6;"></span>
+                                    Cars (Sedan/Hatch)
+                                </span>
+                                <strong class="small text-dark">62%</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center p-2 px-3 rounded-2 bg-light border">
+                                <span class="small fw-semibold d-flex align-items-center gap-2">
+                                    <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background-color:#10b981;"></span>
+                                    Two-Wheelers (Bikes)
+                                </span>
+                                <strong class="small text-dark">24%</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center p-2 px-3 rounded-2 bg-light border">
+                                <span class="small fw-semibold d-flex align-items-center gap-2">
+                                    <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background-color:#111827;"></span>
+                                    SUVs & MUVs
+                                </span>
+                                <strong class="small text-dark">10%</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center p-2 px-3 rounded-2 bg-light border">
+                                <span class="small fw-semibold d-flex align-items-center gap-2">
+                                    <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background-color:#f59e0b;"></span>
+                                    Electric Vehicles (EV)
+                                </span>
+                                <strong class="small text-dark">4%</strong>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -219,10 +226,95 @@
 }
 .owner-filter-tab.active {
     background: #ffffff;
-    color: #0f2942;
-    border: 1.5px solid #0f2942;
+    color: #111827;
+    border: 1.5px solid #111827;
     font-weight: 700;
     box-shadow: 0 1px 3px rgba(15, 41, 66, 0.12);
 }
 </style>
+{% endblock %}
+
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    const occEl = document.getElementById('occupancyBarChart');
+    if (occEl) {
+        new Chart(occEl.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['Advance Reserved', 'Physically Present'],
+                datasets: [{
+                    label: 'Capacity Occupancy (%)',
+                    data: [76, 64],
+                    backgroundColor: ['#3b82f6', '#10b981'],
+                    borderColor: ['#2563eb', '#059669'],
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    barPercentage: 0.52,
+                    categoryPercentage: 0.8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(val) { return val + '%'; },
+                            stepSize: 20,
+                            font: { family: 'Plus Jakarta Sans', size: 11 },
+                            color: '#6b7280'
+                        },
+                        grid: {
+                            color: '#e5e7eb',
+                            drawBorder: false
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: { family: 'Plus Jakarta Sans', size: 12, weight: '600' },
+                            color: '#111827'
+                        },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
+
+    const pieEl = document.getElementById('vehicleDemandPieChart');
+    if (pieEl) {
+        new Chart(pieEl.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Cars (Sedan/Hatch)', 'Two-Wheelers (Bikes)', 'SUVs & MUVs', 'Electric Vehicles (EVs)'],
+                datasets: [{
+                    data: [62, 24, 10, 4],
+                    backgroundColor: ['#3b82f6', '#10b981', '#111827', '#f59e0b'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '58%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                }
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

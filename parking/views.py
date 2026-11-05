@@ -623,11 +623,16 @@ def my_bookings_view(request):
     history_bookings = []
     
     for b in user_bookings:
-        
-        if b.booking_status == 'active' and b.payment_status in ('paid', 'pending') and (not b.end_time or b.end_time >= now - timedelta(minutes=15)):
-            active_bookings.append(b)
-        else:
+        if b.is_service_over:
+            if b.booking_status == 'active' and not b.is_parked:
+                b.booking_status = 'completed'
+                b.save(update_fields=['booking_status'])
+                if b.slot and b.slot.status != 'maintenance':
+                    b.slot.status = 'available'
+                    b.slot.save(update_fields=['status'])
             history_bookings.append(b)
+        else:
+            active_bookings.append(b)
 
     active_tab = request.GET.get('tab', '')
     if active_tab not in ('current', 'history', 'all'):
@@ -803,7 +808,7 @@ def scan_entry_view(request, booking_id):
     plate = booking.vehicle.registration_number if booking.vehicle else 'Vehicle'
     messages.success(
         request, 
-        f"✅ Gate Barrier Opened! {plate} verified and checked in at {now.strftime('%I:%M %p')}. Enjoy your parking session."
+        f" Gate Barrier Opened! {plate} verified and checked in at {now.strftime('%I:%M %p')}. Enjoy your parking session."
     )
     return redirect(request.META.get('HTTP_REFERER') or f'/booking/{booking.id}/ticket/')
 
@@ -848,7 +853,7 @@ def scan_exit_view(request, booking_id):
 
         messages.warning(
             request,
-            f"⚠️ Overstay Detected! Booked duration ended at {booking.end_time.strftime('%I:%M %p')}. "
+            f" Overstay Detected! Booked duration ended at {booking.end_time.strftime('%I:%M %p')}. "
             f"Extra stay: {diff_minutes} mins ({overstay_hours} hrs). "
             f"Additional Fee: ₹{extra_fee}. Gate barrier remains locked until extra fee is paid via Razorpay."
         )
@@ -862,7 +867,7 @@ def scan_exit_view(request, booking_id):
 
     messages.success(
         request,
-        f"✅ Exit QR Verified! Exit gate barrier opened at {now.strftime('%I:%M %p')}. Have a safe drive!"
+        f" Exit QR Verified! Exit gate barrier opened at {now.strftime('%I:%M %p')}. Have a safe drive!"
     )
     return redirect(request.META.get('HTTP_REFERER') or f'/booking/{booking.id}/ticket/')
 
@@ -1157,6 +1162,9 @@ def policies_view(request):
 def cancel_booking_view(request, booking_id):
     
     booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+    if booking.is_service_over:
+        messages.error(request, "This parking session is already over. Completed bookings cannot be cancelled.")
+        return redirect('parking:my_bookings')
     if booking.booking_status == 'cancelled':
         messages.info(request, "This booking has already been cancelled.")
         return redirect('parking:my_bookings')
@@ -1197,6 +1205,9 @@ def cancel_booking_view(request, booking_id):
 def request_refund_view(request, booking_id):
     
     booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+    if booking.is_service_over:
+        messages.error(request, "This parking session is already over. Refund requests are not permitted once service has concluded.")
+        return redirect('parking:my_bookings')
     if request.method == 'POST':
         reason = request.POST.get('refund_reason', '').strip()
         booking.payment_status = 'refund_requested'
@@ -1253,6 +1264,9 @@ def extend_booking_view(request, booking_id):
     from lot_owner_panel.models import OwnerNotification
 
     booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+    if booking.is_service_over:
+        messages.error(request, "This parking session is already over. Time extension is not permitted for completed bookings.")
+        return redirect('parking:my_bookings')
     if request.method == 'POST':
         try:
             add_hours = float(request.POST.get('additional_hours', 1))

@@ -1519,7 +1519,16 @@ def owner_reviews_view(request):
         pct_5 = 100
         pct_4 = pct_3 = pct_2_1 = 0
 
-    ctx['reviews'] = reviews
+    responded_count = reviews.exclude(models.Q(owner_reply__isnull=True) | models.Q(owner_reply__exact='')).count()
+    current_filter = request.GET.get('filter', 'reviews')
+    if current_filter == 'responded':
+        display_reviews = reviews.exclude(models.Q(owner_reply__isnull=True) | models.Q(owner_reply__exact=''))
+    else:
+        display_reviews = reviews
+
+    ctx['reviews'] = display_reviews
+    ctx['responded_count'] = responded_count
+    ctx['current_filter'] = current_filter
     ctx['total_reviews'] = total_reviews
     ctx['avg_rating'] = avg_rating
     ctx['stars_5'] = stars_5

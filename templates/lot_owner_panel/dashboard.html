@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const chartContext = ctx.getContext('2d');
     const gradient = chartContext.createLinearGradient(0, 0, 0, 300);
-    gradient.addColorStop(0, 'rgba(2, 132, 199, 0.20)');
+    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.20)');
     gradient.addColorStop(1, 'rgba(2, 132, 199, 0.00)');
 
     const initialPeriod = perfMatrix[currentPeriod];
@@ -293,12 +293,12 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 label: initialMetric.label,
                 data: initialMetric.data,
-                borderColor: '#0284c7',
+                borderColor: '#3b82f6',
                 backgroundColor: gradient,
                 borderWidth: 2.5,
                 fill: true,
                 tension: 0.38,
-                pointBackgroundColor: '#0284c7',
+                pointBackgroundColor: '#3b82f6',
                 pointBorderColor: '#ffffff',
                 pointBorderWidth: 2,
                 pointRadius: 4.5,
@@ -388,8 +388,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         activeBtn.classList.remove('btn-outline-secondary');
         activeBtn.classList.add('btn-dark', 'active');
-        activeBtn.style.backgroundColor = '#0f2942';
-        activeBtn.style.borderColor = '#0f2942';
+        activeBtn.style.backgroundColor = '#171717';
+        activeBtn.style.borderColor = '#171717';
     }
 
     btnRev.addEventListener('click', function() {

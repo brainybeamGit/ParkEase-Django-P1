@@ -22,7 +22,7 @@
     }
 
     .ticket-header {
-        background: linear-gradient(135deg, #0B3B60 0%, #0284c7 100%);
+        background: linear-gradient(135deg, #111827 0%, #3b82f6 100%);
         color: #ffffff;
         padding: 1.25rem 1.75rem;
         position: relative;
@@ -117,7 +117,7 @@
             min-height: auto !important;
         }
         .ticket-card {
-            border: 2px solid #0B3B60 !important;
+            border: 2px solid #111827 !important;
             box-shadow: none !important;
             margin: 0 auto !important;
             width: 100% !important;
@@ -196,7 +196,7 @@
                     My Bookings
                 </a>
             </div>
-            <button type="button" onclick="window.print()" class="btn btn-sm text-white fw-semibold shadow-sm" style="background-color: #0B3B60; border-radius: 8px;">
+            <button type="button" onclick="window.print()" class="btn btn-sm text-white fw-semibold shadow-sm" style="background-color: #111827; border-radius: 8px;">
                 <i class="bi bi-printer me-1"></i> Print / Save PDF
             </button>
         </div>
@@ -271,9 +271,7 @@
                     {% if slot_label %}
                     <div class="ticket-data-row">
                         <span class="ticket-data-label">Allocated Bay</span>
-                        <span class="ticket-data-val">
-                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1 font-monospace">Bay {{ slot_label }}</span>
-                        </span>
+                        <span class="ticket-data-val text-dark fw-bold font-monospace" style="font-size: 0.95rem;">Bay {{ slot_label }}</span>
                     </div>
                     {% endif %}
                     <div class="ticket-data-row">
@@ -303,7 +301,6 @@
 
                 <div class="ticket-print-guidelines mb-3">
                     <div class="d-flex align-items-center gap-2 mb-1">
-                        <i class="bi bi-shield-check text-primary"></i>
                         <span class="fw-bold text-dark text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Gate Entry & Parking Guidelines</span>
                     </div>
                     <div class="row g-2 text-muted" style="font-size: 0.76rem; line-height: 1.45;">
@@ -322,9 +319,6 @@
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.72rem;">
                             Live Google Maps Navigation
-                        </span>
-                        <span id="ticketRouteStats" class="badge bg-primary bg-opacity-10 text-primary small" style="font-size: 0.72rem;">
-                            Calculating route...
                         </span>
                     </div>
                     <div id="ticketRouteMap" style="height: 170px; width: 100%; border-radius: 10px; border: 1.5px solid #cbd5e1;"></div>
@@ -382,7 +376,7 @@
             map: map,
             suppressMarkers: false,
             polylineOptions: {
-                strokeColor: '#0284c7',
+                strokeColor: '#3b82f6',
                 strokeWeight: 4,
                 strokeOpacity: 0.85
             }

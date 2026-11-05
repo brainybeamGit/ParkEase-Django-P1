@@ -16,14 +16,14 @@
     <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3" id="bookingTabPills">
         <li class="nav-item">
             <a class="nav-link px-4 py-2 rounded-pill fw-bold {% if active_tab == 'current' %}active text-white shadow-sm{% else %}bg-white text-dark border{% endif %}"
-               style="{% if active_tab == 'current' %}background-color: #0284c7; border: none;{% endif %}"
+               style="{% if active_tab == 'current' %}background-color: #3b82f6; border: none;{% endif %}"
                href="?tab=current">
                 Current Bookings ({{ active_bookings|length }})
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link px-4 py-2 rounded-pill fw-bold {% if active_tab == 'history' %}active text-white shadow-sm{% else %}bg-white text-dark border{% endif %}"
-               style="{% if active_tab == 'history' %}background-color: #0284c7; border: none;{% endif %}"
+               style="{% if active_tab == 'history' %}background-color: #3b82f6; border: none;{% endif %}"
                href="?tab=history">
                 Booking History ({{ history_bookings|length }})
             </a>
@@ -42,7 +42,7 @@
                 <p class="text-muted small mb-4">You have no active parking sessions in progress. Check your Booking History for completed stays or book a new spot!</p>
                 <div class="d-flex justify-content-center gap-2">
                     <a href="?tab=history" class="btn btn-outline-primary rounded-pill px-4">View Booking History</a>
-                    <a href="{% url 'parking:home' %}" class="btn btn-primary rounded-pill px-4 fw-bold" style="background-color: #0284c7; border: none;">Find Parking</a>
+                    <a href="{% url 'parking:home' %}" class="btn btn-primary rounded-pill px-4 fw-bold" style="background-color: #3b82f6; border: none;">Find Parking</a>
                 </div>
             </div>
         {% endif %}
@@ -56,7 +56,7 @@
                 </div>
                 <h4 class="fw-bold text-dark mb-1">No Booking History Found</h4>
                 <p class="text-muted small mb-4">You haven't completed any past parking stays yet.</p>
-                <a href="{% url 'parking:home' %}" class="btn btn-primary rounded-pill px-4 fw-bold" style="background-color: #0284c7; border: none;">Find Parking</a>
+                <a href="{% url 'parking:home' %}" class="btn btn-primary rounded-pill px-4 fw-bold" style="background-color: #3b82f6; border: none;">Find Parking</a>
             </div>
         {% endif %}
     {% endif %}

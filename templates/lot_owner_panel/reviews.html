@@ -57,9 +57,24 @@
         </div>
     </div>
 
+    <div class="d-flex align-items-center gap-2 mb-4">
+        <a href="?filter=reviews" 
+           class="owner-filter-tab {% if current_filter != 'responded' %}active{% endif %}" 
+           id="filterBtnReviews"
+           data-filter="reviews">
+            Reviews <span class="filter-count">{{ total_reviews }}</span>
+        </a>
+        <a href="?filter=responded" 
+           class="owner-filter-tab {% if current_filter == 'responded' %}active{% endif %}" 
+           id="filterBtnResponded"
+           data-filter="responded">
+            Responded <span class="filter-count">{{ responded_count }}</span>
+        </a>
+    </div>
+
     <div class="row g-4">
         {% for rev in reviews %}
-            <div class="col-12">
+            <div class="col-12 review-card-item" data-has-reply="{% if rev.owner_reply %}true{% else %}false{% endif %}">
                 <div class="owner-card mb-0">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <div>
@@ -146,7 +161,123 @@
                 </div>
             </div>
         {% endfor %}
+        <div id="noRespondedFilteredMsg" class="col-12 d-none">
+            <div class="owner-card text-center py-4 mb-0">
+                <p class="text-muted small mb-0">No reviews found matching the selected filter.</p>
+            </div>
+        </div>
     </div>
 
 </div>
+
+<style>
+.owner-filter-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.45rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #64748b;
+    text-decoration: none;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    transition: all 0.15s ease-in-out;
+    cursor: pointer;
+}
+.owner-filter-tab:hover {
+    color: #111827;
+    border-color: #cbd5e1;
+}
+.owner-filter-tab.active {
+    color: #ffffff;
+    font-weight: 600;
+    border-color: #111827;
+    background: #111827;
+    box-shadow: 0 1px 3px rgba(17, 24, 39, 0.1);
+}
+.owner-filter-tab .filter-count {
+    font-size: 0.75rem;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: #f1f5f9;
+    color: #475569;
+}
+.owner-filter-tab.active .filter-count {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+</style>
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnReviews = document.getElementById('filterBtnReviews');
+    const btnResponded = document.getElementById('filterBtnResponded');
+    const reviewItems = document.querySelectorAll('.review-card-item');
+    const emptyFilteredMsg = document.getElementById('noRespondedFilteredMsg');
+
+    function applyReviewFilter(filter, updateHistory) {
+        let visibleCount = 0;
+        reviewItems.forEach(function(item) {
+            const hasReply = item.getAttribute('data-has-reply') === 'true';
+            if (filter === 'responded') {
+                if (hasReply) {
+                    item.classList.remove('d-none');
+                    visibleCount++;
+                } else {
+                    item.classList.add('d-none');
+                }
+            } else {
+                item.classList.remove('d-none');
+                visibleCount++;
+            }
+        });
+
+        if (emptyFilteredMsg) {
+            if (visibleCount === 0 && reviewItems.length > 0) {
+                emptyFilteredMsg.classList.remove('d-none');
+            } else {
+                emptyFilteredMsg.classList.add('d-none');
+            }
+        }
+
+        if (filter === 'responded') {
+            btnResponded.classList.add('active');
+            btnReviews.classList.remove('active');
+        } else {
+            btnReviews.classList.add('active');
+            btnResponded.classList.remove('active');
+        }
+
+        if (updateHistory) {
+            const url = new URL(window.location);
+            if (filter === 'responded') {
+                url.searchParams.set('filter', 'responded');
+            } else {
+                url.searchParams.delete('filter');
+            }
+            window.history.replaceState({}, '', url);
+        }
+    }
+
+    if (btnReviews && btnResponded) {
+        btnReviews.addEventListener('click', function(e) {
+            e.preventDefault();
+            applyReviewFilter('reviews', true);
+        });
+        btnResponded.addEventListener('click', function(e) {
+            e.preventDefault();
+            applyReviewFilter('responded', true);
+        });
+
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('filter') === 'responded') {
+            applyReviewFilter('responded', false);
+        }
+    }
+});
+</script>
+{% endblock %}
 {% endblock %}

@@ -21,7 +21,7 @@
             <div class="col-lg-4 col-md-6">
                 <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden city-directory-card" style="transition: transform 0.25s ease, box-shadow 0.25s ease; background: #ffffff;">
 
-                    <div class="p-4 border-bottom" style="background: linear-gradient(135deg, #0f2942 0%, #183d63 100%); color: #ffffff;">
+                    <div class="p-4 border-bottom" style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%); color: #ffffff;">
                         <h3 class="fw-bold fs-4 mb-1 text-white">{{ city.name }}</h3>
                         <div class="small text-white-50">{{ city.tagline }}</div>
                     </div>
@@ -60,7 +60,7 @@
                         </div>
 
                         <div class="mt-auto">
-                            <a href="{% url 'parking:search' %}?q={{ city.query }}" class="btn btn-primary fw-bold py-2.5 rounded-3 text-white w-100 text-center" style="background-color: #0284c7; border-color: #0284c7;">
+                            <a href="{% url 'parking:search' %}?q={{ city.query }}" class="btn btn-primary fw-bold py-2.5 rounded-3 text-white w-100 text-center" style="background-color: #3b82f6; border-color: #3b82f6;">
                                 Search {{ city.name }} Parking
                             </a>
                         </div>
@@ -71,7 +71,7 @@
             {% endfor %}
         </div>
 
-        <div class="p-4 p-md-5 rounded-4 text-white position-relative overflow-hidden shadow-lg" style="background: linear-gradient(135deg, #0f2942 0%, #0369a1 100%);">
+        <div class="p-4 p-md-5 rounded-4 text-white position-relative overflow-hidden shadow-lg" style="background: linear-gradient(135deg, #111827 0%, #2563eb 100%);">
             <div class="row align-items-center position-relative" style="z-index: 2;">
                 <div class="col-lg-8 mb-3 mb-lg-0">
                     <h3 class="fw-bold text-white mb-2">Can't find your city or area?</h3>
