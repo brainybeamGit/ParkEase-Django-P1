@@ -18,18 +18,14 @@
 
         <div class="d-flex align-items-center gap-2">
             {% if lot.status == 'approved' %}
-                <span class="badge bg-success-subtle text-success fs-6 fw-bold px-3 py-2">Approved & Live</span>
+
             {% elif lot.status == 'pending' %}
-                <span class="badge bg-warning-subtle text-dark fs-6 fw-bold px-3 py-2">Pending Admin Approval</span>
+                Pending Admin Approval
             {% else %}
-                <span class="badge bg-danger-subtle text-danger fs-6 fw-bold px-3 py-2">Rejected</span>
+
             {% endif %}
 
             <form method="POST" action="{% url 'lot_owner_panel:toggle_pause_lot' lot.id %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-outline-secondary btn-sm fw-semibold">
-                    {% if lot.is_paused %}Resume Bookings{% else %}Pause Bookings{% endif %}
-                </button>
             </form>
         </div>
     </div>
@@ -154,17 +150,45 @@
                     </div>
                 </div>
 
-                <div>
+                <div class="mb-4">
                     <span class="text-muted small d-block mb-2">Available Facilities & Amenities</span>
                     <div class="d-flex flex-wrap gap-2">
-                        {% for svc in lot.available_services %}
-                            <span class="badge bg-light text-dark border px-3 py-2 small fw-semibold">
+                        {% for svc in lot.services_list %}
+                            <span class="badge bg-light text-dark border px-3 py-2 small fw-semibold" style="font-size: 0.88rem; border-radius: 8px;">
                                 {{ svc }}
                             </span>
                         {% empty %}
-                            <span class="badge bg-light text-dark border px-3 py-2 small">CCTV Surveillance</span>
-                            <span class="badge bg-light text-dark border px-3 py-2 small">Security Guard</span>
-                            <span class="badge bg-light text-dark border px-3 py-2 small">Night Lighting</span>
+                            <span class="badge bg-light text-dark border px-3 py-2 small fw-semibold" style="font-size: 0.88rem; border-radius: 8px;">CCTV Surveillance</span>
+                            <span class="badge bg-light text-dark border px-3 py-2 small fw-semibold" style="font-size: 0.88rem; border-radius: 8px;">24/7 Security Guard</span>
+                            <span class="badge bg-light text-dark border px-3 py-2 small fw-semibold" style="font-size: 0.88rem; border-radius: 8px;">Night Lighting</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="pt-4 border-top">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted small fw-semibold">Parking Slots & Real-time Availability</span>
+                    </div>
+
+                    <div class="d-flex flex-column gap-3">
+                        {% for row in slot_rows %}
+                            <div class="d-flex flex-wrap gap-3 align-items-center">
+                                {% for slot in row %}
+                                    <div class="slot-card"
+                                         id="slot-card-{{ slot.id }}"
+                                         data-slot-id="{{ slot.id }}"
+                                         data-unavailable="{% if slot.is_unavailable %}true{% else %}false{% endif %}"
+                                         onclick="toggleSlotCard({{ slot.id }})"
+                                         style="width: 72px; height: 72px; border: 2px solid {% if slot.is_unavailable %}#dc2626{% else %}#000000{% endif %}; border-radius: 6px; background-color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; user-select: none; transition: border-color 0.2s ease, transform 0.15s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.06);"
+                                         onmouseover="this.style.transform='translateY(-2px)';"
+                                         onmouseout="this.style.transform='none';"
+                                         title="Slot {{ slot.slot_number }} - Click to toggle availability">
+                                        <span id="slot-text-{{ slot.id }}" class="fw-bold" style="font-size: 0.95rem; color: {% if slot.is_unavailable %}#dc2626{% else %}#000000{% endif %}; transition: color 0.2s ease;">{{ slot.slot_number }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% empty %}
+                            <div class="text-muted small">No slots configured for this lot.</div>
                         {% endfor %}
                     </div>
                 </div>
@@ -173,7 +197,6 @@
             <div class="owner-card" id="editSection">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 class="fw-bold fs-6 text-dark mb-0">Update Lot Information</h3>
-                    <span class="badge bg-warning-subtle text-dark small">Critical edits require admin reapproval</span>
                 </div>
 
                 <form method="POST" action="{% url 'lot_owner_panel:lot_detail' lot.id %}">
@@ -207,7 +230,6 @@
             <div class="owner-card mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="fw-bold fs-6 text-dark mb-0">EV Charging Infrastructure</h4>
-                    <span class="badge bg-warning-subtle text-dark small fw-bold">Active</span>
                 </div>
                 <div class="p-3 bg-light rounded-2 border mb-3">
                     <div class="d-flex align-items-center gap-2 mb-2">
@@ -226,11 +248,6 @@
 
             <div class="owner-card">
                 <h4 class="fw-bold fs-6 text-dark mb-3">Approval & Audit History</h4>
-
-                <div class="mb-3 pb-3 border-bottom">
-                    <span class="text-muted small d-block">Listing Status</span>
-                    <span class="fw-bold text-success small">Approved & Verified</span>
-                </div>
 
                 <div class="mb-3 pb-3 border-bottom">
                     <span class="text-muted small d-block">Registered Date</span>
@@ -258,4 +275,51 @@
     </div>
 
 </div>
+
+<script>
+function toggleSlotCard(slotId) {
+    const card = document.getElementById('slot-card-' + slotId);
+    const textSpan = document.getElementById('slot-text-' + slotId);
+    if (!card) return;
+
+    let csrfToken = '';
+    const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (csrfInput) {
+        csrfToken = csrfInput.value;
+    } else {
+        const match = document.cookie.match(/csrftoken=([^;]+)/);
+        if (match) csrfToken = match[1];
+    }
+
+    const isRed = (card.style.borderColor === 'rgb(220, 38, 38)' || card.style.borderColor === '#dc2626');
+    const newColor = isRed ? '#000000' : '#dc2626';
+    card.style.borderColor = newColor;
+    if (textSpan) {
+        textSpan.style.color = newColor;
+    }
+
+    fetch(`/lot-owner/slots/${slotId}/toggle-maintenance/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data && data.success) {
+            const finalColor = data.is_unavailable ? '#dc2626' : '#000000';
+            card.style.borderColor = finalColor;
+            if (textSpan) {
+                textSpan.style.color = finalColor;
+            }
+            card.setAttribute('data-unavailable', data.is_unavailable ? 'true' : 'false');
+        }
+    })
+    .catch(err => {
+        console.error('Slot toggle error:', err);
+    });
+}
+</script>
 {% endblock %}

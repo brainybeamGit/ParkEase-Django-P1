@@ -36,7 +36,7 @@
                                     {{ lot.total_capacity }} Total Spaces · {{ lot.parking_arrangement|title }}
                                 </div>
                                 <div class="text-muted small">
-                                    Status: {% if lot.is_paused %}<span class="text-danger fw-bold">Paused (Bookings closed)</span>{% else %}<span class="text-success fw-bold">Active and bookable</span>{% endif %}
+                                    Status: {% if lot.is_paused %}<span class="text-danger fw-bold">Unavailable (Bookings closed)</span>{% else %}<span class="text-success fw-bold">Available</span>{% endif %}
                                 </div>
                             </div>
                         </div>
@@ -51,26 +51,21 @@
                     <div>
                         <div class="fw-bold small text-dark mb-2">Available actions</div>
                         <div class="row g-2">
-                            <div class="col-6">
+                            <div class="col-4">
                                 <a href="{% url 'lot_owner_panel:lot_detail' lot.id %}" class="btn btn-outline-secondary w-100 py-2 small fw-semibold text-center">
                                     View details
                                 </a>
                             </div>
-                            <div class="col-6">
-                                <a href="{% url 'lot_owner_panel:lot_detail' lot.id %}#editSection" class="btn btn-outline-secondary w-100 py-2 small fw-semibold text-center">
-                                    Edit details
-                                </a>
-                            </div>
-                            <div class="col-6">
+                            <div class="col-4">
                                 <a href="{% url 'lot_owner_panel:slots' %}?lot_id={{ lot.id }}" class="btn btn-outline-secondary w-100 py-2 small fw-semibold text-center">
                                     Manage availability
                                 </a>
                             </div>
-                            <div class="col-6">
+                            <div class="col-4">
                                 <form method="POST" action="{% url 'lot_owner_panel:toggle_pause_lot' lot.id %}">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-outline-secondary w-100 py-2 small fw-semibold text-center">
-                                        {% if lot.is_paused %}Resume bookings{% else %}Pause bookings{% endif %}
+                                        {% if lot.is_paused %}Make available{% else %}Make unavailable{% endif %}
                                     </button>
                                 </form>
                             </div>

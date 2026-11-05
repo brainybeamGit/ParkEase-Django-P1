@@ -808,9 +808,18 @@ def owner_lot_detail_view(request, lot_id):
         messages.success(request, f"Updated information for {lot.name}.")
         return redirect('lot_owner_panel:lot_detail', lot_id=lot.id)
 
+    slots = list(lot.slots.all().order_by('id'))
+    from collections import defaultdict
+    groups = defaultdict(list)
+    for s in slots:
+        prefix = s.slot_number.split('-')[0] if '-' in s.slot_number else (s.zone or 'A')
+        groups[prefix].append(s)
+    slot_rows = list(groups.values()) if groups else [slots]
+
     ctx = get_owner_context(request, active_tab='parking_lots')
     ctx.update({
         'lot': lot,
+        'slot_rows': slot_rows,
         'car_capacity': 30,
         'bike_capacity': 15,
         'suv_capacity': 5,
@@ -826,8 +835,8 @@ def owner_toggle_pause_lot_view(request, lot_id):
     lot = get_object_or_404(ParkingLot, id=lot_id, owner=request.user)
     lot.is_paused = not lot.is_paused
     lot.save()
-    status_label = "paused" if lot.is_paused else "resumed and active"
-    messages.success(request, f"Bookings for {lot.name} have been {status_label}.")
+    status_label = "unavailable" if lot.is_paused else "available"
+    messages.success(request, f"Parking lot #{lot.id} ({lot.name}) is now marked as {status_label}.")
     return redirect(request.META.get('HTTP_REFERER') or 'lot_owner_panel:parking_lots')
 
 
@@ -1018,15 +1027,26 @@ def owner_slots_view(request):
 @login_required
 def owner_toggle_slot_maintenance_view(request, slot_id):
     slot = get_object_or_404(ParkingSlot, id=slot_id, parking_lot__owner=request.user)
-    if slot.maintenance_status == 'Operational':
-        slot.maintenance_status = 'Maintenance'
-        slot.status = 'Out of Service'
-    else:
+    if slot.is_unavailable:
         slot.maintenance_status = 'Operational'
         slot.status = 'Available'
+    else:
+        slot.maintenance_status = 'Maintenance'
+        slot.status = 'Unavailable'
     slot.save()
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.headers.get('Accept', '') or request.content_type == 'application/json':
+        return JsonResponse({
+            'success': True,
+            'slot_id': slot.id,
+            'slot_number': slot.slot_number,
+            'is_unavailable': slot.is_unavailable,
+            'status': slot.status,
+            'maintenance_status': slot.maintenance_status,
+        })
+
     messages.info(request, f"Updated status of {slot.slot_number} to {slot.maintenance_status}.")
-    return redirect('lot_owner_panel:slots')
+    return redirect(request.META.get('HTTP_REFERER') or 'lot_owner_panel:slots')
 
 
 @login_required

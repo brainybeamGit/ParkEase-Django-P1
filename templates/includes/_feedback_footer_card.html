@@ -1,8 +1,29 @@
 {% load static %}
 <section class="py-5 bg-light border-top" id="directAdminFeedbackSection">
     <div class="container">
-        <div class="row justify-content-end">
-            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+        <div class="row align-items-center g-4 g-lg-5">
+
+            <div class="col-12 col-lg-6 col-xl-7">
+                <div class="pe-lg-3">
+                    <h2 class="display-6 fw-bold text-dark mb-3" style="letter-spacing: -0.5px;">
+                        Your Feedback Powers ParkEase
+                    </h2>
+                    <p class="text-secondary mb-4" style="font-size: 1.05rem; line-height: 1.6;">
+                        Every review, idea, and rating helps us improve. Your direct thoughts guide our updates — helping us add more convenient parking locations, improve app performance, and create a seamless, stress-free parking journey for everyone.
+                    </p>
+
+                    <div class="position-relative overflow-hidden rounded-4 shadow-sm border border-light-subtle">
+                        <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=900&auto=format&fit=crop&q=80"
+                             alt="Motorist feedback and community collaboration"
+                             class="w-100 object-fit-cover"
+                             style="height: 290px; object-fit: cover;"
+                             onerror="this.src='{% static 'images/parking-benefits.jpg' %}';">
+                        
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-6 col-xl-5">
                 <div class="card border border-light-subtle rounded-4 p-4 shadow-sm bg-white">
 
                     <h3 class="fw-bold text-dark mb-4" style="letter-spacing: -0.5px;">Help Us Improve ParkEase</h3>
@@ -66,6 +87,7 @@
 
                 </div>
             </div>
+
         </div>
     </div>
 </section>

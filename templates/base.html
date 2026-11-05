@@ -79,22 +79,23 @@
                 </ul>
 
                 <div class="d-flex align-items-center flex-wrap gap-2 mt-3 mt-lg-0 navbar-auth-buttons">
-                    {% if '/login' in request.path or request.resolver_match.url_name == 'login' %}
-                        <a href="{% url 'parking:home' %}" class="btn-login-link text-nowrap">Home</a>
-                    {% endif %}
                     {% if user.is_authenticated %}
                         {% if user.lot_owner_profile or user.profile.role == 'owner' or user.is_staff %}
                             <a href="{% url 'lot_owner_panel:dashboard' %}" class="btn btn-sm text-white fw-bold me-2" style="background-color: #2A1810; border-radius: 6px;">
                                 Owner Studio
                             </a>
                         {% endif %}
-                        <a href="{% url 'accounts:profile' %}" class="btn-login-link text-nowrap {% if request.resolver_match.url_name == 'profile' %}active-profile{% endif %}" title="View My Profile">Profile</a>
-                        <a href="{% url 'accounts:logout' %}" class="btn-login-link text-nowrap" title="Log out">Log out</a>
                         {% if request.resolver_match.url_name != 'home' and request.path != '/' %}
                             <a href="{% url 'parking:home' %}" class="btn-login-link text-nowrap" title="Home">Home</a>
                         {% endif %}
+                        <a href="{% url 'accounts:profile' %}" class="btn-login-link text-nowrap {% if request.resolver_match.url_name == 'profile' %}active-profile{% endif %}" title="View My Profile">Profile</a>
+                        <a href="{% url 'accounts:logout' %}" class="btn-login-link text-nowrap" title="Log out">Log out</a>
                     {% else %}
-                        <a href="{% url 'accounts:login' %}" class="btn-login-link text-nowrap">Log in</a>
+                        {% if '/login' in request.path or request.resolver_match.url_name == 'login' %}
+                            <a href="{% url 'parking:home' %}" class="btn-login-link text-nowrap">Home</a>
+                        {% else %}
+                            <a href="{% url 'accounts:login' %}" class="btn-login-link text-nowrap">Log in</a>
+                        {% endif %}
                     {% endif %}
                 </div>
             </div>

@@ -189,14 +189,14 @@
                                     <div class="p-3 bg-light rounded-3 border">
                                         <span class="text-muted small fw-bold text-uppercase d-block mb-1">Arrival Window</span>
                                         <strong class="text-dark fs-6">{{ from_date }}</strong>
-                                        <span class="badge bg-primary ms-1">{{ from_time }}</span>
+                                        {{ from_time }}
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="p-3 bg-light rounded-3 border">
                                         <span class="text-muted small fw-bold text-uppercase d-block mb-1">Departure Window</span>
                                         <strong class="text-dark fs-6">{{ until_date }}</strong>
-                                        <span class="badge bg-primary ms-1">{{ until_time }}</span>
+                                        {{ until_time }}
                                     </div>
                                 </div>
                             </div>
@@ -245,16 +245,11 @@
                                         <div>
                                             <div class="d-flex align-items-center gap-2">
                                                 <strong class="text-dark fs-6">Razorpay Secure Checkout</strong>
-                                                <span class="badge bg-primary bg-opacity-10 text-primary small fw-bold">Official Gateway</span>
-                                                <span class="badge bg-warning text-dark small fw-bold">Test Mode</span>
                                             </div>
                                             <span class="text-muted small d-block mt-1">
                                                 Instant UPI (Google Pay, PhonePe, Paytm, BHIM), Debit/Credit Cards & NetBanking
                                             </span>
                                         </div>
-                                    </div>
-                                    <div class="razorpay-badge-logo px-3 py-1 rounded-2 fw-bold text-white d-flex align-items-center gap-1" style="background: #0B3B60;">
-                                        <i class="bi bi-shield-check text-info me-1"></i> Razorpay
                                     </div>
                                 </div>
                             </div>
@@ -266,7 +261,7 @@
                                     class="btn w-100 py-3 fw-bold fs-5 shadow text-white"
                                     style="background-color: #0F172A; border: none; border-radius: 12px;"
                                     onclick="triggerRazorpayCheckout()">
-                                Pay ₹{{ total_amount }} via Razorpay & Generate Entry QR Pass
+                                Pay ₹{{ total_amount }} via Razorpay
                             </button>
                         </div>
 

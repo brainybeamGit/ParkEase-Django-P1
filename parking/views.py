@@ -237,7 +237,7 @@ def search_view(request):
         lat, lng = parse_coords(lot.map_location)
         rate = float(lot.hourly_rate)
         total_estimate = rate * duration_hours
-        avail_count = lot.slots.filter(status='available').count() if hasattr(lot, 'slots') else lot.total_capacity
+        avail_count = lot.slots.filter(status__iexact='available').exclude(maintenance_status='Maintenance').count() if hasattr(lot, 'slots') else lot.total_capacity
         if avail_count == 0 and lot.total_capacity > 0:
             avail_count = lot.total_capacity
 
@@ -325,7 +325,7 @@ def lot_detail_view(request, lot_id):
 
     
     slots = lot.slots.all()
-    available_slots = slots.filter(status='available')
+    available_slots = slots.filter(status__iexact='available').exclude(maintenance_status='Maintenance')
     available_bays_count = available_slots.count() if slots.exists() else lot.total_capacity
 
 
@@ -399,7 +399,7 @@ def book_lot_view(request, lot_id):
     gst_fee = 0.00
     total_amount = round(base_charge + service_fee + gst_fee, 2)
 
-    available_slots = lot.slots.filter(status='available') if lot.slots.exists() else []
+    available_slots = lot.slots.filter(status__iexact='available').exclude(maintenance_status='Maintenance') if lot.slots.exists() else []
 
     if request.method == 'POST':
         
@@ -457,6 +457,9 @@ def book_lot_view(request, lot_id):
         if slot_id:
             try:
                 slot = ParkingSlot.objects.get(id=slot_id, parking_lot=lot)
+                if slot.is_unavailable:
+                    messages.error(request, f"Slot {slot.slot_number} is currently marked unavailable by the facility owner. Please select an available space.")
+                    return redirect('parking:book_lot', lot_id=lot.id)
                 slot_label = f" [Slot: {slot.zone} {slot.slot_number}]"
                 slot.status = 'reserved'
                 slot.save()

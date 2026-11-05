@@ -70,7 +70,7 @@ class LotOwnerProfile(models.Model):
         from lot_owner_panel.models import LotReview
         return LotReview.objects.filter(parking_lot__owner=self.user).count()
 
-    def __str__(self):
+def __str__(self):
         return f"Owner: {self.user.get_full_name() or self.user.username} ({self.get_owner_type_display()})"
 
 
@@ -157,6 +157,56 @@ class ParkingLot(models.Model):
     def total_reviews_count(self):
         return self.reviews.count()
 
+    @property
+    def services_list(self):
+        """Returns clean list of formatted service names."""
+        raw = self.available_services
+        if not raw:
+            return ['CCTV Surveillance', '24/7 Security Guard', 'Night Lighting']
+
+        if isinstance(raw, str):
+            import json
+            try:
+                parsed = json.loads(raw)
+                if isinstance(parsed, list):
+                    raw = parsed
+                else:
+                    raw = [x.strip() for x in str(raw).split(',') if x.strip()]
+            except Exception:
+                raw = [x.strip() for x in raw.split(',') if x.strip()]
+
+        if not isinstance(raw, (list, tuple)):
+            raw = [str(raw)]
+
+        service_map = {
+            'cctv': 'CCTV Surveillance',
+            'security_guard': '24/7 Security Guard',
+            'security': '24/7 Security Guard',
+            'valet': 'Valet Service',
+            'covered': 'Covered Parking',
+            'lighting': 'Night Lighting',
+            'bright_lighting': 'Night Lighting',
+            'ev_charging': 'EV Charging Station',
+            'wheelchair_accessible': 'Wheelchair Accessible',
+            'restroom': 'Restroom Facility',
+            'washroom': 'Washroom Facility',
+            'gated': 'Gated Entry',
+            'airport_shuttle': 'Free Airport Shuttle',
+        }
+
+        results = []
+        for item in raw:
+            if isinstance(item, str):
+                parts = [p.strip() for p in item.split(',') if p.strip()] if ',' in item else [item.strip()]
+                for p in parts:
+                    clean = service_map.get(p.lower(), p)
+                    if clean and clean not in results:
+                        results.append(clean)
+            elif item:
+                results.append(str(item))
+
+        return results if results else ['CCTV Surveillance', '24/7 Security Guard', 'Night Lighting']
+
     def __str__(self):
         return f"{self.name} - {self.area}, {self.city} ({self.get_status_display()})"
 
@@ -174,6 +224,13 @@ class ParkingSlot(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def is_unavailable(self):
+        return (
+            self.maintenance_status == 'Maintenance' or
+            str(self.status).lower() in ['out of service', 'maintenance', 'unavailable', 'blocked']
+        )
 
     def __str__(self):
         return f"{self.parking_lot.name} - {self.zone} ({self.slot_number})"
